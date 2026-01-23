@@ -271,14 +271,26 @@ function SquadDetailContent() {
             </div>
 
             {isOwner && (
-              <Button
-                variant="secondary"
-                onClick={() => setShowInviteModal(true)}
-                className="flex items-center gap-2"
-              >
-                <UserPlus className="w-4 h-4" strokeWidth={2} />
-                Co-Trainer einladen
-              </Button>
+              <>
+                {/* Mobile: Icon only */}
+                <Button
+                  variant="secondary"
+                  onClick={() => setShowInviteModal(true)}
+                  className="md:hidden flex items-center justify-center"
+                >
+                  <UserPlus className="w-5 h-5" strokeWidth={2} />
+                </Button>
+
+                {/* Desktop: Icon + Text */}
+                <Button
+                  variant="secondary"
+                  onClick={() => setShowInviteModal(true)}
+                  className="hidden md:flex items-center gap-2"
+                >
+                  <UserPlus className="w-4 h-4" strokeWidth={2} />
+                  Co-Trainer einladen
+                </Button>
+              </>
             )}
           </div>
         </div>
@@ -363,10 +375,29 @@ function SquadDetailContent() {
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle>Neuen Spieler hinzufügen</CardTitle>
               <div className="flex gap-2">
+                {/* Mobile: Icons only */}
                 <Button
                   variant="secondary"
                   onClick={() => setShowCSVUpload(true)}
-                  className="flex items-center gap-2"
+                  className="md:hidden flex items-center justify-center"
+                >
+                  <Upload className="w-5 h-5" />
+                </Button>
+                {players.length > 0 && (
+                  <Button
+                    variant="secondary"
+                    onClick={handleExportCSV}
+                    className="md:hidden flex items-center justify-center"
+                  >
+                    <Download className="w-5 h-5" />
+                  </Button>
+                )}
+
+                {/* Desktop: Icons + Text */}
+                <Button
+                  variant="secondary"
+                  onClick={() => setShowCSVUpload(true)}
+                  className="hidden md:flex items-center gap-2"
                 >
                   <Upload className="w-4 h-4" />
                   CSV Import
@@ -375,7 +406,7 @@ function SquadDetailContent() {
                   <Button
                     variant="secondary"
                     onClick={handleExportCSV}
-                    className="flex items-center gap-2"
+                    className="hidden md:flex items-center gap-2"
                   >
                     <Download className="w-4 h-4" />
                     CSV Export
@@ -421,7 +452,21 @@ function SquadDetailContent() {
                 />
               </div>
 
-              <Button type="submit" variant="primary" className="flex items-center gap-2">
+              {/* Mobile: Icon only */}
+              <Button
+                type="submit"
+                variant="primary"
+                className="md:hidden flex items-center justify-center"
+              >
+                <Plus className="w-6 h-6" />
+              </Button>
+
+              {/* Desktop: Icon + Text */}
+              <Button
+                type="submit"
+                variant="primary"
+                className="hidden md:flex items-center gap-2"
+              >
                 <Plus className="w-5 h-5" />
                 Spieler hinzufügen
               </Button>
@@ -562,20 +607,44 @@ function SquadDetailContent() {
         )}
 
         {/* Team Generation Button */}
-        {players.length >= 4 && (
-          <div className="mt-8">
-            <Card>
-              <CardContent className="p-6">
+        <div className="mt-8">
+          <Card>
+            <CardContent className="p-6">
+              {players.length < 4 ? (
+                <div className="text-center py-4">
+                  <Users className="w-12 h-12 mx-auto mb-3 text-mid-grey" />
+                  <p className="text-mid-grey font-medium mb-1">
+                    Mindestens 4 Spieler erforderlich
+                  </p>
+                  <p className="text-sm text-mid-grey">
+                    Noch {4 - players.length} Spieler hinzufügen
+                  </p>
+                </div>
+              ) : (
                 <Link href={`/teams?squad=${squadId}`}>
-                  <Button variant="primary" fullWidth className="flex items-center justify-center gap-2">
+                  {/* Mobile: Only Icon */}
+                  <Button
+                    variant="primary"
+                    fullWidth
+                    className="md:hidden flex items-center justify-center"
+                  >
+                    <Plus className="w-6 h-6" />
+                  </Button>
+
+                  {/* Desktop: Icon + Text */}
+                  <Button
+                    variant="primary"
+                    fullWidth
+                    className="hidden md:flex items-center justify-center gap-2"
+                  >
                     <Users className="w-5 h-5" />
                     Teams generieren ({players.length} Spieler)
                   </Button>
                 </Link>
-              </CardContent>
-            </Card>
-          </div>
-        )}
+              )}
+            </CardContent>
+          </Card>
+        </div>
       </PageLayout>
 
       <BottomNav />

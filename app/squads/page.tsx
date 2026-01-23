@@ -117,11 +117,22 @@ function SquadsContent() {
                 onChange={(e) => setNewSquadName(e.target.value)}
                 className="flex-1"
               />
+              {/* Mobile: Icon only */}
               <Button
                 type="submit"
                 variant="primary"
                 disabled={creating || !newSquadName.trim()}
-                className="flex items-center gap-2"
+                className="md:hidden flex items-center justify-center min-w-[48px]"
+              >
+                <Plus className="w-6 h-6" />
+              </Button>
+
+              {/* Desktop: Icon + Text */}
+              <Button
+                type="submit"
+                variant="primary"
+                disabled={creating || !newSquadName.trim()}
+                className="hidden md:flex items-center gap-2"
               >
                 <Plus className="w-5 h-5" />
                 Erstellen

@@ -203,8 +203,14 @@ function TeamsPageContent() {
               </p>
             </div>
             <Link href="/squads">
-              <Button variant="secondary">
-                <Shield className="w-5 h-5 mr-2" />
+              {/* Mobile: Icon only */}
+              <Button variant="secondary" className="md:hidden flex items-center justify-center">
+                <Shield className="w-5 h-5" />
+              </Button>
+
+              {/* Desktop: Icon + Text */}
+              <Button variant="secondary" className="hidden md:flex items-center gap-2">
+                <Shield className="w-5 h-5" />
                 Zur Verwaltung
               </Button>
             </Link>
@@ -217,6 +223,9 @@ function TeamsPageContent() {
             <strong>Tipp:</strong> Klicke auf die Spieler, die heute mitspielen. Die ausgewählten
             Spieler werden dann fair auf Teams verteilt.
           </p>
+          <p className="text-xs text-mid-grey mt-2">
+            ⚠️ Mindestens 4 Spieler erforderlich für Team-Generierung
+          </p>
         </div>
 
         {/* Selected Count */}
@@ -227,10 +236,28 @@ function TeamsPageContent() {
           </div>
 
           {selectedPlayerIds.size > 0 && (
-            <Button variant="secondary" size="sm" onClick={resetSelection}>
-              <RotateCcw className="w-4 h-4 mr-2" />
-              Zurücksetzen
-            </Button>
+            <>
+              {/* Mobile: Icon only */}
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={resetSelection}
+                className="md:hidden flex items-center justify-center"
+              >
+                <RotateCcw className="w-5 h-5" />
+              </Button>
+
+              {/* Desktop: Icon + Text */}
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={resetSelection}
+                className="hidden md:flex items-center gap-2"
+              >
+                <RotateCcw className="w-4 h-4" />
+                Zurücksetzen
+              </Button>
+            </>
           )}
         </div>
 
@@ -285,13 +312,26 @@ function TeamsPageContent() {
                   />
                 </div>
                 <div className="flex items-end">
+                  {/* Mobile: Icon only */}
                   <Button
                     variant="primary"
                     fullWidth
                     onClick={createTeams}
-                    disabled={selectedPlayerIds.size < 2}
+                    disabled={selectedPlayerIds.size < 4}
+                    className="md:hidden flex items-center justify-center"
                   >
-                    <Shuffle className="w-5 h-5 mr-2" />
+                    <Shuffle className="w-6 h-6" />
+                  </Button>
+
+                  {/* Desktop: Icon + Text */}
+                  <Button
+                    variant="primary"
+                    fullWidth
+                    onClick={createTeams}
+                    disabled={selectedPlayerIds.size < 4}
+                    className="hidden md:flex items-center justify-center gap-2"
+                  >
+                    <Shuffle className="w-5 h-5" />
                     Teams generieren
                   </Button>
                 </div>
@@ -362,10 +402,20 @@ function TeamsPageContent() {
                       Sende die Teamaufteilung direkt an Eltern und Spieler
                     </p>
                   </div>
+                  {/* Mobile: Icon only */}
                   <Button
                     variant="primary"
                     onClick={shareTeamsOnWhatsApp}
-                    className="flex items-center gap-2 whitespace-nowrap"
+                    className="md:hidden flex items-center justify-center"
+                  >
+                    <MessageCircle className="w-6 h-6" />
+                  </Button>
+
+                  {/* Desktop: Icon + Text */}
+                  <Button
+                    variant="primary"
+                    onClick={shareTeamsOnWhatsApp}
+                    className="hidden md:flex items-center gap-2 whitespace-nowrap"
                   >
                     <MessageCircle className="w-5 h-5" />
                     Via WhatsApp teilen

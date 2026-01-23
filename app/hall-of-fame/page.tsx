@@ -13,7 +13,6 @@ import { Trophy, Flame, Users, Target } from 'lucide-react'
 interface LeaderboardEntry {
   uid: string
   displayName?: string
-  email: string
   level: number
   xp: number
   teamsGenerated: number
@@ -37,17 +36,15 @@ export default function HallOfFamePage() {
       const coaches: LeaderboardEntry[] = []
       snapshot.forEach((doc) => {
         const data = doc.data() as User
-        // Only include users with stats, XP > 0, valid email, AND opted-in to leaderboard
+        // Only include users with stats, XP > 0, AND opted-in to leaderboard
         if (
           data.stats &&
           data.stats.xp > 0 &&
-          data.email &&
           data.showInLeaderboard !== false // Default true, so undefined is also included
         ) {
           coaches.push({
             uid: doc.id,
-            displayName: data.displayName,
-            email: data.email,
+            displayName: data.displayName || 'Anonymer Coach',
             level: data.stats.level || 1,
             xp: data.stats.xp || 0,
             teamsGenerated: data.stats.teamsGenerated || 0,
@@ -126,7 +123,7 @@ export default function HallOfFamePage() {
                       {/* Coach Info */}
                       <div className="flex-1 min-w-0">
                         <div className="font-semibold text-deep-petrol dark:text-soft-mint truncate">
-                          {coach.displayName || (coach.email ? coach.email.split('@')[0] : 'Unbekannt')}
+                          {coach.displayName}
                         </div>
                         <div className="text-sm text-mid-grey flex items-center gap-2">
                           <span

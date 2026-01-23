@@ -38,8 +38,9 @@ service cloud.firestore {
       allow read: if isAuthenticated() && request.auth.uid == userId;
 
       // Users can read others ONLY if they opted-in to leaderboard (DSGVO-compliant)
+      // != false means: true OR undefined (default opt-in for old users)
       allow read: if isAuthenticated() &&
-                     resource.data.showInLeaderboard == true;
+                     resource.data.showInLeaderboard != false;
 
       // Admins can read all users
       allow read: if isAdmin();

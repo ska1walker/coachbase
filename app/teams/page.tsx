@@ -11,6 +11,12 @@ import { Users, Shuffle, RotateCcw, Shield, ArrowRight, MessageCircle } from 'lu
 import Link from 'next/link'
 import { useUserStats } from '@/hooks/useUserStats'
 import { generateBalancedTeams, analyzeTeamBalance, type GeneratedTeam } from '@/lib/team-generator'
+import {
+  generateBalancedTeams as generateAdvancedTeams,
+  generateBalanceScoreCard,
+  type BalancedTeam,
+  type BalanceScoreCard
+} from '@/lib/advanced-team-generator'
 import type { Player } from '@/lib/types'
 
 interface Team {
@@ -26,6 +32,7 @@ function TeamsPageContent() {
   const [selectedPlayerIds, setSelectedPlayerIds] = useState<Set<string>>(new Set())
   const [teamCount, setTeamCount] = useState(2)
   const [teams, setTeams] = useState<Team[]>([])
+  const [balanceScoreCard, setBalanceScoreCard] = useState<BalanceScoreCard | null>(null)
   const { trackTeamGenerated } = useUserStats()
 
   // Load players for the specific squad
@@ -82,21 +89,46 @@ function TeamsPageContent() {
     const selectedPlayers = allPlayers.filter((p) => selectedPlayerIds.has(p.id))
 
     try {
-      // Use new balanced team generation algorithm
-      const generatedTeams = generateBalancedTeams(selectedPlayers, teamCount)
+      if (teamCount === 2) {
+        // Use ADVANCED team generator for 2 teams (stricter constraints)
+        const result = generateAdvancedTeams(selectedPlayers)
 
-      // Convert to old Team interface for compatibility
-      const newTeams: Team[] = generatedTeams.map((team) => ({
-        players: team.players,
-        totalStrength: team.totalStrength,
-      }))
+        // Convert to Team interface
+        const newTeams: Team[] = [
+          {
+            players: result.teamA.players,
+            totalStrength: result.teamA.stats.totalStrength,
+          },
+          {
+            players: result.teamB.players,
+            totalStrength: result.teamB.stats.totalStrength,
+          },
+        ]
 
-      setTeams(newTeams)
+        setTeams(newTeams)
 
-      // Log balance metrics for debugging (optional)
-      const balanceMetrics = analyzeTeamBalance(generatedTeams)
-      console.log('Team Balance Metrics:', balanceMetrics)
-      console.log('Teams:', generatedTeams)
+        // Generate and store balance score card
+        const scoreCard = generateBalanceScoreCard(result.teamA, result.teamB)
+        setBalanceScoreCard(scoreCard)
+
+        console.log('Advanced Balance Score Card:', scoreCard)
+      } else {
+        // Use STANDARD team generator for 3+ teams
+        const generatedTeams = generateBalancedTeams(selectedPlayers, teamCount)
+
+        // Convert to old Team interface for compatibility
+        const newTeams: Team[] = generatedTeams.map((team) => ({
+          players: team.players,
+          totalStrength: team.totalStrength,
+        }))
+
+        setTeams(newTeams)
+        setBalanceScoreCard(null) // No score card for 3+ teams
+
+        // Log balance metrics for debugging
+        const balanceMetrics = analyzeTeamBalance(generatedTeams)
+        console.log('Team Balance Metrics:', balanceMetrics)
+      }
 
       // Track achievement
       trackTeamGenerated()
@@ -145,6 +177,7 @@ function TeamsPageContent() {
   const resetSelection = () => {
     setSelectedPlayerIds(new Set())
     setTeams([])
+    setBalanceScoreCard(null)
   }
 
   const shareTeamsOnWhatsApp = () => {
@@ -429,6 +462,147 @@ function TeamsPageContent() {
                 )
               })}
             </div>
+
+            {/* Balance Score Card - Only for 2 teams with Advanced Generator */}
+            {balanceScoreCard && teamCount === 2 && (
+              <Card className={`border-2 ${
+                balanceScoreCard.isPerfect
+                  ? 'bg-neon-lime/5 border-neon-lime/30'
+                  : balanceScoreCard.score < 5.0
+                  ? 'bg-digital-purple/5 border-digital-purple/30'
+                  : 'bg-orange-500/5 border-orange-500/30'
+              }`}>
+                <CardHeader>
+                  <CardTitle className="flex items-center justify-between">
+                    <span className="flex items-center gap-2">
+                      ⚖️ Team Balance Analyse
+                      {balanceScoreCard.isPerfect && (
+                        <span className="text-xs px-2 py-1 rounded-full bg-neon-lime text-deep-petrol font-bold">
+                          PERFEKT
+                        </span>
+                      )}
+                    </span>
+                    <span className="text-sm font-medium text-mid-grey">
+                      Score: {balanceScoreCard.score.toFixed(2)}
+                    </span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Team A Stats */}
+                    <div className="space-y-2">
+                      <h4 className="font-bold text-sm text-deep-petrol dark:text-soft-mint mb-3">
+                        Team 1 Durchschnitte
+                      </h4>
+                      <div className="space-y-1 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-mid-grey">Spieler:</span>
+                          <span className="font-medium">{balanceScoreCard.teamA.playerCount}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-mid-grey">Ø Technik:</span>
+                          <span className="font-medium">{balanceScoreCard.teamA.avgTechnik.toFixed(2)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-mid-grey">Ø Fitness:</span>
+                          <span className="font-medium">{balanceScoreCard.teamA.avgFitness.toFixed(2)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-mid-grey">Ø Spielverständnis:</span>
+                          <span className="font-medium">{balanceScoreCard.teamA.avgSpielverstaendnis.toFixed(2)}</span>
+                        </div>
+                        <div className="pt-2 border-t border-mid-grey/20">
+                          <div className="flex justify-between text-xs">
+                            <span className="text-mid-grey">Torhüter:</span>
+                            <span>{balanceScoreCard.teamA.positionCounts.GK}</span>
+                          </div>
+                          <div className="flex justify-between text-xs">
+                            <span className="text-mid-grey">Abwehr:</span>
+                            <span>{balanceScoreCard.teamA.positionCounts.DEF}</span>
+                          </div>
+                          <div className="flex justify-between text-xs">
+                            <span className="text-mid-grey">Mittelfeld:</span>
+                            <span>{balanceScoreCard.teamA.positionCounts.MID}</span>
+                          </div>
+                          <div className="flex justify-between text-xs">
+                            <span className="text-mid-grey">Angriff:</span>
+                            <span>{balanceScoreCard.teamA.positionCounts.ATT}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Team B Stats */}
+                    <div className="space-y-2">
+                      <h4 className="font-bold text-sm text-deep-petrol dark:text-soft-mint mb-3">
+                        Team 2 Durchschnitte
+                      </h4>
+                      <div className="space-y-1 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-mid-grey">Spieler:</span>
+                          <span className="font-medium">{balanceScoreCard.teamB.playerCount}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-mid-grey">Ø Technik:</span>
+                          <span className="font-medium">{balanceScoreCard.teamB.avgTechnik.toFixed(2)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-mid-grey">Ø Fitness:</span>
+                          <span className="font-medium">{balanceScoreCard.teamB.avgFitness.toFixed(2)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-mid-grey">Ø Spielverständnis:</span>
+                          <span className="font-medium">{balanceScoreCard.teamB.avgSpielverstaendnis.toFixed(2)}</span>
+                        </div>
+                        <div className="pt-2 border-t border-mid-grey/20">
+                          <div className="flex justify-between text-xs">
+                            <span className="text-mid-grey">Torhüter:</span>
+                            <span>{balanceScoreCard.teamB.positionCounts.GK}</span>
+                          </div>
+                          <div className="flex justify-between text-xs">
+                            <span className="text-mid-grey">Abwehr:</span>
+                            <span>{balanceScoreCard.teamB.positionCounts.DEF}</span>
+                          </div>
+                          <div className="flex justify-between text-xs">
+                            <span className="text-mid-grey">Mittelfeld:</span>
+                            <span>{balanceScoreCard.teamB.positionCounts.MID}</span>
+                          </div>
+                          <div className="flex justify-between text-xs">
+                            <span className="text-mid-grey">Angriff:</span>
+                            <span>{balanceScoreCard.teamB.positionCounts.ATT}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Imbalance Metrics */}
+                  <div className="mt-4 pt-4 border-t border-mid-grey/20">
+                    <h4 className="font-bold text-sm text-deep-petrol dark:text-soft-mint mb-2">
+                      Unterschiede (je niedriger, desto besser)
+                    </h4>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+                      <div className="p-2 rounded-lg bg-white dark:bg-card-dark">
+                        <div className="text-mid-grey">Spieleranzahl</div>
+                        <div className="font-bold">{balanceScoreCard.imbalance.playerCountDiff.toFixed(2)}</div>
+                      </div>
+                      <div className="p-2 rounded-lg bg-white dark:bg-card-dark">
+                        <div className="text-mid-grey">Technik</div>
+                        <div className="font-bold">{balanceScoreCard.imbalance.technikDiff.toFixed(2)}</div>
+                      </div>
+                      <div className="p-2 rounded-lg bg-white dark:bg-card-dark">
+                        <div className="text-mid-grey">Fitness</div>
+                        <div className="font-bold">{balanceScoreCard.imbalance.fitnessDiff.toFixed(2)}</div>
+                      </div>
+                      <div className="p-2 rounded-lg bg-white dark:bg-card-dark">
+                        <div className="text-mid-grey">Spielverst.</div>
+                        <div className="font-bold">{balanceScoreCard.imbalance.spielverstaendnisDiff.toFixed(2)}</div>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
             {/* WhatsApp Share Button */}
             <Card className="bg-neon-lime/10 border-2 border-neon-lime/30">

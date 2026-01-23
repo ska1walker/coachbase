@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { collection, onSnapshot, query, where, orderBy } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
@@ -16,7 +16,7 @@ interface Team {
   totalStrength: number
 }
 
-export default function TeamsPage() {
+function TeamsPageContent() {
   const searchParams = useSearchParams()
   const squadId = searchParams.get('squad')
 
@@ -416,5 +416,20 @@ export default function TeamsPage() {
         )}
       </div>
     </div>
+  )
+}
+
+export default function TeamsPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen p-4 md:p-6 lg:p-8 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-4 border-neon-lime border-t-transparent mx-auto mb-4"></div>
+          <p className="text-mid-grey">Lädt...</p>
+        </div>
+      </div>
+    }>
+      <TeamsPageContent />
+    </Suspense>
   )
 }

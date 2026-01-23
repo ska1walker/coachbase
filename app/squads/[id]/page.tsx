@@ -25,7 +25,7 @@ import { AppHeader } from '@/components/AppHeader'
 import { PageLayout } from '@/components/PageLayout'
 import { BottomNav } from '@/components/BottomNav'
 import { ArrowLeft, Plus, Edit2, Trash2, Users, TrendingUp, Upload, Download, UserPlus } from 'lucide-react'
-import type { Player, Squad } from '@/lib/types'
+import type { Player, Squad, PlayerPosition } from '@/lib/types'
 import Link from 'next/link'
 import { CSVUpload } from '@/components/CSVUpload'
 import { exportPlayersToCSV } from '@/lib/csv-utils'
@@ -48,6 +48,9 @@ function SquadDetailContent() {
   const [technik, setTechnik] = useState(5)
   const [fitness, setFitness] = useState(5)
   const [spielverstaendnis, setSpielverstaendnis] = useState(5)
+  const [selectedPositions, setSelectedPositions] = useState<PlayerPosition[]>([])
+
+  const availablePositions: PlayerPosition[] = ['Torhüter', 'Abwehr', 'Mittelfeld', 'Angriff']
 
   // Edit modal state
   const [editingPlayer, setEditingPlayer] = useState<Player | null>(null)
@@ -156,6 +159,7 @@ function SquadDetailContent() {
       fitness,
       spielverstaendnis,
       total: technik + fitness + spielverstaendnis,
+      positions: selectedPositions.length > 0 ? selectedPositions : undefined,
       createdAt: new Date().toISOString(),
     }
 
@@ -166,6 +170,7 @@ function SquadDetailContent() {
       setTechnik(5)
       setFitness(5)
       setSpielverstaendnis(5)
+      setSelectedPositions([])
 
       // Track achievement
       if (isOwner) {
@@ -188,12 +193,33 @@ function SquadDetailContent() {
         fitness: editingPlayer.fitness,
         spielverstaendnis: editingPlayer.spielverstaendnis,
         total: editingPlayer.technik + editingPlayer.fitness + editingPlayer.spielverstaendnis,
+        positions: editingPlayer.positions && editingPlayer.positions.length > 0 ? editingPlayer.positions : undefined,
       })
       setEditingPlayer(null)
     } catch (error) {
       console.error('Error updating player:', error)
       alert('Fehler beim Aktualisieren!')
     }
+  }
+
+  const togglePosition = (position: PlayerPosition) => {
+    setSelectedPositions((prev) => {
+      if (prev.includes(position)) {
+        return prev.filter((p) => p !== position)
+      } else {
+        return [...prev, position]
+      }
+    })
+  }
+
+  const toggleEditPosition = (position: PlayerPosition) => {
+    if (!editingPlayer) return
+    setEditingPlayer({
+      ...editingPlayer,
+      positions: editingPlayer.positions?.includes(position)
+        ? editingPlayer.positions.filter((p) => p !== position)
+        : [...(editingPlayer.positions || []), position],
+    })
   }
 
   const handleDeletePlayer = async (playerId: string) => {
@@ -452,6 +478,35 @@ function SquadDetailContent() {
                 />
               </div>
 
+              {/* Position Selection */}
+              <div>
+                <label className="block text-sm font-medium text-deep-petrol dark:text-soft-mint mb-2">
+                  Position(en) - Mehrfachauswahl möglich
+                </label>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                  {availablePositions.map((position) => (
+                    <label
+                      key={position}
+                      className={`flex items-center gap-2 p-3 rounded-lg border-2 cursor-pointer transition-smooth ${
+                        selectedPositions.includes(position)
+                          ? 'border-neon-lime bg-neon-lime/10'
+                          : 'border-mid-grey/30 bg-white dark:bg-card-dark hover:border-neon-lime/50'
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedPositions.includes(position)}
+                        onChange={() => togglePosition(position)}
+                        className="w-4 h-4 text-neon-lime border-mid-grey/30 rounded focus:ring-neon-lime"
+                      />
+                      <span className="text-sm font-medium text-deep-petrol dark:text-soft-mint">
+                        {position}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
               {/* Mobile: Icon only */}
               <Button
                 type="submit"
@@ -541,6 +596,34 @@ function SquadDetailContent() {
                           }
                         />
                       </div>
+
+                      {/* Position Selection in Edit Mode */}
+                      <div>
+                        <label className="block text-xs font-medium text-mid-grey mb-2">
+                          Position(en)
+                        </label>
+                        <div className="grid grid-cols-2 gap-2">
+                          {availablePositions.map((position) => (
+                            <label
+                              key={position}
+                              className={`flex items-center gap-2 p-2 rounded-lg border cursor-pointer text-xs transition-smooth ${
+                                editingPlayer.positions?.includes(position)
+                                  ? 'border-neon-lime bg-neon-lime/10'
+                                  : 'border-mid-grey/30 hover:border-neon-lime/50'
+                              }`}
+                            >
+                              <input
+                                type="checkbox"
+                                checked={editingPlayer.positions?.includes(position) || false}
+                                onChange={() => toggleEditPosition(position)}
+                                className="w-3 h-3"
+                              />
+                              <span>{position}</span>
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+
                       <div className="flex gap-2">
                         <Button type="submit" variant="primary" fullWidth>
                           Speichern
@@ -581,6 +664,22 @@ function SquadDetailContent() {
                       </div>
 
                       <div className="space-y-2 text-sm">
+                        {/* Positions */}
+                        {player.positions && player.positions.length > 0 && (
+                          <div className="mb-3">
+                            <div className="flex flex-wrap gap-1">
+                              {player.positions.map((position) => (
+                                <span
+                                  key={position}
+                                  className="px-2 py-1 rounded-full text-xs font-medium bg-digital-purple/20 text-digital-purple"
+                                >
+                                  {position}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
                         <div className="flex justify-between">
                           <span className="text-mid-grey">Technik:</span>
                           <span className="font-medium">{player.technik}/10</span>

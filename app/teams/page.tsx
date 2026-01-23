@@ -166,7 +166,10 @@ function TeamsPageContent() {
       message += `*Team ${index + 1}* (Ø ${avgStrength})\n`
 
       team.players.forEach((player) => {
-        message += `• ${player.name} (T:${player.technik} F:${player.fitness} S:${player.spielverstaendnis})\n`
+        const posStr = player.positions && player.positions.length > 0
+          ? ` [${player.positions.join(', ')}]`
+          : ''
+        message += `• ${player.name}${posStr} (T:${player.technik} F:${player.fitness} S:${player.spielverstaendnis})\n`
       })
 
       message += `Teamstärke: ${team.totalStrength}\n\n`
@@ -366,7 +369,21 @@ function TeamsPageContent() {
                             key={player.id}
                             className="p-3 rounded-lg bg-soft-mint/50 dark:bg-deep-petrol border border-mid-grey/10"
                           >
-                            <div className="font-bold text-base">{player.name}</div>
+                            <div className="flex items-start justify-between gap-2 mb-1">
+                              <div className="font-bold text-base">{player.name}</div>
+                              {player.positions && player.positions.length > 0 && (
+                                <div className="flex flex-wrap gap-1">
+                                  {player.positions.map((pos) => (
+                                    <span
+                                      key={pos}
+                                      className="px-1.5 py-0.5 rounded text-xs font-medium bg-digital-purple/20 text-digital-purple"
+                                    >
+                                      {pos}
+                                    </span>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
                             <div className="text-sm text-mid-grey">
                               T: {player.technik} • F: {player.fitness} • S:{' '}
                               {player.spielverstaendnis} • Σ {player.total}

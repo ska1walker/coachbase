@@ -30,6 +30,8 @@ export interface Squad {
 }
 
 // Player Types (Updated with squadId reference)
+export type PlayerPosition = 'Torhüter' | 'Abwehr' | 'Mittelfeld' | 'Angriff'
+
 export interface Player {
   id: string
   squadId: string
@@ -38,6 +40,7 @@ export interface Player {
   fitness: number
   spielverstaendnis: number
   total: number
+  positions?: PlayerPosition[] // Multiple positions possible
   attributes?: Record<string, any> // Optional for future extensions
   createdAt?: string
 }

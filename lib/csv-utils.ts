@@ -1,4 +1,4 @@
-import type { Player } from './types'
+import type { Player, PlayerPosition } from './types'
 
 export interface CSVParseResult {
   success: boolean
@@ -50,6 +50,7 @@ export function parsePlayerCSV(csvContent: string): CSVParseResult {
   const technikIdx = header.indexOf('technik')
   const fitnessIdx = header.indexOf('fitness')
   const spielverstaendnisIdx = header.indexOf('spielverstaendnis')
+  const positionenIdx = header.indexOf('positionen') // Optional column
 
   // Parse data rows
   for (let i = 1; i < lines.length; i++) {
@@ -69,6 +70,7 @@ export function parsePlayerCSV(csvContent: string): CSVParseResult {
     const technikStr = values[technikIdx]
     const fitnessStr = values[fitnessIdx]
     const spielverstaendnisStr = values[spielverstaendnisIdx]
+    const positionenStr = positionenIdx >= 0 && values[positionenIdx] ? values[positionenIdx] : ''
 
     // Validate name
     if (!name || name.length === 0) {
@@ -114,6 +116,24 @@ export function parsePlayerCSV(csvContent: string): CSVParseResult {
       warnings.push(`Zeile ${lineNum}: Spieler "${name}" existiert bereits in dieser Datei`)
     }
 
+    // Parse positions (optional, semicolon-separated)
+    let positions: PlayerPosition[] | undefined = undefined
+    if (positionenStr) {
+      const validPositions: PlayerPosition[] = ['Torhüter', 'Abwehr', 'Mittelfeld', 'Angriff']
+      const rawPositions = positionenStr.split(';').map(p => p.trim())
+      const parsedPositions = rawPositions.filter(p =>
+        validPositions.includes(p as PlayerPosition)
+      ) as PlayerPosition[]
+
+      if (parsedPositions.length > 0) {
+        positions = parsedPositions
+      }
+
+      if (rawPositions.length > parsedPositions.length) {
+        warnings.push(`Zeile ${lineNum}: Einige Positionen wurden ignoriert (gültig: ${validPositions.join(', ')})`)
+      }
+    }
+
     // Add valid player
     players.push({
       name,
@@ -121,6 +141,7 @@ export function parsePlayerCSV(csvContent: string): CSVParseResult {
       fitness,
       spielverstaendnis,
       total: technik + fitness + spielverstaendnis,
+      positions,
     })
   }
 
@@ -136,11 +157,11 @@ export function parsePlayerCSV(csvContent: string): CSVParseResult {
  * Generate CSV template content
  */
 export function generateCSVTemplate(): string {
-  const header = 'name,technik,fitness,spielverstaendnis'
+  const header = 'name,technik,fitness,spielverstaendnis,positionen'
   const examples = [
-    'Max Mustermann,8,7,9',
-    'Lisa Schmidt,9,8,8',
-    'Tom Weber,6,7,7',
+    'Max Mustermann,8,7,9,Angriff;Mittelfeld',
+    'Lisa Schmidt,9,8,8,Torhüter',
+    'Tom Weber,6,7,7,Abwehr',
   ]
 
   return [header, ...examples].join('\n')
@@ -170,10 +191,11 @@ export function downloadCSVTemplate() {
  * Export players to CSV
  */
 export function exportPlayersToCSV(players: Player[], squadName: string) {
-  const header = 'name,technik,fitness,spielverstaendnis'
-  const rows = players.map(p =>
-    `${p.name},${p.technik},${p.fitness},${p.spielverstaendnis}`
-  )
+  const header = 'name,technik,fitness,spielverstaendnis,positionen'
+  const rows = players.map(p => {
+    const positions = p.positions && p.positions.length > 0 ? p.positions.join(';') : ''
+    return `${p.name},${p.technik},${p.fitness},${p.spielverstaendnis},${positions}`
+  })
 
   const content = [header, ...rows].join('\n')
   const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' })

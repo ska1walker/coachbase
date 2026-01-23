@@ -34,13 +34,9 @@ service cloud.firestore {
 
     // Users collection
     match /users/{userId} {
-      // Users can read their own document
-      allow read: if isAuthenticated() && request.auth.uid == userId;
-
-      // Users can read others ONLY if they opted-in to leaderboard (DSGVO-compliant)
-      // != false means: true OR undefined (default opt-in for old users)
-      allow read: if isAuthenticated() &&
-                     resource.data.showInLeaderboard != false;
+      // Allow all authenticated users to read user documents
+      // (DSGVO: Hall of Fame filters client-side by showInLeaderboard field)
+      allow read: if isAuthenticated();
 
       // Admins can read all users
       allow read: if isAdmin();

@@ -1,0 +1,157 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() &&
+             request.auth.token.role == 'admin';
+    }
+
+    function isOwner(ownerId) {
+      return isAuthenticated() &&
+             request.auth.uid == ownerId;
+    }
+
+    // Check if user is a co-trainer for a squad
+    function isCoTrainer(squadId) {
+      return isAuthenticated() &&
+             request.auth.uid in get(/databases/$(database)/documents/squads/$(squadId)).data.coTrainerIds;
+    }
+
+    // Check if user is owner OR co-trainer
+    function isOwnerOrCoTrainer(squadId) {
+      let squad = get(/databases/$(database)/documents/squads/$(squadId)).data;
+      return isAuthenticated() && (
+        request.auth.uid == squad.ownerId ||
+        request.auth.uid in squad.get('coTrainerIds', [])
+      );
+    }
+
+    // Users collection
+    match /users/{userId} {
+      // All authenticated users can read user documents (for Hall of Fame / Leaderboard)
+      allow read: if isAuthenticated();
+
+      // Admins can read all users
+      allow read: if isAdmin();
+
+      // Users can create their own document on first login
+      allow create: if isAuthenticated() && request.auth.uid == userId;
+
+      // Users can update their own profile fields (displayName, clubName, location, bio, stats, lastActive)
+      // BUT NOT the role field!
+      allow update: if isAuthenticated() && request.auth.uid == userId &&
+                       (!('role' in request.resource.data.diff(resource.data).affectedKeys()));
+
+      // Admins can update everything including roles
+      allow update: if isAdmin();
+
+      // No one can delete users (use Firebase Auth instead)
+      allow delete: if false;
+    }
+
+    // Squads collection
+    match /squads/{squadId} {
+      // Users can read squads they own OR co-train
+      allow read: if isAuthenticated() && (
+        resource.data.ownerId == request.auth.uid ||
+        request.auth.uid in resource.data.get('coTrainerIds', [])
+      );
+
+      // Admins can read all squads
+      allow read: if isAdmin();
+
+      // Users can create squads for themselves
+      allow create: if isAuthenticated() &&
+                       request.resource.data.ownerId == request.auth.uid;
+
+      // ONLY OWNERS can update their own squads (Co-Trainers cannot!)
+      allow update: if isOwner(resource.data.ownerId);
+
+      // ONLY OWNERS can delete their own squads
+      allow delete: if isOwner(resource.data.ownerId);
+
+      // Admins have full access
+      allow read, write: if isAdmin();
+    }
+
+    // Players collection
+    match /players/{playerId} {
+      // Users can read players if they are owner OR co-trainer of the squad
+      allow read: if isAuthenticated() && (
+        isOwnerOrCoTrainer(resource.data.squadId) ||
+        isAdmin()
+      );
+
+      // ONLY OWNERS can create players (Co-Trainers cannot!)
+      allow create: if isAuthenticated() &&
+                       isOwner(get(/databases/$(database)/documents/squads/$(request.resource.data.squadId)).data.ownerId);
+
+      // ONLY OWNERS can update/delete players (Co-Trainers cannot!)
+      allow update, delete: if isAuthenticated() && (
+        isOwner(get(/databases/$(database)/documents/squads/$(resource.data.squadId)).data.ownerId) ||
+        isAdmin()
+      );
+
+      // Admins have full access
+      allow write: if isAdmin();
+    }
+
+    // Match History collection
+    match /match_history/{historyId} {
+      // Users can read if they are owner OR co-trainer of the squad
+      allow read: if isAuthenticated() && (
+        resource.data.ownerId == request.auth.uid ||
+        isCoTrainer(resource.data.squadId) ||
+        isAdmin()
+      );
+
+      // Admins can read all history
+      allow read: if isAdmin();
+
+      // BOTH owners AND co-trainers can create match history
+      allow create: if isAuthenticated() &&
+                       isOwnerOrCoTrainer(request.resource.data.squadId);
+
+      // ONLY OWNERS can update their own history (e.g., toggle 'liked')
+      allow update: if isOwner(resource.data.ownerId);
+
+      // ONLY OWNERS can delete their own history
+      allow delete: if isOwner(resource.data.ownerId);
+
+      // Admins have full access
+      allow read, write: if isAdmin();
+    }
+
+    // Squad Invites collection (for Co-Trainer Magic Links)
+    match /squad_invites/{inviteId} {
+      // Anyone authenticated can read an invite by token (for accepting)
+      allow read: if isAuthenticated();
+
+      // ONLY squad owners can create invites
+      allow create: if isAuthenticated() &&
+                       isOwner(get(/databases/$(database)/documents/squads/$(request.resource.data.squadId)).data.ownerId);
+
+      // ONLY Cloud Functions can update invites (when accepting)
+      allow update: if false;
+
+      // Squad owners can delete their invites
+      allow delete: if isAuthenticated() &&
+                       isOwner(get(/databases/$(database)/documents/squads/$(resource.data.squadId)).data.ownerId);
+
+      // Admins have full access
+      allow read, write: if isAdmin();
+    }
+
+    // Admin Actions log (read-only for admins)
+    match /admin_actions/{actionId} {
+      allow read: if isAdmin();
+      allow write: if false; // Only Cloud Functions can write
+    }
+  }
+}

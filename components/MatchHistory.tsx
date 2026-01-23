@@ -39,17 +39,26 @@ export function MatchHistoryList({ squadId }: MatchHistoryListProps) {
       )
     }
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const loadedMatches: MatchHistory[] = []
-      snapshot.forEach((doc) => {
-        loadedMatches.push({
-          id: doc.id,
-          ...doc.data(),
-        } as MatchHistory)
-      })
-      setMatches(loadedMatches)
-      setLoading(false)
-    })
+    const unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
+        const loadedMatches: MatchHistory[] = []
+        snapshot.forEach((doc) => {
+          loadedMatches.push({
+            id: doc.id,
+            ...doc.data(),
+          } as MatchHistory)
+        })
+        setMatches(loadedMatches)
+        setLoading(false)
+      },
+      (error) => {
+        console.error('Error loading match history:', error)
+        // Set loading to false even on error (e.g., missing index)
+        setLoading(false)
+        setMatches([])
+      }
+    )
 
     return () => unsubscribe()
   }, [squadId])

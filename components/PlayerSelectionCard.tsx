@@ -3,15 +3,7 @@
 import * as React from 'react'
 import { Check } from 'lucide-react'
 import { cn } from '@/lib/utils'
-
-export interface Player {
-  id: string
-  name: string
-  technik: number
-  fitness: number
-  spielverstaendnis: number
-  total: number
-}
+import type { Player } from '@/lib/types'
 
 interface PlayerSelectionCardProps {
   player: Player

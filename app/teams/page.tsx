@@ -6,10 +6,12 @@ import { collection, onSnapshot, query, where, orderBy } from 'firebase/firestor
 import { db } from '@/lib/firebase'
 import { Button } from '@/components/ui/Button'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card'
-import { PlayerSelectionCard, type Player } from '@/components/PlayerSelectionCard'
+import { PlayerSelectionCard } from '@/components/PlayerSelectionCard'
 import { Users, Shuffle, RotateCcw, Shield, ArrowRight, MessageCircle } from 'lucide-react'
 import Link from 'next/link'
 import { useUserStats } from '@/hooks/useUserStats'
+import { generateBalancedTeams, analyzeTeamBalance, type GeneratedTeam } from '@/lib/team-generator'
+import type { Player } from '@/lib/types'
 
 interface Team {
   players: Player[]
@@ -66,8 +68,8 @@ function TeamsPageContent() {
   }
 
   const createTeams = () => {
-    if (selectedPlayerIds.size < 2) {
-      alert('Bitte wähle mindestens 2 Spieler aus!')
+    if (selectedPlayerIds.size < 4) {
+      alert('Bitte wähle mindestens 4 Spieler aus!')
       return
     }
 
@@ -79,36 +81,29 @@ function TeamsPageContent() {
     // Filter selected players
     const selectedPlayers = allPlayers.filter((p) => selectedPlayerIds.has(p.id))
 
-    // Sort by total strength (descending)
-    const sortedPlayers = [...selectedPlayers].sort((a, b) => b.total - a.total)
+    try {
+      // Use new balanced team generation algorithm
+      const generatedTeams = generateBalancedTeams(selectedPlayers, teamCount)
 
-    // Initialize teams
-    const newTeams: Team[] = Array.from({ length: teamCount }, () => ({
-      players: [],
-      totalStrength: 0,
-    }))
+      // Convert to old Team interface for compatibility
+      const newTeams: Team[] = generatedTeams.map((team) => ({
+        players: team.players,
+        totalStrength: team.totalStrength,
+      }))
 
-    // Snake-Draft Algorithm
-    sortedPlayers.forEach((player, index) => {
-      const round = Math.floor(index / teamCount)
-      let teamIndex: number
+      setTeams(newTeams)
 
-      if (round % 2 === 0) {
-        // Even round: left to right
-        teamIndex = index % teamCount
-      } else {
-        // Odd round: right to left (Snake)
-        teamIndex = teamCount - 1 - (index % teamCount)
-      }
+      // Log balance metrics for debugging (optional)
+      const balanceMetrics = analyzeTeamBalance(generatedTeams)
+      console.log('Team Balance Metrics:', balanceMetrics)
+      console.log('Teams:', generatedTeams)
 
-      newTeams[teamIndex].players.push(player)
-      newTeams[teamIndex].totalStrength += player.total
-    })
-
-    setTeams(newTeams)
-
-    // Track achievement
-    trackTeamGenerated()
+      // Track achievement
+      trackTeamGenerated()
+    } catch (error) {
+      console.error('Error generating teams:', error)
+      alert('Fehler beim Generieren der Teams!')
+    }
   }
 
   const addLatePlayer = (playerId: string) => {
@@ -391,7 +386,7 @@ function TeamsPageContent() {
                           </div>
                         ))}
                       </div>
-                      <div className="pt-3 border-t border-mid-grey/20 text-sm">
+                      <div className="pt-3 border-t border-mid-grey/20 text-sm space-y-1">
                         <div className="flex justify-between">
                           <span className="text-mid-grey">Spieler:</span>
                           <span className="font-bold">{team.players.length}</span>
@@ -399,6 +394,34 @@ function TeamsPageContent() {
                         <div className="flex justify-between">
                           <span className="text-mid-grey">Teamstärke:</span>
                           <span className="font-bold">{team.totalStrength}</span>
+                        </div>
+
+                        {/* Attribute Averages */}
+                        <div className="pt-2 border-t border-mid-grey/10">
+                          <div className="flex justify-between text-xs">
+                            <span className="text-mid-grey">Ø Technik:</span>
+                            <span className="font-medium">
+                              {team.players.length > 0
+                                ? (team.players.reduce((sum, p) => sum + p.technik, 0) / team.players.length).toFixed(1)
+                                : '0'}
+                            </span>
+                          </div>
+                          <div className="flex justify-between text-xs">
+                            <span className="text-mid-grey">Ø Fitness:</span>
+                            <span className="font-medium">
+                              {team.players.length > 0
+                                ? (team.players.reduce((sum, p) => sum + p.fitness, 0) / team.players.length).toFixed(1)
+                                : '0'}
+                            </span>
+                          </div>
+                          <div className="flex justify-between text-xs">
+                            <span className="text-mid-grey">Ø Spielverständnis:</span>
+                            <span className="font-medium">
+                              {team.players.length > 0
+                                ? (team.players.reduce((sum, p) => sum + p.spielverstaendnis, 0) / team.players.length).toFixed(1)
+                                : '0'}
+                            </span>
+                          </div>
                         </div>
                       </div>
                     </CardContent>

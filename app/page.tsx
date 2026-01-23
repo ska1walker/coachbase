@@ -258,7 +258,11 @@ export default function LandingPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    let isMounted = true // Memory leak protection
+
     const unsubscribe = auth.onAuthStateChanged(async (currentUser) => {
+      if (!isMounted) return // Component unmounted, skip updates
+
       if (currentUser) {
         setUser(currentUser)
         setUserEmail(currentUser.email || '')
@@ -266,15 +270,19 @@ export default function LandingPage() {
         // Load displayName from Firestore
         try {
           const userDoc = await getDoc(doc(db, 'users', currentUser.uid))
-          if (userDoc.exists()) {
+          if (isMounted && userDoc.exists()) {
             setDisplayName(userDoc.data().displayName || '')
           }
         } catch (error) {
-          console.error('Error loading display name:', error)
+          if (isMounted) {
+            console.error('Error loading display name:', error)
+          }
         }
 
         currentUser.getIdTokenResult().then((idTokenResult) => {
-          setIsAdmin(idTokenResult.claims.role === 'admin')
+          if (isMounted) {
+            setIsAdmin(idTokenResult.claims.role === 'admin')
+          }
         })
       } else {
         setUser(null)
@@ -282,10 +290,16 @@ export default function LandingPage() {
         setDisplayName('')
         setIsAdmin(false)
       }
-      setLoading(false)
+
+      if (isMounted) {
+        setLoading(false)
+      }
     })
 
-    return () => unsubscribe()
+    return () => {
+      isMounted = false // Cleanup flag
+      unsubscribe()
+    }
   }, [])
 
   const handleLogout = async () => {

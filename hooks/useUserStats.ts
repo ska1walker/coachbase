@@ -15,6 +15,7 @@ import { useLevelUp } from '@/contexts/LevelUpContext'
 export function useUserStats() {
   const [stats, setStats] = useState<UserStats | null>(null)
   const [loading, setLoading] = useState(true)
+  const [updating, setUpdating] = useState(false) // Race condition protection
   const { triggerLevelUp } = useLevelUp()
 
   // Load stats from Firestore
@@ -105,8 +106,9 @@ export function useUserStats() {
   // Track squad created
   const trackSquadCreated = async () => {
     const user = auth.currentUser
-    if (!user || !stats) return
+    if (!user || !stats || updating) return // Prevent race condition
 
+    setUpdating(true)
     try {
       const oldLevel = stats.level
       const newXP = stats.xp + XP_REWARDS.SQUAD_CREATED
@@ -142,14 +144,17 @@ export function useUserStats() {
       return newAchievements
     } catch (error) {
       console.error('Error tracking squad created:', error)
+    } finally {
+      setUpdating(false)
     }
   }
 
   // Track player added
   const trackPlayerAdded = async () => {
     const user = auth.currentUser
-    if (!user || !stats) return
+    if (!user || !stats || updating) return // Prevent race condition
 
+    setUpdating(true)
     try {
       const oldLevel = stats.level
       const newXP = stats.xp + XP_REWARDS.PLAYER_ADDED
@@ -185,14 +190,17 @@ export function useUserStats() {
       return newAchievements
     } catch (error) {
       console.error('Error tracking player added:', error)
+    } finally {
+      setUpdating(false)
     }
   }
 
   // Track team generated
   const trackTeamGenerated = async () => {
     const user = auth.currentUser
-    if (!user || !stats) return
+    if (!user || !stats || updating) return // Prevent race condition
 
+    setUpdating(true)
     try {
       const oldLevel = stats.level
       const newXP = stats.xp + XP_REWARDS.TEAM_GENERATED
@@ -228,12 +236,15 @@ export function useUserStats() {
       return newAchievements
     } catch (error) {
       console.error('Error tracking team generated:', error)
+    } finally {
+      setUpdating(false)
     }
   }
 
   return {
     stats,
     loading,
+    updating,
     trackSquadCreated,
     trackPlayerAdded,
     trackTeamGenerated,

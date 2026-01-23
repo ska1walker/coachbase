@@ -24,7 +24,7 @@ export default function DatenschutzPage() {
     <div className="min-h-screen bg-soft-mint dark:bg-deep-petrol pb-20 md:pb-8">
       {isLoggedIn && <AppHeader />}
 
-      <PageLayout maxWidth="3xl">
+      <PageLayout maxWidth="2xl">
         {/* Back Link */}
         <Link
           href="/"

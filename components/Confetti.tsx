@@ -25,13 +25,17 @@ export function Confetti({ active, onComplete }: ConfettiProps) {
       return
     }
 
+    // SSR-safe: Check if window is available
+    if (typeof window === 'undefined') return
+
     const colors = ['#C7F94C', '#0A2F2D', '#7B4FFF', '#FF6B9D', '#FFD60A']
     const particleCount = 100
+    const screenWidth = window.innerWidth
 
     // Create particles
     const newParticles = Array.from({ length: particleCount }, (_, i) => ({
       id: i,
-      x: Math.random() * window.innerWidth,
+      x: Math.random() * screenWidth,
       y: -20,
       color: colors[Math.floor(Math.random() * colors.length)],
       size: Math.random() * 10 + 5,

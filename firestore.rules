@@ -34,8 +34,12 @@ service cloud.firestore {
 
     // Users collection
     match /users/{userId} {
-      // All authenticated users can read user documents (for Hall of Fame / Leaderboard)
-      allow read: if isAuthenticated();
+      // Users can read their own document
+      allow read: if isAuthenticated() && request.auth.uid == userId;
+
+      // Users can read others ONLY if they opted-in to leaderboard (DSGVO-compliant)
+      allow read: if isAuthenticated() &&
+                     resource.data.showInLeaderboard == true;
 
       // Admins can read all users
       allow read: if isAdmin();

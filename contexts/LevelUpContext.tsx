@@ -16,6 +16,11 @@ export function LevelUpProvider({ children }: { children: ReactNode }) {
   const [newLevel, setNewLevel] = useState<number | null>(null)
 
   const triggerLevelUp = (level: number) => {
+    // Edge case validation
+    if (!Number.isInteger(level) || level < 1 || level > 100) {
+      console.error('Invalid level:', level)
+      return
+    }
     setShowConfetti(true)
     setNewLevel(level)
   }

@@ -18,7 +18,8 @@ import { useUserStats } from '@/hooks/useUserStats'
 function SquadsContent() {
   const router = useRouter()
   const [loading, setLoading] = useState(true)
-  const [squads, setSquads] = useState<Squad[]>([])
+  const [ownedSquads, setOwnedSquads] = useState<Squad[]>([])
+  const [invitedSquads, setInvitedSquads] = useState<Squad[]>([])
   const [newSquadName, setNewSquadName] = useState('')
   const [creating, setCreating] = useState(false)
   const { trackSquadCreated } = useUserStats()
@@ -27,12 +28,19 @@ function SquadsContent() {
     const user = auth.currentUser
     if (!user) return
 
-    const q = query(
+    // Query for owned squads
+    const ownedQuery = query(
       collection(db, 'squads'),
       where('ownerId', '==', user.uid)
     )
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
+    // Query for invited squads (where user is in coTrainerIds)
+    const invitedQuery = query(
+      collection(db, 'squads'),
+      where('coTrainerIds', 'array-contains', user.uid)
+    )
+
+    const unsubscribeOwned = onSnapshot(ownedQuery, (snapshot) => {
       const loadedSquads: Squad[] = []
       snapshot.forEach((doc) => {
         loadedSquads.push({
@@ -40,11 +48,25 @@ function SquadsContent() {
           ...doc.data(),
         } as Squad)
       })
-      setSquads(loadedSquads)
+      setOwnedSquads(loadedSquads)
       setLoading(false)
     })
 
-    return () => unsubscribe()
+    const unsubscribeInvited = onSnapshot(invitedQuery, (snapshot) => {
+      const loadedSquads: Squad[] = []
+      snapshot.forEach((doc) => {
+        loadedSquads.push({
+          id: doc.id,
+          ...doc.data(),
+        } as Squad)
+      })
+      setInvitedSquads(loadedSquads)
+    })
+
+    return () => {
+      unsubscribeOwned()
+      unsubscribeInvited()
+    }
   }, [router])
 
   const createSquad = async (e: React.FormEvent) => {
@@ -141,13 +163,13 @@ function SquadsContent() {
           </CardContent>
         </Card>
 
-        {/* Squads List */}
-        {squads.length === 0 ? (
+        {/* Owned Squads Section */}
+        {ownedSquads.length === 0 && invitedSquads.length === 0 ? (
           <Card>
             <CardContent className="py-12 text-center">
               <Users className="w-16 h-16 mx-auto mb-4 text-mid-grey" />
               <p className="text-mid-grey mb-4">
-                Du hast noch keine Teams erstellt
+                Du hast noch keine Teams erstellt oder wurdest eingeladen
               </p>
               <p className="text-sm text-mid-grey">
                 Erstelle dein erstes Team, um Spieler zu verwalten
@@ -155,46 +177,103 @@ function SquadsContent() {
             </CardContent>
           </Card>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {squads.map((squad) => (
-              <Card
-                key={squad.id}
-                className="hover:shadow-card-hover transition-smooth cursor-pointer"
-                onClick={() => router.push(`/squads/${squad.id}`)}
-              >
-                <CardContent className="p-6">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-lg bg-neon-lime/20 flex items-center justify-center">
-                        <Users className="w-6 h-6 text-neon-lime" />
-                      </div>
-                      <div>
-                        <h3 className="font-bold text-lg text-deep-petrol dark:text-soft-mint">
-                          {squad.name}
-                        </h3>
-                        <p className="text-sm text-mid-grey">
-                          {squad.createdAt?.toDate?.() ? squad.createdAt.toDate().toLocaleDateString('de-DE') : 'N/A'}
-                        </p>
-                      </div>
-                    </div>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        deleteSquad(squad.id)
-                      }}
-                      className="p-2 rounded-lg hover:bg-soft-mint/50 dark:hover:bg-card-dark transition-smooth"
+          <>
+            {/* Owned Teams */}
+            {ownedSquads.length > 0 && (
+              <div className="mb-8">
+                <h2 className="text-2xl font-headline font-bold text-deep-petrol dark:text-soft-mint mb-4">
+                  Meine Teams
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {ownedSquads.map((squad) => (
+                    <Card
+                      key={squad.id}
+                      className="hover:shadow-card-hover transition-smooth cursor-pointer"
+                      onClick={() => router.push(`/squads/${squad.id}`)}
                     >
-                      <Trash2 className="w-5 h-5 text-mid-grey hover:text-red-500" />
-                    </button>
-                  </div>
+                      <CardContent className="p-6">
+                        <div className="flex items-start justify-between mb-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-12 h-12 rounded-lg bg-neon-lime/20 flex items-center justify-center">
+                              <Users className="w-6 h-6 text-neon-lime" />
+                            </div>
+                            <div>
+                              <h3 className="font-bold text-lg text-deep-petrol dark:text-soft-mint">
+                                {squad.name}
+                              </h3>
+                              <p className="text-sm text-mid-grey">
+                                {squad.createdAt?.toDate?.() ? squad.createdAt.toDate().toLocaleDateString('de-DE') : 'N/A'}
+                              </p>
+                            </div>
+                          </div>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              deleteSquad(squad.id)
+                            }}
+                            className="p-2 rounded-lg hover:bg-soft-mint/50 dark:hover:bg-card-dark transition-smooth"
+                          >
+                            <Trash2 className="w-5 h-5 text-mid-grey hover:text-red-500" />
+                          </button>
+                        </div>
 
-                  <div className="text-sm text-mid-grey">
-                    Klicke um Spieler zu verwalten
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                        <div className="text-sm text-mid-grey">
+                          Klicke um Spieler zu verwalten
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Invited Teams */}
+            {invitedSquads.length > 0 && (
+              <div>
+                <h2 className="text-2xl font-headline font-bold text-deep-petrol dark:text-soft-mint mb-4">
+                  Eingeladene Teams
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {invitedSquads.map((squad) => (
+                    <Card
+                      key={squad.id}
+                      className="hover:shadow-card-hover transition-smooth cursor-pointer"
+                      onClick={() => router.push(`/squads/${squad.id}`)}
+                    >
+                      <CardContent className="p-6">
+                        <div className="flex items-start justify-between mb-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-12 h-12 rounded-lg bg-digital-orange/20 flex items-center justify-center">
+                              <Users className="w-6 h-6 text-digital-orange" />
+                            </div>
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-1">
+                                <h3 className="font-bold text-lg text-deep-petrol dark:text-soft-mint">
+                                  {squad.name}
+                                </h3>
+                                <div className="inline-flex items-center px-2 py-0.5 rounded-full bg-digital-orange/20 border border-digital-orange/40">
+                                  <span className="text-xs font-bold text-digital-orange uppercase">
+                                    Co-Trainer
+                                  </span>
+                                </div>
+                              </div>
+                              <p className="text-sm text-mid-grey">
+                                {squad.createdAt?.toDate?.() ? squad.createdAt.toDate().toLocaleDateString('de-DE') : 'N/A'}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="text-sm text-mid-grey">
+                          Klicke um Spieler zu verwalten
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+            )}
+          </>
         )}
       </PageLayout>
 

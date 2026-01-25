@@ -3,6 +3,7 @@ import './globals.css'
 import { ThemeProvider } from '@/components/ThemeProvider'
 import { LevelUpProvider } from '@/contexts/LevelUpContext'
 import { ConfettiWrapper } from '@/components/ConfettiWrapper'
+import { VersionFooter } from '@/components/VersionFooter'
 
 export const metadata: Metadata = {
   title: 'CoachBase - Faire Mannschaftswahl',
@@ -26,6 +27,7 @@ export default function RootLayout({
           <LevelUpProvider>
             {children}
             <ConfettiWrapper />
+            <VersionFooter />
           </LevelUpProvider>
         </ThemeProvider>
       </body>

@@ -564,11 +564,21 @@ export function generateBalancedTeams(
   let teamB: Player[] = []
 
   if (buddyGroups.length > 0) {
-    // Distribute buddy groups alternately to ensure balance
-    buddyGroups.forEach((group, index) => {
+    // Calculate target team size
+    const targetSize = Math.floor(players.length / 2)
+
+    // Distribute buddy groups to balance team sizes
+    buddyGroups.forEach((group) => {
       const groupPlayers = players.filter(p => group.playerIds.includes(p.id))
-      if (index % 2 === 0) {
-        teamA.push(...groupPlayers)
+
+      // Add to team with fewer players, prioritizing equal distribution
+      if (teamA.length <= teamB.length) {
+        // Only add to teamA if it won't exceed target by too much
+        if (teamA.length + groupPlayers.length <= targetSize + 1) {
+          teamA.push(...groupPlayers)
+        } else {
+          teamB.push(...groupPlayers)
+        }
       } else {
         teamB.push(...groupPlayers)
       }

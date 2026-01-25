@@ -7,7 +7,7 @@ import { db } from '@/lib/firebase'
 import { Button } from '@/components/ui/Button'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card'
 import { PlayerSelectionCard } from '@/components/PlayerSelectionCard'
-import { Users, Shuffle, RotateCcw, Shield, ArrowRight, MessageCircle, ChevronDown, ChevronUp, UserPlus, X } from 'lucide-react'
+import { Users, Shuffle, RotateCcw, Shield, ArrowRight, MessageCircle, ChevronDown, ChevronUp, UserPlus, X, Shirt } from 'lucide-react'
 import Link from 'next/link'
 import { useUserStats } from '@/hooks/useUserStats'
 import { generateBalancedTeams, analyzeTeamBalance, type GeneratedTeam } from '@/lib/team-generator'
@@ -40,6 +40,7 @@ function TeamsPageContent() {
   const [balanceScoreCard, setBalanceScoreCard] = useState<BalanceScoreCard | null>(null)
   const [buddyGroups, setBuddyGroups] = useState<BuddyGroup[]>([])
   const [showBuddySection, setShowBuddySection] = useState(false)
+  const [leibchenTeamIndex, setLeibchenTeamIndex] = useState<number | null>(null)
   const { trackTeamGenerated} = useUserStats()
 
   // Load players for the specific squad
@@ -172,6 +173,9 @@ function TeamsPageContent() {
         setBalanceScoreCard(scoreCard)
 
         console.log('Advanced Balance Score Card:', scoreCard)
+
+        // Randomly assign Leibchen team
+        setLeibchenTeamIndex(Math.floor(Math.random() * 2))
       } else {
         // Use STANDARD team generator for 3+ teams
         const generatedTeams = generateBalancedTeams(selectedPlayers, teamCount)
@@ -188,6 +192,9 @@ function TeamsPageContent() {
         // Log balance metrics for debugging
         const balanceMetrics = analyzeTeamBalance(generatedTeams)
         console.log('Team Balance Metrics:', balanceMetrics)
+
+        // Randomly assign Leibchen team for multi-team
+        setLeibchenTeamIndex(Math.floor(Math.random() * teamCount))
       }
 
       // Track achievement
@@ -196,6 +203,11 @@ function TeamsPageContent() {
       console.error('Error generating teams:', error)
       alert('Fehler beim Generieren der Teams!')
     }
+  }
+
+  const rerollLeibchen = () => {
+    if (teams.length === 0) return
+    setLeibchenTeamIndex(Math.floor(Math.random() * teams.length))
   }
 
   const addLatePlayer = (playerId: string) => {
@@ -553,6 +565,25 @@ function TeamsPageContent() {
         {/* Generated Teams */}
         {teams.length > 0 && (
           <div className="space-y-6">
+            {/* Leibchen Control */}
+            <div className="flex items-center justify-between p-4 rounded-lg bg-digital-orange/10 border border-digital-orange/30">
+              <div className="flex items-center gap-2">
+                <Shirt className="w-5 h-5 text-digital-orange" strokeWidth={2} />
+                <span className="font-medium text-deep-petrol dark:text-soft-mint">
+                  Leibchen-Zuteilung
+                </span>
+              </div>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={rerollLeibchen}
+                className="flex items-center gap-2"
+              >
+                <Shuffle className="w-4 h-4" />
+                Neu würfeln
+              </Button>
+            </div>
+
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {teams.map((team, index) => {
                 const avgStrength = team.players.length > 0
@@ -563,7 +594,17 @@ function TeamsPageContent() {
                   <Card key={index} variant="elevated">
                     <CardHeader>
                       <CardTitle className="flex items-center justify-between">
-                        <span>Team {index + 1}</span>
+                        <div className="flex items-center gap-3">
+                          <span>Team {index + 1}</span>
+                          {leibchenTeamIndex === index && (
+                            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-digital-orange/20 border border-digital-orange/40">
+                              <Shirt className="w-4 h-4 text-digital-orange" strokeWidth={2} />
+                              <span className="text-xs font-bold text-digital-orange uppercase">
+                                Leibchen
+                              </span>
+                            </div>
+                          )}
+                        </div>
                         <span className="text-sm font-medium text-neon-lime">
                           Ø {avgStrength}
                         </span>

@@ -484,27 +484,49 @@ function SquadDetailContent() {
                 <label className="block text-sm font-medium text-deep-petrol dark:text-soft-mint mb-2">
                   Position(en) - Mehrfachauswahl möglich
                 </label>
+                <p className="text-xs text-mid-grey mb-3">
+                  ⭐ Erste Auswahl = Hauptposition (beste Position des Spielers)
+                </p>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                  {availablePositions.map((position) => (
-                    <label
-                      key={position}
-                      className={`flex items-center gap-2 p-3 rounded-lg border-2 cursor-pointer transition-smooth ${
-                        selectedPositions.includes(position)
-                          ? 'border-neon-lime bg-neon-lime/10'
-                          : 'border-mid-grey/30 bg-white dark:bg-card-dark hover:border-neon-lime/50'
-                      }`}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={selectedPositions.includes(position)}
-                        onChange={() => togglePosition(position)}
-                        className="w-4 h-4 text-neon-lime border-mid-grey/30 rounded focus:ring-neon-lime"
-                      />
-                      <span className="text-sm font-medium text-deep-petrol dark:text-soft-mint">
-                        {position}
-                      </span>
-                    </label>
-                  ))}
+                  {availablePositions.map((position) => {
+                    const positionIndex = selectedPositions.indexOf(position)
+                    const isSelected = positionIndex !== -1
+                    const isPrimary = positionIndex === 0
+
+                    return (
+                      <label
+                        key={position}
+                        className={`flex items-center gap-2 p-3 rounded-lg border-2 cursor-pointer transition-smooth ${
+                          isSelected
+                            ? isPrimary
+                              ? 'border-neon-lime bg-neon-lime/20 ring-2 ring-neon-lime/30'
+                              : 'border-digital-purple bg-digital-purple/10'
+                            : 'border-mid-grey/30 bg-white dark:bg-card-dark hover:border-neon-lime/50'
+                        }`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() => togglePosition(position)}
+                          className="w-4 h-4 text-neon-lime border-mid-grey/30 rounded focus:ring-neon-lime"
+                        />
+                        <span className="text-sm font-medium text-deep-petrol dark:text-soft-mint flex items-center gap-1">
+                          {position}
+                          {isSelected && (
+                            <span
+                              className={`text-xs px-1.5 py-0.5 rounded-full font-bold ${
+                                isPrimary
+                                  ? 'bg-neon-lime text-deep-petrol'
+                                  : 'bg-digital-purple/30 text-digital-purple'
+                              }`}
+                            >
+                              {isPrimary ? '⭐' : positionIndex + 1}
+                            </span>
+                          )}
+                        </span>
+                      </label>
+                    )
+                  })}
                 </div>
               </div>
 
@@ -601,27 +623,48 @@ function SquadDetailContent() {
                       {/* Position Selection in Edit Mode */}
                       <div>
                         <label className="block text-xs font-medium text-mid-grey mb-2">
-                          Position(en)
+                          Position(en) - ⭐ Erste = Hauptposition
                         </label>
                         <div className="grid grid-cols-2 gap-2">
-                          {availablePositions.map((position) => (
-                            <label
-                              key={position}
-                              className={`flex items-center gap-2 p-2 rounded-lg border cursor-pointer text-xs transition-smooth ${
-                                editingPlayer.positions?.includes(position)
-                                  ? 'border-neon-lime bg-neon-lime/10'
-                                  : 'border-mid-grey/30 hover:border-neon-lime/50'
-                              }`}
-                            >
-                              <input
-                                type="checkbox"
-                                checked={editingPlayer.positions?.includes(position) || false}
-                                onChange={() => toggleEditPosition(position)}
-                                className="w-3 h-3"
-                              />
-                              <span>{position}</span>
-                            </label>
-                          ))}
+                          {availablePositions.map((position) => {
+                            const posIndex = editingPlayer.positions?.indexOf(position) ?? -1
+                            const isSelected = posIndex !== -1
+                            const isPrimary = posIndex === 0
+
+                            return (
+                              <label
+                                key={position}
+                                className={`flex items-center gap-2 p-2 rounded-lg border cursor-pointer text-xs transition-smooth ${
+                                  isSelected
+                                    ? isPrimary
+                                      ? 'border-neon-lime bg-neon-lime/20 ring-1 ring-neon-lime/30'
+                                      : 'border-digital-purple bg-digital-purple/10'
+                                    : 'border-mid-grey/30 hover:border-neon-lime/50'
+                                }`}
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={isSelected}
+                                  onChange={() => toggleEditPosition(position)}
+                                  className="w-3 h-3"
+                                />
+                                <span className="flex items-center gap-1">
+                                  {position}
+                                  {isSelected && (
+                                    <span
+                                      className={`text-xs px-1 py-0.5 rounded font-bold ${
+                                        isPrimary
+                                          ? 'bg-neon-lime text-deep-petrol'
+                                          : 'bg-digital-purple/30 text-digital-purple'
+                                      }`}
+                                    >
+                                      {isPrimary ? '⭐' : posIndex + 1}
+                                    </span>
+                                  )}
+                                </span>
+                              </label>
+                            )
+                          })}
                         </div>
                       </div>
 

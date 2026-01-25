@@ -25,7 +25,7 @@ import { AuthGuard } from '@/components/AuthGuard'
 import { AppHeader } from '@/components/AppHeader'
 import { PageLayout } from '@/components/PageLayout'
 import { BottomNav } from '@/components/BottomNav'
-import { ArrowLeft, Plus, Edit2, Trash2, Users, TrendingUp, Upload, Download, UserPlus } from 'lucide-react'
+import { ArrowLeft, Plus, Edit2, Trash2, Users, TrendingUp, Upload, Download, UserPlus, Check, X } from 'lucide-react'
 import type { Player, Squad, PlayerPosition } from '@/lib/types'
 import Link from 'next/link'
 import { CSVUpload } from '@/components/CSVUpload'
@@ -500,7 +500,7 @@ function SquadDetailContent() {
                           isSelected
                             ? isPrimary
                               ? 'border-neon-lime bg-neon-lime/20 ring-2 ring-neon-lime/30'
-                              : 'border-digital-purple bg-digital-purple/10'
+                              : 'border-orange-500 bg-orange-500/10'
                             : 'border-mid-grey/30 bg-white dark:bg-card-dark hover:border-neon-lime/50'
                         }`}
                       >
@@ -517,7 +517,7 @@ function SquadDetailContent() {
                               className={`text-xs px-1.5 py-0.5 rounded-full font-bold ${
                                 isPrimary
                                   ? 'bg-neon-lime text-deep-petrol'
-                                  : 'bg-digital-purple/30 text-digital-purple'
+                                  : 'bg-orange-500 text-white'
                               }`}
                             >
                               {isPrimary ? '⭐' : positionIndex + 1}
@@ -638,7 +638,7 @@ function SquadDetailContent() {
                                   isSelected
                                     ? isPrimary
                                       ? 'border-neon-lime bg-neon-lime/20 ring-1 ring-neon-lime/30'
-                                      : 'border-digital-purple bg-digital-purple/10'
+                                      : 'border-orange-500 bg-orange-500/10'
                                     : 'border-mid-grey/30 hover:border-neon-lime/50'
                                 }`}
                               >
@@ -655,7 +655,7 @@ function SquadDetailContent() {
                                       className={`text-xs px-1 py-0.5 rounded font-bold ${
                                         isPrimary
                                           ? 'bg-neon-lime text-deep-petrol'
-                                          : 'bg-digital-purple/30 text-digital-purple'
+                                          : 'bg-orange-500 text-white'
                                       }`}
                                     >
                                       {isPrimary ? '⭐' : posIndex + 1}
@@ -668,16 +668,18 @@ function SquadDetailContent() {
                         </div>
                       </div>
 
-                      <div className="flex gap-2">
-                        <Button type="submit" variant="primary" fullWidth>
+                      <div className="flex gap-2 mt-4">
+                        <Button type="submit" variant="primary" className="flex items-center gap-2">
+                          <Check className="w-4 h-4" />
                           Speichern
                         </Button>
                         <Button
                           type="button"
                           variant="secondary"
-                          fullWidth
                           onClick={() => setEditingPlayer(null)}
+                          className="flex items-center gap-2"
                         >
+                          <X className="w-4 h-4" />
                           Abbrechen
                         </Button>
                       </div>

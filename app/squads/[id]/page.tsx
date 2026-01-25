@@ -479,7 +479,7 @@ function SquadDetailContent() {
                 />
               </div>
 
-              {/* Position Selection */}
+              {/* Position Selection - Updated for Vercel deployment */}
               <div>
                 <label className="block text-sm font-medium text-deep-petrol dark:text-soft-mint mb-2">
                   Position(en) - Mehrfachauswahl möglich

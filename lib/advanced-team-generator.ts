@@ -84,6 +84,12 @@ interface GeneratorConfig {
   varianceThreshold: number
   positionWeight: number
   attributeWeight: Record<'technik' | 'fitness' | 'spielverstaendnis', number>
+  // NEW: Position depth requirements
+  positionDepthWeight: number
+  // NEW: Strength level distribution weight
+  strengthLevelWeight: number
+  // NEW: Position preference weight (prefer players on their primary position)
+  positionPreferenceWeight: number
 }
 
 const DEFAULT_CONFIG: GeneratorConfig = {
@@ -95,6 +101,9 @@ const DEFAULT_CONFIG: GeneratorConfig = {
     fitness: 1.0,
     spielverstaendnis: 1.0,
   },
+  positionDepthWeight: 3.0, // High priority for position coverage
+  strengthLevelWeight: 2.5, // Balance star distribution
+  positionPreferenceWeight: 1.5, // Prefer primary positions
 }
 
 /**
@@ -150,13 +159,141 @@ function calculateTeamStats(team: Player[]): TeamStats {
 }
 
 /**
+ * IMPROVEMENT 1: Position Depth Requirements
+ * Ensures each team has enough players for each position
+ */
+const POSITION_REQUIREMENTS = {
+  GK: { min: 1, ideal: 1 },
+  DEF: { min: 2, ideal: 4 },
+  MID: { min: 2, ideal: 5 },
+  ATT: { min: 1, ideal: 3 },
+} as const
+
+function calculatePositionDepthPenalty(team: Player[]): number {
+  const stats = calculateTeamStats(team)
+  let penalty = 0
+
+  Object.entries(POSITION_REQUIREMENTS).forEach(([pos, req]) => {
+    const position = pos as PositionEnum
+    const count = stats.positionCounts[position]
+
+    if (count < req.min) {
+      // Critical: Missing minimum position coverage
+      penalty += (req.min - count) * 50
+    } else if (count < req.ideal) {
+      // Sub-optimal: Would benefit from more depth
+      penalty += (req.ideal - count) * 2
+    }
+  })
+
+  return penalty
+}
+
+/**
+ * IMPROVEMENT 2: Strength Level Classification
+ * Classifies players into Stars, Average, and Weak categories
+ */
+interface StrengthDistribution {
+  stars: Player[]
+  average: Player[]
+  weak: Player[]
+}
+
+function classifyPlayersByStrength(players: Player[]): StrengthDistribution {
+  if (players.length === 0) {
+    return { stars: [], average: [], weak: [] }
+  }
+
+  const sorted = [...players].sort((a, b) => b.total - a.total)
+  const third = Math.floor(sorted.length / 3)
+
+  // If less than 3 players, all are "average"
+  if (sorted.length < 3) {
+    return { stars: [], average: sorted, weak: [] }
+  }
+
+  return {
+    stars: sorted.slice(0, third || 1), // Top 33%
+    average: sorted.slice(third, third * 2), // Middle 33%
+    weak: sorted.slice(third * 2), // Bottom 33%
+  }
+}
+
+function calculateStrengthLevelImbalance(
+  teamA: Player[],
+  teamB: Player[],
+  allPlayers: Player[]
+): number {
+  // Classify all players first to get global thresholds
+  const globalClassification = classifyPlayersByStrength(allPlayers)
+
+  // Count how many stars/average/weak each team has
+  const countInCategory = (team: Player[], category: Player[]) => {
+    const categoryIds = new Set(category.map((p) => p.id))
+    return team.filter((p) => categoryIds.has(p.id)).length
+  }
+
+  const teamAStars = countInCategory(teamA, globalClassification.stars)
+  const teamBStars = countInCategory(teamB, globalClassification.stars)
+
+  const teamAAverage = countInCategory(teamA, globalClassification.average)
+  const teamBAverage = countInCategory(teamB, globalClassification.average)
+
+  const teamAWeak = countInCategory(teamA, globalClassification.weak)
+  const teamBWeak = countInCategory(teamB, globalClassification.weak)
+
+  // Calculate imbalance for each category
+  const starImbalance = Math.abs(teamAStars - teamBStars) * 3.0 // Stars are most important
+  const avgImbalance = Math.abs(teamAAverage - teamBAverage) * 2.0
+  const weakImbalance = Math.abs(teamAWeak - teamBWeak) * 1.0
+
+  return starImbalance + avgImbalance + weakImbalance
+}
+
+/**
+ * IMPROVEMENT 3: Position Preference
+ * Assumes first position in array is the player's primary/best position
+ */
+function calculatePositionPreferencePenalty(team: Player[]): number {
+  let penalty = 0
+
+  team.forEach((player) => {
+    if (!player.positions || player.positions.length === 0) {
+      penalty += 5 // No position defined - penalty
+      return
+    }
+
+    // Primary position is the first one in the array
+    const primaryPosition = player.positions[0]
+    const stats = calculateTeamStats(team)
+
+    // Check if team has enough players for this position
+    const posEnum = POSITION_MAP[primaryPosition]
+    const count = stats.positionCounts[posEnum]
+
+    // If this is the player's primary position but team has too many,
+    // they might be playing out of position
+    const requirements = POSITION_REQUIREMENTS[posEnum]
+    if (count > requirements.ideal + 2) {
+      // Team has too many players for this position
+      // This player might be forced to play secondary position
+      penalty += 3
+    }
+  })
+
+  return penalty
+}
+
+/**
  * Calculate variance (imbalance) between two teams
  * Lower is better (0 = perfect balance)
+ * UPDATED: Now includes position depth, strength levels, and position preference
  */
 function calculateVariance(
   teamA: Player[],
   teamB: Player[],
-  config: GeneratorConfig
+  config: GeneratorConfig,
+  allPlayers?: Player[] // Needed for strength level classification
 ): number {
   const statsA = calculateTeamStats(teamA)
   const statsB = calculateTeamStats(teamB)
@@ -181,13 +318,34 @@ function calculateVariance(
     positionImbalance += diff * config.positionWeight
   })
 
-  // Total variance (sum of all differences)
+  // NEW: Position depth penalties (both teams)
+  const depthPenaltyA = calculatePositionDepthPenalty(teamA)
+  const depthPenaltyB = calculatePositionDepthPenalty(teamB)
+  const totalDepthPenalty = (depthPenaltyA + depthPenaltyB) * config.positionDepthWeight
+
+  // NEW: Strength level imbalance
+  let strengthLevelPenalty = 0
+  if (allPlayers && allPlayers.length > 0) {
+    strengthLevelPenalty =
+      calculateStrengthLevelImbalance(teamA, teamB, allPlayers) *
+      config.strengthLevelWeight
+  }
+
+  // NEW: Position preference penalty (both teams)
+  const prefPenaltyA = calculatePositionPreferencePenalty(teamA)
+  const prefPenaltyB = calculatePositionPreferencePenalty(teamB)
+  const totalPrefPenalty = (prefPenaltyA + prefPenaltyB) * config.positionPreferenceWeight
+
+  // Total variance (sum of all differences and penalties)
   const totalVariance =
     playerCountDiff +
     technikDiff * 2.0 + // Weight technik higher
     fitnessDiff * 2.0 + // Weight fitness higher
     spielverstaendnisDiff * 2.0 + // Weight spielverstaendnis higher
-    positionImbalance
+    positionImbalance +
+    totalDepthPenalty + // NEW: Position depth
+    strengthLevelPenalty + // NEW: Strength level distribution
+    totalPrefPenalty // NEW: Position preference
 
   return totalVariance
 }
@@ -309,11 +467,12 @@ function initialDistribution(
 function optimizeThroughSwaps(
   teamA: Player[],
   teamB: Player[],
-  config: GeneratorConfig
+  config: GeneratorConfig,
+  allPlayers: Player[]
 ): { teamA: Player[]; teamB: Player[] } {
   let currentTeamA = [...teamA]
   let currentTeamB = [...teamB]
-  let currentVariance = calculateVariance(currentTeamA, currentTeamB, config)
+  let currentVariance = calculateVariance(currentTeamA, currentTeamB, config, allPlayers)
 
   let iterations = 0
   let noImprovementCount = 0
@@ -345,7 +504,7 @@ function optimizeThroughSwaps(
           .filter((p) => p.id !== playerB.id)
           .concat(playerA)
 
-        const newVariance = calculateVariance(newTeamA, newTeamB, config)
+        const newVariance = calculateVariance(newTeamA, newTeamB, config, allPlayers)
 
         // Accept swap if it improves balance
         if (newVariance < currentVariance - 0.01) {
@@ -393,7 +552,7 @@ export function generateBalancedTeams(
   teamB = result.teamB
 
   // Phase 3: Optimize through swaps
-  const optimized = optimizeThroughSwaps(teamA, teamB, finalConfig)
+  const optimized = optimizeThroughSwaps(teamA, teamB, finalConfig, players)
 
   return {
     teamA: {

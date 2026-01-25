@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { auth, db } from '@/lib/firebase'
-import { collection, query, where, onSnapshot, addDoc, deleteDoc, doc } from 'firebase/firestore'
+import { collection, query, where, onSnapshot, addDoc, deleteDoc, doc, updateDoc, arrayRemove } from 'firebase/firestore'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
@@ -100,6 +100,22 @@ function SquadsContent() {
     } catch (error) {
       console.error('Error deleting squad:', error)
       alert('Fehler beim Löschen des Teams')
+    }
+  }
+
+  const leaveAsCoTrainer = async (squadId: string) => {
+    if (!confirm('Möchtest du dich wirklich von diesem Team entfernen?')) return
+
+    try {
+      const user = auth.currentUser
+      if (!user) return
+
+      await updateDoc(doc(db, 'squads', squadId), {
+        coTrainerIds: arrayRemove(user.uid)
+      })
+    } catch (error) {
+      console.error('Error leaving squad:', error)
+      alert('Fehler beim Verlassen des Teams')
     }
   }
 
@@ -262,6 +278,15 @@ function SquadsContent() {
                               </div>
                             </div>
                           </div>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              leaveAsCoTrainer(squad.id)
+                            }}
+                            className="p-2 rounded-lg hover:bg-soft-mint/50 dark:hover:bg-card-dark transition-smooth"
+                          >
+                            <Trash2 className="w-5 h-5 text-mid-grey hover:text-red-500" />
+                          </button>
                         </div>
 
                         <div className="text-sm text-mid-grey">

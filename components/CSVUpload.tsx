@@ -133,7 +133,7 @@ export function CSVUpload({ squadId, onImportComplete, onClose }: CSVUploadProps
           {/* Template Download */}
           <div className="flex items-center justify-between p-4 rounded-lg bg-soft-mint/50 dark:bg-card-dark">
             <div className="flex items-center gap-3">
-              <FileText className="w-5 h-5 text-digital-purple" />
+              <FileText className="w-5 h-5 text-digital-orange" />
               <div>
                 <p className="font-medium text-sm text-deep-petrol dark:text-soft-mint">
                   CSV-Vorlage herunterladen

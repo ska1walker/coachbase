@@ -80,7 +80,7 @@ export default function HallOfFamePage() {
         {/* Header */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-3 mb-2">
-            <Trophy className="w-8 h-8 text-digital-purple" />
+            <Trophy className="w-8 h-8 text-digital-orange" />
             <h1 className="text-h1-mobile md:text-h1-desktop font-headline text-deep-petrol dark:text-soft-mint">
               Hall of Fame
             </h1>
@@ -111,7 +111,7 @@ export default function HallOfFamePage() {
                       key={coach.uid}
                       className={`flex items-center gap-4 p-4 rounded-lg transition-all ${
                         index < 3
-                          ? 'bg-gradient-to-r from-neon-lime/10 to-digital-purple/10 border-2 border-digital-purple/20'
+                          ? 'bg-gradient-to-r from-neon-lime/10 to-digital-orange/10 border-2 border-digital-orange/20'
                           : 'bg-soft-mint/50 dark:bg-card-dark/50'
                       }`}
                     >
@@ -139,7 +139,7 @@ export default function HallOfFamePage() {
                       {/* Stats */}
                       <div className="hidden sm:flex items-center gap-4 text-sm">
                         <div className="text-center">
-                          <div className="font-bold text-digital-purple">{coach.xp}</div>
+                          <div className="font-bold text-digital-orange">{coach.xp}</div>
                           <div className="text-xs text-mid-grey">XP</div>
                         </div>
                         <div className="text-center">
@@ -170,7 +170,7 @@ export default function HallOfFamePage() {
         <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
           <Card>
             <CardContent className="text-center py-6">
-              <Users className="w-8 h-8 text-digital-purple mx-auto mb-2" />
+              <Users className="w-8 h-8 text-digital-orange mx-auto mb-2" />
               <div className="text-2xl font-bold text-deep-petrol dark:text-soft-mint">
                 {topCoaches.length}
               </div>
@@ -180,7 +180,7 @@ export default function HallOfFamePage() {
 
           <Card>
             <CardContent className="text-center py-6">
-              <Target className="w-8 h-8 text-digital-purple mx-auto mb-2" />
+              <Target className="w-8 h-8 text-digital-orange mx-auto mb-2" />
               <div className="text-2xl font-bold text-deep-petrol dark:text-soft-mint">
                 {topCoaches.reduce((sum, c) => sum + c.teamsGenerated, 0)}
               </div>

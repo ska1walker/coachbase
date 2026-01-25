@@ -9,21 +9,21 @@ export function LandingFooter() {
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 text-sm text-mid-grey">
           <Link
             href="/impressum"
-            className="hover:text-digital-purple transition-smooth"
+            className="hover:text-digital-orange transition-smooth"
           >
             Impressum
           </Link>
           <span className="hidden sm:inline">|</span>
           <Link
             href="/datenschutz"
-            className="hover:text-digital-purple transition-smooth"
+            className="hover:text-digital-orange transition-smooth"
           >
             Datenschutz
           </Link>
           <span className="hidden sm:inline">|</span>
           <Link
             href="/credits"
-            className="hover:text-digital-purple transition-smooth"
+            className="hover:text-digital-orange transition-smooth"
           >
             Credits
           </Link>

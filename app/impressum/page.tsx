@@ -28,7 +28,7 @@ export default function ImpressumPage() {
         {/* Back Link */}
         <Link
           href="/"
-          className="inline-flex items-center gap-2 text-digital-purple hover:text-digital-purple/80 transition-smooth mb-6"
+          className="inline-flex items-center gap-2 text-digital-orange hover:text-digital-orange/80 transition-smooth mb-6"
         >
           <ArrowLeft className="w-4 h-4" />
           <span className="text-sm">Zurück</span>
@@ -55,7 +55,7 @@ export default function ImpressumPage() {
               <div>
                 <p className="font-semibold text-lg">Kai Böhm</p>
                 <div className="flex items-start gap-2 mt-2">
-                  <MapPin className="w-5 h-5 text-digital-purple mt-0.5 flex-shrink-0" />
+                  <MapPin className="w-5 h-5 text-digital-orange mt-0.5 flex-shrink-0" />
                   <div>
                     <p>Am Sportplatz 14</p>
                     <p>29633 Munster</p>
@@ -67,10 +67,10 @@ export default function ImpressumPage() {
               <div>
                 <h3 className="font-semibold text-lg mb-2">Kontakt</h3>
                 <div className="flex items-center gap-2">
-                  <Mail className="w-5 h-5 text-digital-purple" />
+                  <Mail className="w-5 h-5 text-digital-orange" />
                   <a
                     href="mailto:support@coachbase.eu"
-                    className="text-digital-purple hover:underline"
+                    className="text-digital-orange hover:underline"
                   >
                     support@coachbase.eu
                   </a>

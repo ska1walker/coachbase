@@ -233,7 +233,7 @@ function ProfileContent() {
                           </div>
                           <div className="w-full h-3 bg-mid-grey/20 rounded-full overflow-hidden">
                             <div
-                              className="h-full bg-gradient-to-r from-neon-lime to-digital-purple transition-all duration-300"
+                              className="h-full bg-gradient-to-r from-neon-lime to-digital-orange transition-all duration-300"
                               style={{ width: `${progress}%` }}
                             />
                           </div>
@@ -275,7 +275,7 @@ function ProfileContent() {
               {/* Players */}
               <Card>
                 <CardContent className="p-4 text-center">
-                  <User className="w-8 h-8 mx-auto mb-2 text-digital-purple" />
+                  <User className="w-8 h-8 mx-auto mb-2 text-digital-orange" />
                   <p className="text-2xl font-bold text-deep-petrol dark:text-soft-mint">
                     {stats.playersAdded}
                   </p>

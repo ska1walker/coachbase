@@ -97,7 +97,7 @@ export default function LoginPage() {
 
         <Card className="p-6 md:p-8">
           {error && (
-            <div className="mb-4 p-3 rounded-lg bg-digital-purple/10 border border-digital-purple text-digital-purple text-sm">
+            <div className="mb-4 p-3 rounded-lg bg-digital-orange/10 border border-digital-orange text-digital-orange text-sm">
               {error}
             </div>
           )}

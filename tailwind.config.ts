@@ -28,8 +28,8 @@ const config: Config = {
         // Action Color (Primary) - Neon Lime für CTAs
         'neon-lime': '#DFFF00',
 
-        // Accent Color (Secondary) - Digital Purple
-        'digital-purple': '#6A00FF',
+        // Accent Color (Secondary) - Digital Orange
+        'digital-orange': '#FF8C00',
 
         // Neutrals
         'deep-petrol': '#0A1F1D',

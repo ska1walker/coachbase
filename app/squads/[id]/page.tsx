@@ -340,8 +340,8 @@ function SquadDetailContent() {
 
           <Card>
             <CardContent className="p-6 flex items-center gap-4">
-              <div className="w-12 h-12 rounded-lg bg-digital-purple/20 flex items-center justify-center">
-                <TrendingUp className="w-6 h-6 text-digital-purple" />
+              <div className="w-12 h-12 rounded-lg bg-digital-orange/20 flex items-center justify-center">
+                <TrendingUp className="w-6 h-6 text-digital-orange" />
               </div>
               <div>
                 <p className="text-sm text-mid-grey uppercase tracking-label">Ø Stärke</p>
@@ -358,7 +358,7 @@ function SquadDetailContent() {
           <Card className="mb-8">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <UserPlus className="w-5 h-5 text-digital-purple" strokeWidth={2} />
+                <UserPlus className="w-5 h-5 text-digital-orange" strokeWidth={2} />
                 Co-Trainer ({coTrainers.length})
               </CardTitle>
             </CardHeader>
@@ -370,8 +370,8 @@ function SquadDetailContent() {
                     className="flex items-center justify-between p-4 rounded-lg bg-soft-mint/50 dark:bg-card-dark border border-mid-grey/20"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-digital-purple/20 flex items-center justify-center">
-                        <Users className="w-5 h-5 text-digital-purple" strokeWidth={2} />
+                      <div className="w-10 h-10 rounded-full bg-digital-orange/20 flex items-center justify-center">
+                        <Users className="w-5 h-5 text-digital-orange" strokeWidth={2} />
                       </div>
                       <div>
                         <p className="font-medium text-deep-petrol dark:text-soft-mint">
@@ -717,7 +717,7 @@ function SquadDetailContent() {
                               {player.positions.map((position) => (
                                 <span
                                   key={position}
-                                  className="px-2 py-1 rounded-full text-xs font-medium bg-digital-purple/20 text-digital-purple"
+                                  className="px-2 py-1 rounded-full text-xs font-medium bg-digital-orange/20 text-digital-orange"
                                 >
                                   {position}
                                 </span>

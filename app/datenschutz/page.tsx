@@ -28,7 +28,7 @@ export default function DatenschutzPage() {
         {/* Back Link */}
         <Link
           href="/"
-          className="inline-flex items-center gap-2 text-digital-purple hover:text-digital-purple/80 transition-smooth mb-6"
+          className="inline-flex items-center gap-2 text-digital-orange hover:text-digital-orange/80 transition-smooth mb-6"
         >
           <ArrowLeft className="w-4 h-4" />
           <span className="text-sm">Zurück</span>
@@ -50,7 +50,7 @@ export default function DatenschutzPage() {
           <Card>
             <CardHeader>
               <div className="flex items-center gap-3">
-                <Shield className="w-6 h-6 text-digital-purple" />
+                <Shield className="w-6 h-6 text-digital-orange" />
                 <CardTitle>1. Verantwortlicher</CardTitle>
               </div>
             </CardHeader>
@@ -63,7 +63,7 @@ export default function DatenschutzPage() {
               <p>29633 Munster</p>
               <p className="mt-2">
                 E-Mail:{' '}
-                <a href="mailto:support@coachbase.eu" className="text-digital-purple hover:underline">
+                <a href="mailto:support@coachbase.eu" className="text-digital-orange hover:underline">
                   support@coachbase.eu
                 </a>
               </p>
@@ -74,7 +74,7 @@ export default function DatenschutzPage() {
           <Card>
             <CardHeader>
               <div className="flex items-center gap-3">
-                <Database className="w-6 h-6 text-digital-purple" />
+                <Database className="w-6 h-6 text-digital-orange" />
                 <CardTitle>2. Welche Daten erfassen wir?</CardTitle>
               </div>
             </CardHeader>
@@ -110,7 +110,7 @@ export default function DatenschutzPage() {
           <Card>
             <CardHeader>
               <div className="flex items-center gap-3">
-                <Server className="w-6 h-6 text-digital-purple" />
+                <Server className="w-6 h-6 text-digital-orange" />
                 <CardTitle>3. Firebase & Google Cloud</CardTitle>
               </div>
             </CardHeader>
@@ -133,7 +133,7 @@ export default function DatenschutzPage() {
                   href="https://firebase.google.com/support/privacy"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-digital-purple hover:underline"
+                  className="text-digital-orange hover:underline"
                 >
                   Firebase Datenschutz
                 </a>
@@ -145,7 +145,7 @@ export default function DatenschutzPage() {
           <Card>
             <CardHeader>
               <div className="flex items-center gap-3">
-                <Lock className="w-6 h-6 text-digital-purple" />
+                <Lock className="w-6 h-6 text-digital-orange" />
                 <CardTitle>4. Rechtsgrundlage</CardTitle>
               </div>
             </CardHeader>
@@ -165,7 +165,7 @@ export default function DatenschutzPage() {
           <Card>
             <CardHeader>
               <div className="flex items-center gap-3">
-                <Eye className="w-6 h-6 text-digital-purple" />
+                <Eye className="w-6 h-6 text-digital-orange" />
                 <CardTitle>5. Ihre Rechte</CardTitle>
               </div>
             </CardHeader>
@@ -184,7 +184,7 @@ export default function DatenschutzPage() {
               </ul>
               <p className="text-sm text-mid-grey mt-4">
                 Zur Ausübung Ihrer Rechte kontaktieren Sie uns unter:{' '}
-                <a href="mailto:support@coachbase.eu" className="text-digital-purple hover:underline">
+                <a href="mailto:support@coachbase.eu" className="text-digital-orange hover:underline">
                   support@coachbase.eu
                 </a>
               </p>

@@ -159,7 +159,7 @@ export function AppHeader() {
                         onClick={() => setShowMenu(false)}
                         className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-soft-mint/50 dark:hover:bg-deep-petrol transition-smooth"
                       >
-                        <Shield className="w-5 h-5 text-digital-purple" />
+                        <Shield className="w-5 h-5 text-digital-orange" />
                         <span className="text-sm font-medium text-deep-petrol dark:text-soft-mint">
                           Admin Dashboard
                         </span>

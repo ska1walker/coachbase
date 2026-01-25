@@ -120,15 +120,15 @@ function BalancedListsMockup() {
         </div>
 
         {/* Team B */}
-        <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-digital-purple/20">
-          <div className="text-sm font-bold text-digital-purple mb-4">Team B</div>
+        <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-digital-orange/20">
+          <div className="text-sm font-bold text-digital-orange mb-4">Team B</div>
           {['Julia', 'Chris', 'Nina', 'Paul', 'Sara'].map((name, i) => (
             <div key={i} className="flex items-center gap-2 mb-2 text-soft-mint/80 text-sm">
-              <div className="w-2 h-2 rounded-full bg-digital-purple" />
+              <div className="w-2 h-2 rounded-full bg-digital-orange" />
               {name}
             </div>
           ))}
-          <div className="mt-4 pt-4 border-t border-digital-purple/20 text-digital-purple font-bold">
+          <div className="mt-4 pt-4 border-t border-digital-orange/20 text-digital-orange font-bold">
             Σ 147
           </div>
         </div>
@@ -384,7 +384,7 @@ export default function LandingPage() {
                                 onClick={() => setShowMenu(false)}
                                 className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-soft-mint/50 dark:hover:bg-deep-petrol transition-smooth"
                               >
-                                <Shield className="w-5 h-5 text-digital-purple" strokeWidth={2} />
+                                <Shield className="w-5 h-5 text-digital-orange" strokeWidth={2} />
                                 <span className="text-sm font-medium text-deep-petrol dark:text-soft-mint">
                                   Admin Dashboard
                                 </span>
@@ -615,7 +615,7 @@ export default function LandingPage() {
             </div>
 
             <div>
-              <div className="inline-block px-4 py-2 bg-digital-purple/20 rounded-full text-sm font-bold text-digital-purple mb-4">
+              <div className="inline-block px-4 py-2 bg-digital-orange/20 rounded-full text-sm font-bold text-digital-orange mb-4">
                 Always Ready
               </div>
               <h3 className="text-3xl md:text-4xl font-headline font-bold text-deep-petrol dark:text-soft-mint mb-4">
@@ -628,7 +628,7 @@ export default function LandingPage() {
               <ul className="space-y-3">
                 {['CSV-Import für schnelles Setup', 'Spieler-Profile mit Skills', 'Offline verfügbar'].map((item) => (
                   <li key={item} className="flex items-center gap-3 text-mid-grey">
-                    <Check className="w-5 h-5 text-digital-purple flex-shrink-0" strokeWidth={2} />
+                    <Check className="w-5 h-5 text-digital-orange flex-shrink-0" strokeWidth={2} />
                     {item}
                   </li>
                 ))}
@@ -693,9 +693,9 @@ export default function LandingPage() {
             </div>
 
             {/* Basketball */}
-            <div className="p-8 rounded-2xl border-2 border-transparent hover:border-digital-purple transition-smooth text-center bg-soft-mint/50 dark:bg-deep-petrol">
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-deep-petrol/10 dark:bg-digital-purple/10 mb-4">
-                <Dumbbell className="w-8 h-8 text-deep-petrol dark:text-digital-purple" strokeWidth={1.5} />
+            <div className="p-8 rounded-2xl border-2 border-transparent hover:border-digital-orange transition-smooth text-center bg-soft-mint/50 dark:bg-deep-petrol">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-deep-petrol/10 dark:bg-digital-orange/10 mb-4">
+                <Dumbbell className="w-8 h-8 text-deep-petrol dark:text-digital-orange" strokeWidth={1.5} />
               </div>
               <h3 className="text-xl font-headline font-bold text-deep-petrol dark:text-soft-mint mb-2">
                 Basketball
@@ -719,9 +719,9 @@ export default function LandingPage() {
             </div>
 
             {/* E-Sports */}
-            <div className="p-8 rounded-2xl border-2 border-transparent hover:border-digital-purple transition-smooth text-center bg-soft-mint/50 dark:bg-deep-petrol">
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-deep-petrol/10 dark:bg-digital-purple/10 mb-4">
-                <Gamepad2 className="w-8 h-8 text-deep-petrol dark:text-digital-purple" strokeWidth={1.5} />
+            <div className="p-8 rounded-2xl border-2 border-transparent hover:border-digital-orange transition-smooth text-center bg-soft-mint/50 dark:bg-deep-petrol">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-deep-petrol/10 dark:bg-digital-orange/10 mb-4">
+                <Gamepad2 className="w-8 h-8 text-deep-petrol dark:text-digital-orange" strokeWidth={1.5} />
               </div>
               <h3 className="text-xl font-headline font-bold text-deep-petrol dark:text-soft-mint mb-2">
                 E-Sports

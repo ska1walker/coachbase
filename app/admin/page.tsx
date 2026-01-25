@@ -322,8 +322,8 @@ function AdminContent() {
                   >
                     <CardContent className="p-6 flex items-center justify-between">
                       <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-lg bg-digital-purple/20 flex items-center justify-center">
-                          <Users className="w-6 h-6 text-digital-purple" />
+                        <div className="w-12 h-12 rounded-lg bg-digital-orange/20 flex items-center justify-center">
+                          <Users className="w-6 h-6 text-digital-orange" />
                         </div>
                         <div>
                           <h3 className="font-bold text-lg text-deep-petrol dark:text-soft-mint">

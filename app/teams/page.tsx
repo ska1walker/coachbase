@@ -404,7 +404,7 @@ function TeamsPageContent() {
                                   {player.positions.map((pos) => (
                                     <span
                                       key={pos}
-                                      className="px-1.5 py-0.5 rounded text-xs font-medium bg-digital-purple/20 text-digital-purple"
+                                      className="px-1.5 py-0.5 rounded text-xs font-medium bg-digital-orange/20 text-digital-orange"
                                     >
                                       {pos}
                                     </span>
@@ -469,7 +469,7 @@ function TeamsPageContent() {
                 balanceScoreCard.isPerfect
                   ? 'bg-neon-lime/5 border-neon-lime/30'
                   : balanceScoreCard.score < 5.0
-                  ? 'bg-digital-purple/5 border-digital-purple/30'
+                  ? 'bg-digital-orange/5 border-digital-orange/30'
                   : 'bg-orange-500/5 border-orange-500/30'
               }`}>
                 <CardHeader>
@@ -640,7 +640,7 @@ function TeamsPageContent() {
 
             {/* Nachzügler Section */}
             {latecomers.length > 0 && (
-              <Card className="bg-digital-purple/5 border-2 border-digital-purple/20">
+              <Card className="bg-digital-orange/5 border-2 border-digital-orange/20">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Users className="w-5 h-5" />

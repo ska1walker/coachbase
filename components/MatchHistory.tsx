@@ -131,7 +131,7 @@ export function MatchHistoryList({ squadId }: MatchHistoryListProps) {
 
                     <div className="flex items-center gap-4">
                       <div className="flex items-center gap-2">
-                        <Users className="w-4 h-4 text-digital-purple" />
+                        <Users className="w-4 h-4 text-digital-orange" />
                         <span className="font-bold text-deep-petrol dark:text-soft-mint">
                           {match.teamCount} Teams
                         </span>

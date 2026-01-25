@@ -40,7 +40,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
               variant === 'secondary' && props.disabled !== true,
 
             // Danger - for delete actions
-            'bg-digital-purple text-white hover:bg-digital-purple/90 border-2 border-digital-purple':
+            'bg-digital-orange text-white hover:bg-digital-orange/90 border-2 border-digital-orange':
               variant === 'danger',
           },
 

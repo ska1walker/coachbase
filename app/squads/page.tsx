@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/Input'
 import { AuthGuard } from '@/components/AuthGuard'
 import { AppHeader } from '@/components/AppHeader'
 import { PageLayout } from '@/components/PageLayout'
-import { Users, Plus, Trash2 } from 'lucide-react'
+import { Users, Plus, Trash2, Unlink } from 'lucide-react'
 import type { Squad } from '@/lib/types'
 import { BottomNav } from '@/components/BottomNav'
 import { useUserStats } from '@/hooks/useUserStats'
@@ -23,6 +23,12 @@ function SquadsContent() {
   const [newSquadName, setNewSquadName] = useState('')
   const [creating, setCreating] = useState(false)
   const { trackSquadCreated } = useUserStats()
+
+  // Confirmation dialog state
+  const [confirmAction, setConfirmAction] = useState<'delete' | 'unlink' | null>(null)
+  const [confirmSquadId, setConfirmSquadId] = useState<string | null>(null)
+  const [confirmSquadName, setConfirmSquadName] = useState<string>('')
+  const [confirmInput, setConfirmInput] = useState('')
 
   useEffect(() => {
     const user = auth.currentUser
@@ -92,30 +98,52 @@ function SquadsContent() {
     }
   }
 
-  const deleteSquad = async (squadId: string) => {
-    if (!confirm('Team wirklich löschen? Alle Spieler werden ebenfalls gelöscht.')) return
-
-    try {
-      await deleteDoc(doc(db, 'squads', squadId))
-    } catch (error) {
-      console.error('Error deleting squad:', error)
-      alert('Fehler beim Löschen des Teams')
-    }
+  const openDeleteConfirmation = (squadId: string, squadName: string) => {
+    setConfirmAction('delete')
+    setConfirmSquadId(squadId)
+    setConfirmSquadName(squadName)
+    setConfirmInput('')
   }
 
-  const leaveAsCoTrainer = async (squadId: string) => {
-    if (!confirm('Möchtest du dich wirklich von diesem Team entfernen?')) return
+  const openUnlinkConfirmation = (squadId: string, squadName: string) => {
+    setConfirmAction('unlink')
+    setConfirmSquadId(squadId)
+    setConfirmSquadName(squadName)
+    setConfirmInput('')
+  }
+
+  const cancelConfirmation = () => {
+    setConfirmAction(null)
+    setConfirmSquadId(null)
+    setConfirmSquadName('')
+    setConfirmInput('')
+  }
+
+  const executeConfirmedAction = async () => {
+    if (!confirmSquadId || !confirmAction) return
+
+    // Validate input
+    const expectedInput = confirmAction === 'delete' ? 'löschen' : 'unlinken'
+    if (confirmInput.toLowerCase() !== expectedInput) {
+      alert(`Bitte "${expectedInput}" eingeben, um fortzufahren.`)
+      return
+    }
 
     try {
-      const user = auth.currentUser
-      if (!user) return
+      if (confirmAction === 'delete') {
+        await deleteDoc(doc(db, 'squads', confirmSquadId))
+      } else if (confirmAction === 'unlink') {
+        const user = auth.currentUser
+        if (!user) return
 
-      await updateDoc(doc(db, 'squads', squadId), {
-        coTrainerIds: arrayRemove(user.uid)
-      })
+        await updateDoc(doc(db, 'squads', confirmSquadId), {
+          coTrainerIds: arrayRemove(user.uid)
+        })
+      }
+      cancelConfirmation()
     } catch (error) {
-      console.error('Error leaving squad:', error)
-      alert('Fehler beim Verlassen des Teams')
+      console.error(`Error ${confirmAction}ing squad:`, error)
+      alert(`Fehler beim ${confirmAction === 'delete' ? 'Löschen' : 'Entfernen'}`)
     }
   }
 
@@ -225,7 +253,7 @@ function SquadsContent() {
                           <button
                             onClick={(e) => {
                               e.stopPropagation()
-                              deleteSquad(squad.id)
+                              openDeleteConfirmation(squad.id, squad.name)
                             }}
                             className="p-2 rounded-lg hover:bg-soft-mint/50 dark:hover:bg-card-dark transition-smooth"
                           >
@@ -281,11 +309,11 @@ function SquadsContent() {
                           <button
                             onClick={(e) => {
                               e.stopPropagation()
-                              leaveAsCoTrainer(squad.id)
+                              openUnlinkConfirmation(squad.id, squad.name)
                             }}
                             className="p-2 rounded-lg hover:bg-soft-mint/50 dark:hover:bg-card-dark transition-smooth"
                           >
-                            <Trash2 className="w-5 h-5 text-mid-grey hover:text-red-500" />
+                            <Unlink className="w-5 h-5 text-mid-grey hover:text-digital-orange" />
                           </button>
                         </div>
 
@@ -301,6 +329,63 @@ function SquadsContent() {
           </>
         )}
       </PageLayout>
+
+      {/* Confirmation Dialog */}
+      {confirmAction && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <Card className="max-w-md w-full">
+            <CardHeader>
+              <CardTitle className="text-red-600 dark:text-red-400">
+                {confirmAction === 'delete' ? '⚠️ Team löschen' : '⚠️ Verbindung trennen'}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <p className="text-deep-petrol dark:text-soft-mint">
+                  {confirmAction === 'delete'
+                    ? `Möchtest du das Team "${confirmSquadName}" wirklich löschen? Alle Spieler und die gesamte History werden unwiderruflich gelöscht.`
+                    : `Möchtest du dich wirklich von "${confirmSquadName}" entfernen? Du verlierst den Zugriff auf dieses Team.`
+                  }
+                </p>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2 text-deep-petrol dark:text-soft-mint">
+                    Bitte tippe <span className="font-bold text-red-600 dark:text-red-400">
+                      "{confirmAction === 'delete' ? 'löschen' : 'unlinken'}"
+                    </span> ein, um fortzufahren:
+                  </label>
+                  <Input
+                    type="text"
+                    value={confirmInput}
+                    onChange={(e) => setConfirmInput(e.target.value)}
+                    placeholder={confirmAction === 'delete' ? 'löschen' : 'unlinken'}
+                    className="w-full"
+                    autoFocus
+                  />
+                </div>
+
+                <div className="flex gap-3 pt-4">
+                  <Button
+                    variant="secondary"
+                    onClick={cancelConfirmation}
+                    className="flex-1"
+                  >
+                    Abbrechen
+                  </Button>
+                  <Button
+                    variant="primary"
+                    onClick={executeConfirmedAction}
+                    disabled={confirmInput.toLowerCase() !== (confirmAction === 'delete' ? 'löschen' : 'unlinken')}
+                    className="flex-1 bg-red-600 hover:bg-red-700 disabled:bg-mid-grey disabled:cursor-not-allowed"
+                  >
+                    {confirmAction === 'delete' ? 'Löschen' : 'Entfernen'}
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
       <BottomNav />
     </div>

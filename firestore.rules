@@ -79,6 +79,24 @@ service cloud.firestore {
 
       // Admins have full access
       allow read, write: if isAdmin();
+
+      // Matches subcollection
+      match /matches/{matchId} {
+        // Users can read if they are owner OR co-trainer of the squad
+        allow read: if isAuthenticated() && isOwnerOrCoTrainer(squadId);
+
+        // BOTH owners AND co-trainers can create matches
+        allow create: if isAuthenticated() && isOwnerOrCoTrainer(squadId);
+
+        // BOTH owners AND co-trainers can update matches (for adding results)
+        allow update: if isAuthenticated() && isOwnerOrCoTrainer(squadId);
+
+        // ONLY OWNERS can delete matches
+        allow delete: if isAuthenticated() && isOwner(get(/databases/$(database)/documents/squads/$(squadId)).data.ownerId);
+
+        // Admins have full access
+        allow read, write: if isAdmin();
+      }
     }
 
     // Players collection

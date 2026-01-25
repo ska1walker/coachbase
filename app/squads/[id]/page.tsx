@@ -1,5 +1,6 @@
 'use client'
 
+// Squad Detail Page with Position Selection (Multi-select)
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { auth, db } from '@/lib/firebase'

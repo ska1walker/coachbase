@@ -17,198 +17,151 @@ import {
   Zap,
   Clock,
   Scale,
-  FileX2,
   Smartphone,
-  History,
   ArrowRight,
   ChevronDown,
   ChevronUp,
   Target,
-  Dumbbell,
   Trophy,
-  Gamepad2,
   Check,
+  XCircle,
+  TrendingUp,
+  MapPin,
+  Timer,
+  Sparkles,
 } from 'lucide-react'
 
-// Abstract Balance Graphic Component
-function BalanceGraphic() {
+// Hero Graphic: Before/After Comparison
+function HeroComparisonGraphic() {
   return (
-    <div className="relative w-full h-[400px] md:h-[500px] flex items-center justify-center">
-      {/* Hologram glow effect */}
-      <div className="absolute inset-0 bg-gradient-radial from-neon-lime/10 via-transparent to-transparent animate-pulse" />
-
-      {/* Left Team - Circles */}
-      <div className="absolute left-[15%] top-[30%] space-y-3">
-        {[...Array(5)].map((_, i) => (
-          <div
-            key={`left-${i}`}
-            className="w-12 h-12 rounded-full border-2 border-neon-lime/60 bg-neon-lime/5 animate-float"
-            style={{ animationDelay: `${i * 0.2}s` }}
-          />
-        ))}
-      </div>
-
-      {/* Right Team - Circles */}
-      <div className="absolute right-[15%] top-[30%] space-y-3">
-        {[...Array(5)].map((_, i) => (
-          <div
-            key={`right-${i}`}
-            className="w-12 h-12 rounded-full border-2 border-neon-lime/60 bg-neon-lime/5 animate-float"
-            style={{ animationDelay: `${i * 0.2 + 0.1}s` }}
-          />
-        ))}
-      </div>
-
-      {/* Center Balance Point */}
-      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-        <div className="relative">
-          {/* Balance scale */}
-          <div className="w-48 h-1 bg-neon-lime/80 rounded-full" />
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-4 h-12 bg-neon-lime/80 rounded-full" />
-
-          {/* Glowing arrow pointing down */}
-          <div className="absolute -bottom-12 left-1/2 transform -translate-x-1/2">
-            <div className="w-8 h-8 border-4 border-neon-lime border-t-transparent rounded-full animate-spin-slow" />
-          </div>
-        </div>
-      </div>
-
-      {/* Connection lines */}
-      <svg className="absolute inset-0 w-full h-full" style={{ pointerEvents: 'none' }}>
-        <line
-          x1="25%"
-          y1="50%"
-          x2="50%"
-          y2="50%"
-          stroke="rgb(190, 242, 100)"
-          strokeWidth="2"
-          strokeDasharray="4 4"
-          opacity="0.3"
-        />
-        <line
-          x1="75%"
-          y1="50%"
-          x2="50%"
-          y2="50%"
-          stroke="rgb(190, 242, 100)"
-          strokeWidth="2"
-          strokeDasharray="4 4"
-          opacity="0.3"
-        />
-      </svg>
-    </div>
-  )
-}
-
-// UI Mockup: Balanced Lists
-function BalancedListsMockup() {
-  return (
-    <div className="relative w-full h-[400px] flex items-center justify-center">
-      <div className="grid grid-cols-2 gap-8 w-full max-w-md">
-        {/* Team A */}
-        <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-neon-lime/20">
-          <div className="text-sm font-bold text-neon-lime mb-4">Team A</div>
-          {['Max', 'Lisa', 'Tom', 'Anna', 'Ben'].map((name, i) => (
-            <div key={i} className="flex items-center gap-2 mb-2 text-soft-mint/80 text-sm">
-              <div className="w-2 h-2 rounded-full bg-neon-lime" />
-              {name}
-            </div>
-          ))}
-          <div className="mt-4 pt-4 border-t border-neon-lime/20 text-neon-lime font-bold">
-            Σ 145
+    <div className="relative w-full h-[500px] flex items-center justify-center">
+      {/* Before (Left): Unfair Teams */}
+      <div className="absolute left-0 w-[45%] h-full flex flex-col justify-center">
+        <div className="text-center mb-4">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-500/20 border border-red-500/30 mb-3">
+            <XCircle className="w-4 h-4 text-red-400" />
+            <span className="text-xs font-bold text-red-400 uppercase">Vorher</span>
           </div>
         </div>
 
-        {/* Team B */}
-        <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-digital-orange/20">
-          <div className="text-sm font-bold text-digital-orange mb-4">Team B</div>
-          {['Julia', 'Chris', 'Nina', 'Paul', 'Sara'].map((name, i) => (
-            <div key={i} className="flex items-center gap-2 mb-2 text-soft-mint/80 text-sm">
-              <div className="w-2 h-2 rounded-full bg-digital-orange" />
-              {name}
-            </div>
-          ))}
-          <div className="mt-4 pt-4 border-t border-digital-orange/20 text-digital-orange font-bold">
-            Σ 147
-          </div>
-        </div>
-      </div>
-
-      {/* Match symbol in center */}
-      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-        <div className="w-16 h-16 rounded-full bg-neon-lime/20 border-2 border-neon-lime flex items-center justify-center">
-          <Check className="w-8 h-8 text-neon-lime" strokeWidth={2} />
-        </div>
-      </div>
-    </div>
-  )
-}
-
-// Smartphone Mockup
-function SmartphoneMockup() {
-  return (
-    <div className="relative w-full h-[400px] flex items-center justify-center">
-      {/* Phone frame */}
-      <div className="w-64 h-[400px] bg-deep-petrol border-4 border-neon-lime/30 rounded-3xl overflow-hidden shadow-2xl relative">
-        {/* Screen */}
-        <div className="absolute inset-4 bg-gradient-to-b from-deep-petrol to-deep-petrol/80 rounded-2xl p-4">
-          {/* Header */}
-          <div className="text-neon-lime text-sm font-bold mb-4">Meine Spieler</div>
-
-          {/* Player list with checkboxes */}
-          {['Max Mustermann', 'Lisa Schmidt', 'Tom Weber', 'Anna Müller', 'Ben Koch'].map((name, i) => (
-            <div key={i} className="flex items-center gap-3 mb-3 text-soft-mint text-sm">
-              <div className="w-5 h-5 rounded border-2 border-neon-lime/60 flex items-center justify-center">
-                {i < 3 && <Check className="w-3 h-3 text-neon-lime" strokeWidth={3} />}
+        {/* Two unbalanced teams */}
+        <div className="space-y-4">
+          {/* Strong Team */}
+          <div className="bg-red-500/10 backdrop-blur-sm rounded-xl p-4 border border-red-500/20">
+            <div className="text-xs font-bold text-red-400 mb-2">Team A</div>
+            {[9, 8, 9, 8, 9].map((skill, i) => (
+              <div key={i} className="flex items-center gap-2 mb-1.5">
+                <div className="w-6 h-6 rounded-full bg-red-500/30 flex items-center justify-center text-[10px] font-bold text-red-300">
+                  {skill}
+                </div>
+                <div className="flex-1 h-1.5 bg-red-500/20 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-red-400"
+                    style={{ width: `${skill * 10}%` }}
+                  />
+                </div>
               </div>
-              <span className={i < 3 ? 'text-soft-mint' : 'text-soft-mint/40'}>{name}</span>
+            ))}
+            <div className="mt-3 pt-3 border-t border-red-500/20 text-right">
+              <span className="text-xl font-bold text-red-400">Σ 43</span>
             </div>
-          ))}
+          </div>
+
+          {/* Weak Team */}
+          <div className="bg-red-500/10 backdrop-blur-sm rounded-xl p-4 border border-red-500/20">
+            <div className="text-xs font-bold text-red-400 mb-2">Team B</div>
+            {[4, 5, 3, 5, 4].map((skill, i) => (
+              <div key={i} className="flex items-center gap-2 mb-1.5">
+                <div className="w-6 h-6 rounded-full bg-red-500/30 flex items-center justify-center text-[10px] font-bold text-red-300">
+                  {skill}
+                </div>
+                <div className="flex-1 h-1.5 bg-red-500/20 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-red-400"
+                    style={{ width: `${skill * 10}%` }}
+                  />
+                </div>
+              </div>
+            ))}
+            <div className="mt-3 pt-3 border-t border-red-500/20 text-right">
+              <span className="text-xl font-bold text-red-400">Σ 21</span>
+            </div>
+          </div>
         </div>
 
-        {/* Finger tap indicator */}
-        <div className="absolute bottom-24 right-8 animate-bounce">
-          <div className="w-12 h-12 rounded-full bg-neon-lime/20 border-2 border-neon-lime flex items-center justify-center">
-            <div className="w-3 h-3 rounded-full bg-neon-lime" />
-          </div>
+        <div className="text-center mt-4">
+          <span className="text-2xl font-bold text-red-400">9:1</span>
+          <p className="text-xs text-red-400/60 mt-1">Kein Spaß für niemanden</p>
         </div>
       </div>
-    </div>
-  )
-}
 
-// Timeline Mockup
-function TimelineMockup() {
-  return (
-    <div className="relative w-full h-[400px] flex items-center justify-center">
-      <div className="relative w-full max-w-lg">
-        {/* Timeline line */}
-        <div className="absolute left-8 top-0 bottom-0 w-1 bg-neon-lime/20" />
+      {/* Arrow in Center */}
+      <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
+        <div className="flex flex-col items-center">
+          <div className="w-12 h-12 rounded-full bg-neon-lime flex items-center justify-center mb-2 animate-pulse">
+            <Sparkles className="w-6 h-6 text-deep-petrol" strokeWidth={2} />
+          </div>
+          <ArrowRight className="w-8 h-8 text-neon-lime" strokeWidth={3} />
+        </div>
+      </div>
 
-        {/* Timeline items */}
-        {[
-          { date: 'Heute', result: '5:3', winner: 'Team A' },
-          { date: 'Gestern', result: '4:4', winner: 'Unentschieden' },
-          { date: 'Vor 3 Tagen', result: '6:2', winner: 'Team B' },
-        ].map((item, i) => (
-          <div key={i} className="relative flex items-start gap-6 mb-12">
-            {/* Timeline dot */}
-            <div className="w-16 h-16 rounded-full bg-neon-lime/20 border-4 border-neon-lime flex items-center justify-center flex-shrink-0">
-              <History className="w-6 h-6 text-neon-lime" strokeWidth={1.5} />
-            </div>
+      {/* After (Right): Balanced Teams */}
+      <div className="absolute right-0 w-[45%] h-full flex flex-col justify-center">
+        <div className="text-center mb-4">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-neon-lime/20 border border-neon-lime/30 mb-3">
+            <Check className="w-4 h-4 text-neon-lime" />
+            <span className="text-xs font-bold text-neon-lime uppercase">Nachher</span>
+          </div>
+        </div>
 
-            {/* Content card */}
-            <div className="flex-1 bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-neon-lime/20">
-              <div className="text-xs text-mid-grey mb-1">{item.date}</div>
-              <div className="text-lg font-bold text-neon-lime mb-1">{item.result}</div>
-              <div className="text-sm text-soft-mint/80">{item.winner}</div>
+        {/* Two balanced teams */}
+        <div className="space-y-4">
+          {/* Balanced Team 1 */}
+          <div className="bg-neon-lime/10 backdrop-blur-sm rounded-xl p-4 border border-neon-lime/30">
+            <div className="text-xs font-bold text-neon-lime mb-2">Team A</div>
+            {[7, 6, 8, 5, 6].map((skill, i) => (
+              <div key={i} className="flex items-center gap-2 mb-1.5">
+                <div className="w-6 h-6 rounded-full bg-neon-lime/30 flex items-center justify-center text-[10px] font-bold text-neon-lime">
+                  {skill}
+                </div>
+                <div className="flex-1 h-1.5 bg-neon-lime/20 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-neon-lime"
+                    style={{ width: `${skill * 10}%` }}
+                  />
+                </div>
+              </div>
+            ))}
+            <div className="mt-3 pt-3 border-t border-neon-lime/20 text-right">
+              <span className="text-xl font-bold text-neon-lime">Σ 32</span>
             </div>
           </div>
-        ))}
 
-        {/* Arrow pointing backward */}
-        <div className="absolute -left-4 top-0">
-          <div className="w-8 h-8 border-l-2 border-t-2 border-neon-lime transform rotate-[-45deg] animate-pulse" />
+          {/* Balanced Team 2 */}
+          <div className="bg-neon-lime/10 backdrop-blur-sm rounded-xl p-4 border border-neon-lime/30">
+            <div className="text-xs font-bold text-neon-lime mb-2">Team B</div>
+            {[6, 7, 5, 7, 7].map((skill, i) => (
+              <div key={i} className="flex items-center gap-2 mb-1.5">
+                <div className="w-6 h-6 rounded-full bg-neon-lime/30 flex items-center justify-center text-[10px] font-bold text-neon-lime">
+                  {skill}
+                </div>
+                <div className="flex-1 h-1.5 bg-neon-lime/20 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-neon-lime"
+                    style={{ width: `${skill * 10}%` }}
+                  />
+                </div>
+              </div>
+            ))}
+            <div className="mt-3 pt-3 border-t border-neon-lime/20 text-right">
+              <span className="text-xl font-bold text-neon-lime">Σ 32</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="text-center mt-4">
+          <span className="text-2xl font-bold text-neon-lime">5:4</span>
+          <p className="text-xs text-neon-lime/60 mt-1">Spannung bis zur letzten Minute</p>
         </div>
       </div>
     </div>
@@ -258,16 +211,15 @@ export default function LandingPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    let isMounted = true // Memory leak protection
+    let isMounted = true
 
     const unsubscribe = auth.onAuthStateChanged(async (currentUser) => {
-      if (!isMounted) return // Component unmounted, skip updates
+      if (!isMounted) return
 
       if (currentUser) {
         setUser(currentUser)
         setUserEmail(currentUser.email || '')
 
-        // Load displayName from Firestore
         try {
           const userDoc = await getDoc(doc(db, 'users', currentUser.uid))
           if (isMounted && userDoc.exists()) {
@@ -297,7 +249,7 @@ export default function LandingPage() {
     })
 
     return () => {
-      isMounted = false // Cleanup flag
+      isMounted = false
       unsubscribe()
     }
   }, [])
@@ -330,7 +282,7 @@ export default function LandingPage() {
             {!loading && (
               <>
                 {user ? (
-                  // User Menu (logged in)
+                  // User Menu
                   <div className="relative">
                     <button
                       onClick={() => setShowMenu(!showMenu)}
@@ -349,16 +301,13 @@ export default function LandingPage() {
                       </div>
                     </button>
 
-                    {/* Dropdown Menu */}
                     {showMenu && (
                       <>
-                        {/* Backdrop */}
                         <div
                           className="fixed inset-0 z-40"
                           onClick={() => setShowMenu(false)}
                         />
 
-                        {/* Menu */}
                         <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-card-dark rounded-lg shadow-lg border border-mid-grey/20 z-50">
                           <div className="p-4 border-b border-mid-grey/20">
                             {displayName && (
@@ -431,7 +380,6 @@ export default function LandingPage() {
                     )}
                   </div>
                 ) : (
-                  // Login Button (not logged in)
                   <Link href="/login">
                     <Button
                       variant="secondary"
@@ -451,7 +399,6 @@ export default function LandingPage() {
 
       {/* Hero Section */}
       <section className="relative bg-deep-petrol overflow-hidden">
-        {/* Halftone pattern background */}
         <div
           className="absolute inset-0 opacity-[0.07]"
           style={{
@@ -461,309 +408,313 @@ export default function LandingPage() {
         />
 
         <PageLayout className="relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center min-h-[600px]">
-            {/* Text content */}
-            <div>
-              <h1 className="text-5xl md:text-6xl lg:text-7xl font-headline font-bold text-soft-mint mb-6 leading-tight">
-                Schluss mit{' '}
-                <span className="text-neon-lime">10:0</span>
-                <br />
-                und endlosem Wählen
-              </h1>
-
-              <p className="text-xl md:text-2xl text-soft-mint/80 mb-8 leading-relaxed">
-                CoachBase sorgt für faire, ausgeglichene Teams – in Sekunden.
-                Datenbasiert. Transparent. Ohne Drama.
-              </p>
-
-              <div className="flex flex-col sm:flex-row gap-4">
-                <Link href="/login" className="w-full sm:w-auto">
-                  <Button
-                    variant="primary"
-                    size="lg"
-                    className="w-full sm:w-auto gap-3"
-                  >
-                    Jetzt loslegen
-                    <ArrowRight className="w-5 h-5" strokeWidth={2} />
-                  </Button>
-                </Link>
-
-                <Button
-                  variant="secondary"
-                  size="lg"
-                  className="w-full sm:w-auto bg-white/10 border-white/20 hover:bg-white/20 text-soft-mint dark:border-white/20 dark:text-soft-mint dark:hover:bg-white/20"
-                >
-                  Wie es funktioniert
-                </Button>
-              </div>
-
-              <p className="text-sm text-soft-mint/60 mt-6">
-                100% kostenlos • Keine Anmeldung erforderlich zum Testen
-              </p>
+          <div className="text-center py-16 md:py-20">
+            {/* Problem Badge */}
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-red-500/20 border border-red-500/30 mb-6">
+              <XCircle className="w-5 h-5 text-red-400" />
+              <span className="text-sm font-bold text-red-400 uppercase">Das Problem</span>
             </div>
 
-            {/* Balance Graphic */}
-            <div className="hidden lg:block">
-              <BalanceGraphic />
-            </div>
-          </div>
-        </PageLayout>
-      </section>
+            {/* Main Headline - Problem */}
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-headline font-bold text-soft-mint mb-6 leading-tight max-w-5xl mx-auto">
+              Unfaire Teams <span className="text-red-400">frustrieren</span>
+              <br />
+              deine Spieler
+            </h1>
 
-      {/* Problem Section */}
-      <section className="bg-gradient-to-b from-deep-petrol via-deep-petrol/95 to-deep-petrol/90">
-        <PageLayout>
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-headline font-bold text-soft-mint mb-4">
-              Kennst du das Problem?
+            <p className="text-xl md:text-2xl text-soft-mint/70 mb-8 max-w-3xl mx-auto leading-relaxed">
+              10 Minuten warten beim Wählen. Ein Team gewinnt 8:1.
+              <br />
+              <span className="text-soft-mint/90">Die Schwächeren verlieren die Lust.</span>
+            </p>
+
+            {/* Solution Badge */}
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-neon-lime/20 border border-neon-lime/30 mb-6 mt-8">
+              <Sparkles className="w-5 h-5 text-neon-lime" />
+              <span className="text-sm font-bold text-neon-lime uppercase">Die Lösung</span>
+            </div>
+
+            {/* Solution Headline */}
+            <h2 className="text-3xl md:text-5xl font-headline font-bold text-neon-lime mb-8 leading-tight">
+              KI-Algorithmus erstellt faire Teams<br />
+              <span className="text-soft-mint text-2xl md:text-4xl">in unter 3 Sekunden</span>
             </h2>
-            <p className="text-xl text-soft-mint/70">
-              Jede Trainingseinheit, das gleiche Theater
+
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
+              <Link href="/login">
+                <Button
+                  variant="primary"
+                  size="lg"
+                  className="gap-3 text-lg px-8"
+                >
+                  Jetzt kostenlos testen
+                  <ArrowRight className="w-5 h-5" strokeWidth={2} />
+                </Button>
+              </Link>
+            </div>
+
+            <p className="text-sm text-soft-mint/60">
+              100% kostenlos • Keine Kreditkarte erforderlich • In 2 Minuten startklar
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Pain Point 1 */}
-            <div className="text-center p-8 bg-white/5 backdrop-blur-sm rounded-2xl border border-neon-lime/10 hover:border-neon-lime/30 transition-smooth">
-              <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-neon-lime/20 mb-6">
-                <Clock className="w-12 h-12 text-neon-lime" strokeWidth={1.5} />
+          {/* Comparison Graphic */}
+          <div className="hidden lg:block pb-16">
+            <HeroComparisonGraphic />
+          </div>
+        </PageLayout>
+      </section>
+
+      {/* How It Works - Technology Section */}
+      <section className="bg-gradient-to-b from-deep-petrol to-deep-petrol/90 border-t border-neon-lime/10">
+        <PageLayout>
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-neon-lime/20 border border-neon-lime/30 mb-6">
+              <Zap className="w-5 h-5 text-neon-lime" />
+              <span className="text-sm font-bold text-neon-lime uppercase">Fortschrittliche Technologie</span>
+            </div>
+            <h2 className="text-4xl md:text-5xl font-headline font-bold text-soft-mint mb-4">
+              So einfach funktionierts
+            </h2>
+            <p className="text-xl text-soft-mint/70 max-w-2xl mx-auto">
+              Drei Schritte zu perfekt balancierten Teams
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+            {/* Step 1 */}
+            <div className="relative">
+              <div className="absolute -top-4 -left-4 w-12 h-12 rounded-full bg-neon-lime flex items-center justify-center">
+                <span className="text-2xl font-bold text-deep-petrol">1</span>
               </div>
-              <h3 className="text-2xl font-headline font-bold text-soft-mint mb-4">
-                Ewiges Wählen
+              <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-neon-lime/20 h-full">
+                <div className="w-16 h-16 rounded-2xl bg-neon-lime/20 flex items-center justify-center mb-6 mx-auto">
+                  <Users className="w-8 h-8 text-neon-lime" strokeWidth={1.5} />
+                </div>
+                <h3 className="text-xl font-headline font-bold text-soft-mint mb-3 text-center">
+                  Spieler eintragen
+                </h3>
+                <p className="text-soft-mint/70 leading-relaxed text-center">
+                  Bewerte Technik, Fitness & Spielverständnis (1-10).
+                  Optional: Wähle Positionen (Torhüter, Abwehr, Mittelfeld, Angriff).
+                </p>
+              </div>
+            </div>
+
+            {/* Step 2 */}
+            <div className="relative">
+              <div className="absolute -top-4 -left-4 w-12 h-12 rounded-full bg-neon-lime flex items-center justify-center">
+                <span className="text-2xl font-bold text-deep-petrol">2</span>
+              </div>
+              <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-neon-lime/20 h-full">
+                <div className="w-16 h-16 rounded-2xl bg-neon-lime/20 flex items-center justify-center mb-6 mx-auto">
+                  <Sparkles className="w-8 h-8 text-neon-lime" strokeWidth={1.5} />
+                </div>
+                <h3 className="text-xl font-headline font-bold text-soft-mint mb-3 text-center">
+                  KI-Algorithmus arbeitet
+                </h3>
+                <p className="text-soft-mint/70 leading-relaxed text-center">
+                  Unser 3-Phasen-Algorithmus analysiert alle Spieler und optimiert
+                  die Teamaufteilung nach Skill, Position und Balance.
+                </p>
+              </div>
+            </div>
+
+            {/* Step 3 */}
+            <div className="relative">
+              <div className="absolute -top-4 -left-4 w-12 h-12 rounded-full bg-neon-lime flex items-center justify-center">
+                <span className="text-2xl font-bold text-deep-petrol">3</span>
+              </div>
+              <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-neon-lime/20 h-full">
+                <div className="w-16 h-16 rounded-2xl bg-neon-lime/20 flex items-center justify-center mb-6 mx-auto">
+                  <Trophy className="w-8 h-8 text-neon-lime" strokeWidth={1.5} />
+                </div>
+                <h3 className="text-xl font-headline font-bold text-soft-mint mb-3 text-center">
+                  Fertig!
+                </h3>
+                <p className="text-soft-mint/70 leading-relaxed text-center">
+                  Zwei perfekt ausbalancierte Teams. Minimaler Skill-Gap.
+                  Jedes Match wird spannend – von der ersten bis zur letzten Minute.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Algorithm Details */}
+          <div className="bg-neon-lime/10 backdrop-blur-sm rounded-2xl p-8 border-2 border-neon-lime/30">
+            <div className="text-center mb-8">
+              <h3 className="text-2xl md:text-3xl font-headline font-bold text-neon-lime mb-3">
+                Advanced Team Generator v2.1
               </h3>
-              <p className="text-soft-mint/70 leading-relaxed">
-                10 Minuten warten, bis die Kapitäne endlich fertig sind.
-                Die Stimmung kippt schon vor dem Anpfiff.
+              <p className="text-soft-mint/80 max-w-2xl mx-auto">
+                Unser proprietärer Algorithmus berücksichtigt <strong className="text-neon-lime">8 verschiedene Faktoren</strong>
+                für optimale Teambalance
               </p>
             </div>
 
-            {/* Pain Point 2 */}
-            <div className="text-center p-8 bg-white/5 backdrop-blur-sm rounded-2xl border border-neon-lime/10 hover:border-neon-lime/30 transition-smooth">
-              <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-neon-lime/20 mb-6">
-                <Scale className="w-12 h-12 text-neon-lime" strokeWidth={1.5} />
-              </div>
-              <h3 className="text-2xl font-headline font-bold text-soft-mint mb-4">
-                Unfaire Teams
-              </h3>
-              <p className="text-soft-mint/70 leading-relaxed">
-                Ein Team gewinnt 8:1. Kein Flow, keine Spannung.
-                Die Schwächeren verlieren die Lust.
-              </p>
-            </div>
-
-            {/* Pain Point 3 */}
-            <div className="text-center p-8 bg-white/5 backdrop-blur-sm rounded-2xl border border-neon-lime/10 hover:border-neon-lime/30 transition-smooth">
-              <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-neon-lime/20 mb-6">
-                <FileX2 className="w-12 h-12 text-neon-lime" strokeWidth={1.5} />
-              </div>
-              <h3 className="text-2xl font-headline font-bold text-soft-mint mb-4">
-                Zettelwirtschaft
-              </h3>
-              <p className="text-soft-mint/70 leading-relaxed">
-                Spielerlisten, Ergebnisse, wer war wann dabei?
-                Alles verloren oder unleserlich.
-              </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {[
+                { icon: Target, label: 'Skill-Balance', desc: 'Minimiert Stärke-Unterschiede' },
+                { icon: MapPin, label: 'Positions-Tiefe', desc: 'Min. 2 Abwehr, 2 Mittelfeld' },
+                { icon: TrendingUp, label: 'Stärke-Level', desc: 'Gleichmäßige Stars-Verteilung' },
+                { icon: Users, label: 'Position-Präferenz', desc: 'Erste Pos = Hauptposition' },
+              ].map((item, i) => (
+                <div key={i} className="bg-deep-petrol/40 rounded-xl p-4 text-center">
+                  <item.icon className="w-8 h-8 text-neon-lime mx-auto mb-2" strokeWidth={1.5} />
+                  <div className="text-sm font-bold text-neon-lime mb-1">{item.label}</div>
+                  <div className="text-xs text-soft-mint/60">{item.desc}</div>
+                </div>
+              ))}
             </div>
           </div>
         </PageLayout>
       </section>
 
-      {/* Solution Section - Zig Zag */}
+      {/* Key Features - Priorisiert */}
       <section className="bg-soft-mint dark:bg-deep-petrol/80">
         <PageLayout>
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-headline font-bold text-deep-petrol dark:text-soft-mint mb-4">
-              Die Lösung
+              Alles was du als Trainer brauchst
             </h2>
-            <p className="text-xl text-mid-grey">
-              Technologie trifft Fairness
+            <p className="text-xl text-mid-grey max-w-2xl mx-auto">
+              Entwickelt mit und für Trainer. Einfach, schnell, effektiv.
             </p>
           </div>
 
-          {/* Feature 1: Balanced Teams */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-24">
-            <div className="order-2 lg:order-1">
-              <div className="inline-block px-4 py-2 bg-neon-lime/20 rounded-full text-sm font-bold text-deep-petrol dark:text-neon-lime mb-4">
-                Smart Algorithm
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* Feature 1: Fair Teams */}
+            <div className="bg-white dark:bg-card-dark rounded-2xl p-8 border border-mid-grey/20 hover:border-neon-lime/50 transition-smooth">
+              <div className="w-14 h-14 rounded-2xl bg-neon-lime/20 flex items-center justify-center mb-6">
+                <Scale className="w-8 h-8 text-neon-lime" strokeWidth={1.5} />
               </div>
-              <h3 className="text-3xl md:text-4xl font-headline font-bold text-deep-petrol dark:text-soft-mint mb-4">
-                Perfekt ausgeglichene Teams
+              <h3 className="text-2xl font-headline font-bold text-deep-petrol dark:text-soft-mint mb-3">
+                Garantiert faire Teams
               </h3>
-              <p className="text-lg text-mid-grey leading-relaxed mb-6">
-                Unser Algorithmus analysiert Technik, Fitness und Spielverständnis jedes Spielers.
-                Das Ergebnis: Teams mit minimalem Skill-Gap. Jedes Match wird spannend.
+              <p className="text-mid-grey leading-relaxed mb-4">
+                Schluss mit 8:1 Ergebnissen. Unser Algorithmus sorgt für ausgeglichene Matches,
+                bei denen alle Spaß haben – nicht nur die Gewinner.
               </p>
-              <ul className="space-y-3">
-                {['Datenbasierte Aufteilung', 'Berücksichtigt 3 Dimensionen', 'In unter 3 Sekunden'].map((item) => (
-                  <li key={item} className="flex items-center gap-3 text-mid-grey">
-                    <Check className="w-5 h-5 text-neon-lime flex-shrink-0" strokeWidth={2} />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div className="order-1 lg:order-2">
-              <BalancedListsMockup />
-            </div>
-          </div>
-
-          {/* Feature 2: Digital Management */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-24">
-            <div>
-              <SmartphoneMockup />
-            </div>
-
-            <div>
-              <div className="inline-block px-4 py-2 bg-digital-orange/20 rounded-full text-sm font-bold text-digital-orange mb-4">
-                Always Ready
+              <div className="flex items-center gap-2 text-neon-lime text-sm font-medium">
+                <Check className="w-4 h-4" strokeWidth={2} />
+                Minimaler Skill-Gap zwischen Teams
               </div>
-              <h3 className="text-3xl md:text-4xl font-headline font-bold text-deep-petrol dark:text-soft-mint mb-4">
-                Dein digitales Clipboard
-              </h3>
-              <p className="text-lg text-mid-grey leading-relaxed mb-6">
-                Alle Spieler, alle Daten, immer dabei. Schnell checken wer dabei ist,
-                Teams generieren, fertig. Kein Zettel, kein Stress.
-              </p>
-              <ul className="space-y-3">
-                {['CSV-Import für schnelles Setup', 'Spieler-Profile mit Skills', 'Offline verfügbar'].map((item) => (
-                  <li key={item} className="flex items-center gap-3 text-mid-grey">
-                    <Check className="w-5 h-5 text-digital-orange flex-shrink-0" strokeWidth={2} />
-                    {item}
-                  </li>
-                ))}
-              </ul>
             </div>
-          </div>
 
-          {/* Feature 3: History */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div className="order-2 lg:order-1">
-              <div className="inline-block px-4 py-2 bg-neon-lime/20 rounded-full text-sm font-bold text-deep-petrol dark:text-neon-lime mb-4">
-                Track Progress
+            {/* Feature 2: Time Saving */}
+            <div className="bg-white dark:bg-card-dark rounded-2xl p-8 border border-mid-grey/20 hover:border-digital-orange/50 transition-smooth">
+              <div className="w-14 h-14 rounded-2xl bg-digital-orange/20 flex items-center justify-center mb-6">
+                <Timer className="w-8 h-8 text-digital-orange" strokeWidth={1.5} />
               </div>
-              <h3 className="text-3xl md:text-4xl font-headline font-bold text-deep-petrol dark:text-soft-mint mb-4">
-                Vollständige Match History
+              <h3 className="text-2xl font-headline font-bold text-deep-petrol dark:text-soft-mint mb-3">
+                Spart wertvolle Trainingszeit
               </h3>
-              <p className="text-lg text-mid-grey leading-relaxed mb-6">
-                Jedes Ergebnis wird gespeichert. Statistiken, Trends, Erfolge –
-                alles auf einen Blick. Perfekt für Turniere oder Liga-Betrieb.
+              <p className="text-mid-grey leading-relaxed mb-4">
+                Keine 10 Minuten mehr beim Wählen verlieren. Teams sind in 3 Sekunden fertig.
+                Mehr Zeit fürs Spielen, weniger für Organisation.
               </p>
-              <ul className="space-y-3">
-                {['Automatisches Speichern', 'Statistiken & Rankings', 'Export als PDF'].map((item) => (
-                  <li key={item} className="flex items-center gap-3 text-mid-grey">
-                    <Check className="w-5 h-5 text-neon-lime flex-shrink-0" strokeWidth={2} />
-                    {item}
-                  </li>
-                ))}
-              </ul>
+              <div className="flex items-center gap-2 text-digital-orange text-sm font-medium">
+                <Check className="w-4 h-4" strokeWidth={2} />
+                Von 10 Minuten auf 3 Sekunden
+              </div>
             </div>
 
-            <div className="order-1 lg:order-2">
-              <TimelineMockup />
+            {/* Feature 3: Position-Based */}
+            <div className="bg-white dark:bg-card-dark rounded-2xl p-8 border border-mid-grey/20 hover:border-neon-lime/50 transition-smooth">
+              <div className="w-14 h-14 rounded-2xl bg-neon-lime/20 flex items-center justify-center mb-6">
+                <MapPin className="w-8 h-8 text-neon-lime" strokeWidth={1.5} />
+              </div>
+              <h3 className="text-2xl font-headline font-bold text-deep-petrol dark:text-soft-mint mb-3">
+                Positionsbasierte Aufteilung
+              </h3>
+              <p className="text-mid-grey leading-relaxed mb-4">
+                Sorgt automatisch für genug Abwehrspieler, Mittelfeldspieler und Stürmer in jedem Team.
+                Keine unbalancierten Formationen mehr.
+              </p>
+              <div className="flex items-center gap-2 text-neon-lime text-sm font-medium">
+                <Check className="w-4 h-4" strokeWidth={2} />
+                Min. 2 Abwehr, 2 Mittelfeld, 1 Angriff
+              </div>
+            </div>
+
+            {/* Feature 4: Digital Management */}
+            <div className="bg-white dark:bg-card-dark rounded-2xl p-8 border border-mid-grey/20 hover:border-digital-orange/50 transition-smooth">
+              <div className="w-14 h-14 rounded-2xl bg-digital-orange/20 flex items-center justify-center mb-6">
+                <Smartphone className="w-8 h-8 text-digital-orange" strokeWidth={1.5} />
+              </div>
+              <h3 className="text-2xl font-headline font-bold text-deep-petrol dark:text-soft-mint mb-3">
+                Alles digital verwalten
+              </h3>
+              <p className="text-mid-grey leading-relaxed mb-4">
+                Keine Zettelwirtschaft mehr. Alle Spieler, Skills und Ergebnisse immer dabei.
+                CSV-Import für schnelles Setup verfügbar.
+              </p>
+              <div className="flex items-center gap-2 text-digital-orange text-sm font-medium">
+                <Check className="w-4 h-4" strokeWidth={2} />
+                Spielerdaten immer griffbereit
+              </div>
             </div>
           </div>
         </PageLayout>
       </section>
 
-      {/* Use Cases */}
-      <section className="bg-white dark:bg-card-dark">
+      {/* Social Proof / Stats */}
+      <section className="bg-deep-petrol border-y border-neon-lime/10">
         <PageLayout>
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-headline font-bold text-deep-petrol dark:text-soft-mint mb-4">
-              Für jede Sportart
-            </h2>
-            <p className="text-xl text-mid-grey">
-              Egal ob Verein oder Freizeitgruppe
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {/* Football */}
-            <div className="p-8 rounded-2xl border-2 border-transparent hover:border-neon-lime transition-smooth text-center bg-soft-mint/50 dark:bg-deep-petrol">
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-deep-petrol/10 dark:bg-neon-lime/10 mb-4">
-                <Target className="w-8 h-8 text-deep-petrol dark:text-neon-lime" strokeWidth={1.5} />
-              </div>
-              <h3 className="text-xl font-headline font-bold text-deep-petrol dark:text-soft-mint mb-2">
-                Fußball
-              </h3>
-              <p className="text-sm text-mid-grey">
-                Trainings, Turniere, Ligabetrieb
-              </p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+            <div>
+              <div className="text-5xl font-bold text-neon-lime mb-2">3 Sek</div>
+              <div className="text-soft-mint/70">Durchschnittliche Generierungszeit</div>
             </div>
-
-            {/* Basketball */}
-            <div className="p-8 rounded-2xl border-2 border-transparent hover:border-digital-orange transition-smooth text-center bg-soft-mint/50 dark:bg-deep-petrol">
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-deep-petrol/10 dark:bg-digital-orange/10 mb-4">
-                <Dumbbell className="w-8 h-8 text-deep-petrol dark:text-digital-orange" strokeWidth={1.5} />
-              </div>
-              <h3 className="text-xl font-headline font-bold text-deep-petrol dark:text-soft-mint mb-2">
-                Basketball
-              </h3>
-              <p className="text-sm text-mid-grey">
-                Street Games, 3on3, Scrimmages
-              </p>
+            <div>
+              <div className="text-5xl font-bold text-neon-lime mb-2">8+</div>
+              <div className="text-soft-mint/70">Balance-Faktoren im Algorithmus</div>
             </div>
-
-            {/* Volleyball */}
-            <div className="p-8 rounded-2xl border-2 border-transparent hover:border-neon-lime transition-smooth text-center bg-soft-mint/50 dark:bg-deep-petrol">
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-deep-petrol/10 dark:bg-neon-lime/10 mb-4">
-                <Trophy className="w-8 h-8 text-deep-petrol dark:text-neon-lime" strokeWidth={1.5} />
-              </div>
-              <h3 className="text-xl font-headline font-bold text-deep-petrol dark:text-soft-mint mb-2">
-                Volleyball
-              </h3>
-              <p className="text-sm text-mid-grey">
-                Beach, Halle, Freizeitsport
-              </p>
-            </div>
-
-            {/* E-Sports */}
-            <div className="p-8 rounded-2xl border-2 border-transparent hover:border-digital-orange transition-smooth text-center bg-soft-mint/50 dark:bg-deep-petrol">
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-deep-petrol/10 dark:bg-digital-orange/10 mb-4">
-                <Gamepad2 className="w-8 h-8 text-deep-petrol dark:text-digital-orange" strokeWidth={1.5} />
-              </div>
-              <h3 className="text-xl font-headline font-bold text-deep-petrol dark:text-soft-mint mb-2">
-                E-Sports
-              </h3>
-              <p className="text-sm text-mid-grey">
-                Team-Games, LAN-Partys, Turniere
-              </p>
+            <div>
+              <div className="text-5xl font-bold text-neon-lime mb-2">100%</div>
+              <div className="text-soft-mint/70">Kostenlos • Keine versteckten Kosten</div>
             </div>
           </div>
         </PageLayout>
       </section>
 
       {/* FAQ Section */}
-      <section className="bg-soft-mint dark:bg-deep-petrol/80">
+      <section className="bg-soft-mint dark:bg-deep-petrol">
         <PageLayout>
           <div className="max-w-3xl mx-auto">
             <div className="text-center mb-12">
               <h2 className="text-4xl md:text-5xl font-headline font-bold text-deep-petrol dark:text-soft-mint mb-4">
                 Häufige Fragen
               </h2>
+              <p className="text-xl text-mid-grey">
+                Alles was du wissen musst
+              </p>
             </div>
 
-            <div className="bg-white dark:bg-card-dark rounded-2xl p-8 shadow-card">
+            <div className="bg-white dark:bg-card-dark rounded-2xl p-8 border border-mid-grey/20">
               <FAQItem
-                question="Wie funktioniert der Fairness-Algorithmus?"
-                answer="Unser Algorithmus bewertet jeden Spieler in 3 Kategorien: Technik, Fitness und Spielverständnis. Dann verteilt er die Spieler so auf Teams, dass die Gesamtstärke beider Teams möglichst ausgeglichen ist."
+                question="Wie funktioniert der Algorithmus?"
+                answer="Unser Advanced Team Generator v2.1 verwendet einen 3-Phasen-Ansatz: 1) Torhüter-Verteilung, 2) Snake-Draft für initiale Balance, 3) Swap-Optimierung zur Minimierung des Skill-Gaps. Er berücksichtigt 8 Faktoren: Skill-Balance, Positions-Tiefe, Stärke-Level-Verteilung, Position-Präferenz und mehr."
               />
               <FAQItem
-                question="Kann ich auch zufällig Teams generieren?"
-                answer="Ja! Du kannst zwischen 'Fair (Skill-basiert)' und 'Zufällig' wählen. Beide Optionen sind mit einem Klick verfügbar."
+                question="Muss ich technische Kenntnisse haben?"
+                answer="Nein, überhaupt nicht. Die App ist speziell für Trainer entwickelt, die sich auf das Coaching konzentrieren wollen, nicht auf Technologie. Spieler eintragen, Bewertungen vergeben, Teams generieren – fertig."
               />
               <FAQItem
-                question="Wie viele Spieler kann ich verwalten?"
-                answer="Unbegrenzt! Du kannst beliebig viele Teams (Mannschaften) anlegen und jedes Team kann beliebig viele Spieler haben."
+                question="Kann ich Spielerpositionen festlegen?"
+                answer="Ja! Du kannst für jeden Spieler mehrere Positionen wählen (Torhüter, Abwehr, Mittelfeld, Angriff). Die erste gewählte Position gilt als Hauptposition. Der Algorithmus sorgt automatisch für ausreichend Spieler pro Position in jedem Team."
               />
               <FAQItem
-                question="Kann ich Spieler per CSV importieren?"
-                answer="Absolut! Du kannst eine CSV-Datei mit allen Spielern und ihren Werten hochladen. Perfekt für große Gruppen oder Vereine."
+                question="Kostet die App etwas?"
+                answer="CoachBase ist 100% kostenlos. Keine versteckten Kosten, keine Premium-Features, keine Kreditkarte erforderlich. Wir glauben, dass faire Teams für alle Trainer zugänglich sein sollten."
               />
               <FAQItem
-                question="Was kostet CoachBase?"
-                answer="CoachBase ist komplett kostenlos nutzbar. Keine versteckten Kosten, keine Premium-Features, keine Kreditkarte erforderlich."
+                question="Wie schnell kann ich starten?"
+                answer="In 2 Minuten bist du startklar: Anmelden, Team erstellen, erste Spieler eintragen – fertig. Optional kannst du auch eine CSV-Datei mit all deinen Spielern hochladen für noch schnelleres Setup."
+              />
+              <FAQItem
+                question="Werden meine Daten gespeichert?"
+                answer="Ja, alle Spielerdaten, Teams und Match-Ergebnisse werden sicher in der Cloud gespeichert. Du kannst von jedem Gerät darauf zugreifen. Deine Daten gehören dir und werden niemals weitergegeben."
               />
             </div>
           </div>
@@ -771,51 +722,33 @@ export default function LandingPage() {
       </section>
 
       {/* Final CTA */}
-      <section className="relative bg-deep-petrol overflow-hidden">
-        {/* Dynamic background lines */}
-        <div className="absolute inset-0">
-          {[...Array(6)].map((_, i) => (
-            <div
-              key={i}
-              className="absolute h-1 bg-gradient-to-r from-transparent via-neon-lime/30 to-transparent animate-slide-right"
-              style={{
-                top: `${15 + i * 15}%`,
-                left: '-100%',
-                width: '200%',
-                animationDelay: `${i * 0.3}s`,
-                animationDuration: '3s',
-              }}
-            />
-          ))}
-        </div>
-
-        <PageLayout className="relative z-10 text-center">
-          <h2 className="text-5xl md:text-6xl font-headline font-bold text-soft-mint mb-6 leading-tight">
-            Bereit für faire Teams?
-          </h2>
-          <p className="text-xl text-soft-mint/80 mb-12 max-w-2xl mx-auto leading-relaxed">
-            Keine Diskussionen mehr. Keine unfairen Spiele.
-            Nur noch Spaß am Sport.
-          </p>
-
-          <Link href="/login">
-            <Button
-              variant="primary"
-              size="lg"
-              className="gap-3 shadow-2xl shadow-neon-lime/20 text-xl px-12 py-6"
-            >
-              Account erstellen
-              <ArrowRight className="w-6 h-6" strokeWidth={2} />
-            </Button>
-          </Link>
-
-          <p className="text-sm text-soft-mint/60 mt-8">
-            In unter 2 Minuten einsatzbereit • Keine Installation nötig
-          </p>
+      <section className="bg-gradient-to-b from-deep-petrol to-deep-petrol/90">
+        <PageLayout>
+          <div className="text-center py-16">
+            <h2 className="text-4xl md:text-5xl font-headline font-bold text-soft-mint mb-6">
+              Bereit für faire Teams?
+            </h2>
+            <p className="text-xl text-soft-mint/70 mb-8 max-w-2xl mx-auto">
+              Schließe dich Trainern an, die ihre Trainingszeit für das Wesentliche nutzen: <br />
+              <span className="text-neon-lime font-bold">Guten Fußball spielen.</span>
+            </p>
+            <Link href="/login">
+              <Button
+                variant="primary"
+                size="lg"
+                className="gap-3 text-lg px-8"
+              >
+                Jetzt kostenlos starten
+                <ArrowRight className="w-5 h-5" strokeWidth={2} />
+              </Button>
+            </Link>
+            <p className="text-sm text-soft-mint/60 mt-6">
+              Keine Anmeldung zum Testen nötig • Setup in unter 2 Minuten
+            </p>
+          </div>
         </PageLayout>
       </section>
 
-      {/* Footer */}
       <LandingFooter />
     </div>
   )

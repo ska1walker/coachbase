@@ -247,19 +247,19 @@ function SquadsContent() {
                               <Users className="w-6 h-6 text-digital-orange" />
                             </div>
                             <div className="flex-1">
-                              <div className="flex items-center gap-2 mb-1">
-                                <h3 className="font-bold text-lg text-deep-petrol dark:text-soft-mint">
-                                  {squad.name}
-                                </h3>
-                                <div className="inline-flex items-center px-2 py-0.5 rounded-full bg-digital-orange/20 border border-digital-orange/40">
-                                  <span className="text-xs font-bold text-digital-orange uppercase">
+                              <h3 className="font-bold text-lg text-deep-petrol dark:text-soft-mint mb-1">
+                                {squad.name}
+                              </h3>
+                              <div className="flex items-center gap-2">
+                                <p className="text-sm text-mid-grey">
+                                  {squad.createdAt?.toDate?.() ? squad.createdAt.toDate().toLocaleDateString('de-DE') : 'N/A'}
+                                </p>
+                                <div className="inline-flex items-center px-1.5 py-0.5 rounded bg-digital-orange/20">
+                                  <span className="text-xs font-medium text-digital-orange">
                                     Co-Trainer
                                   </span>
                                 </div>
                               </div>
-                              <p className="text-sm text-mid-grey">
-                                {squad.createdAt?.toDate?.() ? squad.createdAt.toDate().toLocaleDateString('de-DE') : 'N/A'}
-                              </p>
                             </div>
                           </div>
                         </div>

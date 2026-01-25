@@ -81,12 +81,12 @@ export function example1_BalancedTeams() {
 
   console.log('\nTeam A Players:')
   result.teamA.players.forEach((p) => {
-    console.log(`  - ${p.name.padEnd(25)} (${p.positions.join(', ')})`)
+    console.log(`  - ${p.name.padEnd(25)} (${p.positions?.join(', ') || 'Keine Position'})`)
   })
 
   console.log('\nTeam B Players:')
   result.teamB.players.forEach((p) => {
-    console.log(`  - ${p.name.padEnd(25)} (${p.positions.join(', ')})`)
+    console.log(`  - ${p.name.padEnd(25)} (${p.positions?.join(', ') || 'Keine Position'})`)
   })
 
   console.log(printBalanceScoreCard(scoreCard))
@@ -186,12 +186,12 @@ export function example4_VersatilePlayers() {
   console.log('Team A:')
   result.teamA.players
     .filter((p) => p.positions && p.positions.length > 1)
-    .forEach((p) => console.log(`  - ${p.name} (${p.positions.join(', ')})`))
+    .forEach((p) => console.log(`  - ${p.name} (${p.positions?.join(', ') || 'Keine Position'})`))
 
   console.log('Team B:')
   result.teamB.players
     .filter((p) => p.positions && p.positions.length > 1)
-    .forEach((p) => console.log(`  - ${p.name} (${p.positions.join(', ')})`))
+    .forEach((p) => console.log(`  - ${p.name} (${p.positions?.join(', ') || 'Keine Position'})`))
 
   console.log(printBalanceScoreCard(scoreCard))
 }

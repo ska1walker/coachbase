@@ -48,9 +48,15 @@ export interface Player {
 // Match History Types
 export interface TeamResult {
   teamNumber: number
+  teamName?: string // e.g. "Team A", "Team B"
   players: Player[]
   totalStrength: number
   averageStrength: number
+}
+
+export interface MatchResult {
+  scores: number[] // Array of scores, index corresponds to team index
+  savedAt?: Timestamp
 }
 
 export interface MatchHistory {
@@ -61,6 +67,8 @@ export interface MatchHistory {
   teams: TeamResult[]
   teamCount: number
   playerCount: number
+  leibchenTeamIndex?: number // Which team had bibs
+  result?: MatchResult // Optional: filled when user enters match result
   liked?: boolean
   createdAt: Timestamp
 }

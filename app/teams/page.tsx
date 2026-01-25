@@ -2,8 +2,8 @@
 
 import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { collection, onSnapshot, query, where, orderBy } from 'firebase/firestore'
-import { db } from '@/lib/firebase'
+import { collection, onSnapshot, query, where, orderBy, addDoc, Timestamp, doc, updateDoc } from 'firebase/firestore'
+import { db, auth } from '@/lib/firebase'
 import { Button } from '@/components/ui/Button'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card'
 import { PlayerSelectionCard } from '@/components/PlayerSelectionCard'
@@ -41,6 +41,10 @@ function TeamsPageContent() {
   const [buddyGroups, setBuddyGroups] = useState<BuddyGroup[]>([])
   const [showBuddySection, setShowBuddySection] = useState(false)
   const [leibchenTeamIndex, setLeibchenTeamIndex] = useState<number | null>(null)
+  const [showSaveMatchDialog, setShowSaveMatchDialog] = useState(false)
+  const [savedMatchId, setSavedMatchId] = useState<string | null>(null)
+  const [matchScores, setMatchScores] = useState<number[]>([])
+  const [isSavingMatch, setIsSavingMatch] = useState(false)
   const { trackTeamGenerated} = useUserStats()
 
   // Load players for the specific squad
@@ -199,6 +203,12 @@ function TeamsPageContent() {
 
       // Track achievement
       trackTeamGenerated()
+
+      // Show dialog to ask if user wants to save match
+      setShowSaveMatchDialog(true)
+      // Reset saved match state
+      setSavedMatchId(null)
+      setMatchScores([])
     } catch (error) {
       console.error('Error generating teams:', error)
       alert('Fehler beim Generieren der Teams!')
@@ -208,6 +218,68 @@ function TeamsPageContent() {
   const rerollLeibchen = () => {
     if (teams.length === 0) return
     setLeibchenTeamIndex(Math.floor(Math.random() * teams.length))
+  }
+
+  const saveMatch = async () => {
+    if (!squadId || teams.length === 0 || !auth.currentUser) return
+
+    setIsSavingMatch(true)
+    try {
+      // Prepare teams data with names
+      const teamsData = teams.map((team, index) => ({
+        teamNumber: index + 1,
+        teamName: `Team ${index + 1}`,
+        players: team.players,
+        totalStrength: team.totalStrength,
+        averageStrength: team.players.length > 0
+          ? team.totalStrength / team.players.length
+          : 0
+      }))
+
+      // Save match to Firestore
+      const matchDoc = await addDoc(collection(db, 'squads', squadId, 'matches'), {
+        squadId: squadId,
+        ownerId: auth.currentUser.uid,
+        date: Timestamp.now(),
+        teams: teamsData,
+        teamCount: teams.length,
+        playerCount: teams.reduce((sum, t) => sum + t.players.length, 0),
+        leibchenTeamIndex: leibchenTeamIndex,
+        createdAt: Timestamp.now()
+      })
+
+      setSavedMatchId(matchDoc.id)
+      // Initialize scores array with zeros
+      setMatchScores(new Array(teams.length).fill(0))
+      setShowSaveMatchDialog(false)
+      alert('Match gespeichert! Du kannst jetzt das Ergebnis eintragen.')
+    } catch (error) {
+      console.error('Error saving match:', error)
+      alert('Fehler beim Speichern des Matches!')
+    } finally {
+      setIsSavingMatch(false)
+    }
+  }
+
+  const saveMatchResult = async () => {
+    if (!squadId || !savedMatchId) return
+
+    setIsSavingMatch(true)
+    try {
+      const matchRef = doc(db, 'squads', squadId, 'matches', savedMatchId)
+      await updateDoc(matchRef, {
+        result: {
+          scores: matchScores,
+          savedAt: Timestamp.now()
+        }
+      })
+      alert('Ergebnis gespeichert!')
+    } catch (error) {
+      console.error('Error saving result:', error)
+      alert('Fehler beim Speichern des Ergebnisses!')
+    } finally {
+      setIsSavingMatch(false)
+    }
   }
 
   const addLatePlayer = (playerId: string) => {
@@ -833,6 +905,84 @@ function TeamsPageContent() {
                         <div className="font-bold">{balanceScoreCard.imbalance.spielverstaendnisDiff.toFixed(2)}</div>
                       </div>
                     </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Save Match Dialog */}
+            {showSaveMatchDialog && !savedMatchId && (
+              <Card className="bg-neon-lime/10 border-2 border-neon-lime/30">
+                <CardContent className="p-6">
+                  <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+                    <div>
+                      <h3 className="font-bold text-lg text-deep-petrol dark:text-soft-mint mb-1">
+                        Match speichern?
+                      </h3>
+                      <p className="text-sm text-mid-grey">
+                        Speichere das Match, um später das Ergebnis einzutragen
+                      </p>
+                    </div>
+                    <div className="flex gap-3">
+                      <Button
+                        variant="secondary"
+                        onClick={() => setShowSaveMatchDialog(false)}
+                        disabled={isSavingMatch}
+                      >
+                        Nein
+                      </Button>
+                      <Button
+                        variant="primary"
+                        onClick={saveMatch}
+                        disabled={isSavingMatch}
+                      >
+                        {isSavingMatch ? 'Speichert...' : 'Ja, speichern'}
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Match Result Input */}
+            {savedMatchId && (
+              <Card className="bg-digital-orange/10 border-2 border-digital-orange/30">
+                <CardHeader>
+                  <CardTitle>Ergebnis eintragen</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <p className="text-sm text-mid-grey">
+                      Trage das Spielergebnis ein. Du kannst dies auch später in der History bearbeiten.
+                    </p>
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                      {teams.map((team, index) => (
+                        <div key={index} className="space-y-2">
+                          <label className="block text-sm font-medium">
+                            Team {index + 1}
+                          </label>
+                          <input
+                            type="number"
+                            min="0"
+                            value={matchScores[index] || 0}
+                            onChange={(e) => {
+                              const newScores = [...matchScores]
+                              newScores[index] = parseInt(e.target.value) || 0
+                              setMatchScores(newScores)
+                            }}
+                            className="w-full px-4 py-3 rounded-lg bg-white dark:bg-card-dark border-2 border-mid-grey/30 focus:border-digital-orange focus:outline-none transition-smooth"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                    <Button
+                      variant="primary"
+                      onClick={saveMatchResult}
+                      disabled={isSavingMatch}
+                      className="w-full md:w-auto"
+                    >
+                      {isSavingMatch ? 'Speichert...' : 'Ergebnis speichern'}
+                    </Button>
                   </div>
                 </CardContent>
               </Card>

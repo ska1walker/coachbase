@@ -7,7 +7,7 @@ import { db } from '@/lib/firebase'
 import { Button } from '@/components/ui/Button'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card'
 import { PlayerSelectionCard } from '@/components/PlayerSelectionCard'
-import { Users, Shuffle, RotateCcw, Shield, ArrowRight, MessageCircle } from 'lucide-react'
+import { Users, Shuffle, RotateCcw, Shield, ArrowRight, MessageCircle, ChevronDown, ChevronUp, UserPlus, X } from 'lucide-react'
 import Link from 'next/link'
 import { useUserStats } from '@/hooks/useUserStats'
 import { generateBalancedTeams, analyzeTeamBalance, type GeneratedTeam } from '@/lib/team-generator'
@@ -24,6 +24,11 @@ interface Team {
   totalStrength: number
 }
 
+interface BuddyGroup {
+  id: string
+  playerIds: string[]
+}
+
 function TeamsPageContent() {
   const searchParams = useSearchParams()
   const squadId = searchParams.get('squad')
@@ -33,7 +38,9 @@ function TeamsPageContent() {
   const [teamCount, setTeamCount] = useState(2)
   const [teams, setTeams] = useState<Team[]>([])
   const [balanceScoreCard, setBalanceScoreCard] = useState<BalanceScoreCard | null>(null)
-  const { trackTeamGenerated } = useUserStats()
+  const [buddyGroups, setBuddyGroups] = useState<BuddyGroup[]>([])
+  const [showBuddySection, setShowBuddySection] = useState(false)
+  const { trackTeamGenerated} = useUserStats()
 
   // Load players for the specific squad
   useEffect(() => {
@@ -74,6 +81,57 @@ function TeamsPageContent() {
     })
   }
 
+  // Buddy Group Management
+  const getBuddyLimit = () => {
+    const playerCount = selectedPlayerIds.size
+    if (playerCount >= 10) return 3
+    if (playerCount >= 8) return 2
+    return 0 // Not allowed below 8
+  }
+
+  const addBuddyGroup = () => {
+    const newGroup: BuddyGroup = {
+      id: `buddy-${Date.now()}`,
+      playerIds: []
+    }
+    setBuddyGroups([...buddyGroups, newGroup])
+  }
+
+  const removeBuddyGroup = (groupId: string) => {
+    setBuddyGroups(buddyGroups.filter(g => g.id !== groupId))
+  }
+
+  const togglePlayerInBuddyGroup = (groupId: string, playerId: string) => {
+    setBuddyGroups(buddyGroups.map(group => {
+      if (group.id !== groupId) return group
+
+      const isInGroup = group.playerIds.includes(playerId)
+      const limit = getBuddyLimit()
+
+      if (isInGroup) {
+        // Remove player from group
+        return { ...group, playerIds: group.playerIds.filter(id => id !== playerId) }
+      } else {
+        // Add player to group (if limit not reached and player not in another group)
+        const playerInOtherGroup = buddyGroups.some(g =>
+          g.id !== groupId && g.playerIds.includes(playerId)
+        )
+
+        if (playerInOtherGroup) {
+          alert('Dieser Spieler ist bereits in einer anderen Buddy-Gruppe!')
+          return group
+        }
+
+        if (group.playerIds.length >= limit) {
+          alert(`Max. ${limit} Spieler pro Buddy-Gruppe!`)
+          return group
+        }
+
+        return { ...group, playerIds: [...group.playerIds, playerId] }
+      }
+    }))
+  }
+
   const createTeams = () => {
     if (selectedPlayerIds.size < 4) {
       alert('Bitte wähle mindestens 4 Spieler aus!')
@@ -91,7 +149,9 @@ function TeamsPageContent() {
     try {
       if (teamCount === 2) {
         // Use ADVANCED team generator for 2 teams (stricter constraints)
-        const result = generateAdvancedTeams(selectedPlayers)
+        // Filter out empty buddy groups before passing
+        const validBuddyGroups = buddyGroups.filter(g => g.playerIds.length >= 2)
+        const result = generateAdvancedTeams(selectedPlayers, {}, validBuddyGroups)
 
         // Convert to Team interface
         const newTeams: Team[] = [
@@ -321,6 +381,125 @@ function TeamsPageContent() {
           </CardContent>
         </Card>
 
+        {/* Buddy Groups Section - Collapsible */}
+        {selectedPlayerIds.size >= 8 && (
+          <Card className="mb-6">
+            <button
+              onClick={() => setShowBuddySection(!showBuddySection)}
+              className="w-full p-6 flex items-center justify-between hover:bg-soft-mint/30 dark:hover:bg-deep-petrol/30 transition-smooth"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-digital-orange/20 flex items-center justify-center">
+                  <UserPlus className="w-5 h-5 text-digital-orange" strokeWidth={2} />
+                </div>
+                <div className="text-left">
+                  <h3 className="font-headline font-bold text-deep-petrol dark:text-soft-mint">
+                    Buddy-Gruppen festlegen
+                  </h3>
+                  <p className="text-sm text-mid-grey">
+                    Optional: Spieler gruppieren die zusammen spielen sollen
+                  </p>
+                </div>
+              </div>
+              {showBuddySection ? (
+                <ChevronUp className="w-5 h-5 text-mid-grey" />
+              ) : (
+                <ChevronDown className="w-5 h-5 text-mid-grey" />
+              )}
+            </button>
+
+            {showBuddySection && (
+              <CardContent className="border-t border-mid-grey/20">
+                <div className="space-y-4">
+                  {/* Info Box */}
+                  <div className="p-4 rounded-lg bg-digital-orange/10 border border-digital-orange/30">
+                    <p className="text-sm text-deep-petrol dark:text-soft-mint mb-2">
+                      <strong>ℹ️ Buddy-Gruppen:</strong> Spieler in einer Buddy-Gruppe werden garantiert ins gleiche Team gesetzt.
+                    </p>
+                    <p className="text-xs text-mid-grey">
+                      {selectedPlayerIds.size >= 10
+                        ? `Bei ${selectedPlayerIds.size} Spielern: Max. 3 Buddies pro Gruppe`
+                        : `Bei ${selectedPlayerIds.size} Spielern: Max. 2 Buddies pro Gruppe`}
+                    </p>
+                  </div>
+
+                  {/* Buddy Groups */}
+                  {buddyGroups.length > 0 && (
+                    <div className="space-y-3">
+                      {buddyGroups.map((group, index) => {
+                        const selectedPlayers = allPlayers.filter(p =>
+                          selectedPlayerIds.has(p.id)
+                        )
+                        return (
+                          <div
+                            key={group.id}
+                            className="p-4 rounded-lg border-2 border-digital-orange/30 bg-digital-orange/5"
+                          >
+                            <div className="flex items-center justify-between mb-3">
+                              <span className="font-medium text-deep-petrol dark:text-soft-mint">
+                                Buddy-Gruppe {index + 1}
+                              </span>
+                              <button
+                                onClick={() => removeBuddyGroup(group.id)}
+                                className="w-6 h-6 rounded-full hover:bg-red-500/20 flex items-center justify-center transition-smooth"
+                                aria-label="Gruppe entfernen"
+                              >
+                                <X className="w-4 h-4 text-red-500" strokeWidth={2} />
+                              </button>
+                            </div>
+
+                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+                              {selectedPlayers.map(player => {
+                                const isInGroup = group.playerIds.includes(player.id)
+                                const isInOtherGroup = buddyGroups.some(g =>
+                                  g.id !== group.id && g.playerIds.includes(player.id)
+                                )
+
+                                return (
+                                  <button
+                                    key={player.id}
+                                    onClick={() => togglePlayerInBuddyGroup(group.id, player.id)}
+                                    disabled={isInOtherGroup}
+                                    className={`p-2 rounded-lg text-sm font-medium transition-smooth ${
+                                      isInGroup
+                                        ? 'bg-digital-orange text-white border-2 border-digital-orange'
+                                        : isInOtherGroup
+                                        ? 'bg-mid-grey/10 text-mid-grey/50 border border-mid-grey/20 cursor-not-allowed'
+                                        : 'bg-white dark:bg-card-dark border border-mid-grey/30 hover:border-digital-orange text-deep-petrol dark:text-soft-mint'
+                                    }`}
+                                  >
+                                    {player.name}
+                                  </button>
+                                )
+                              })}
+                            </div>
+
+                            {group.playerIds.length > 0 && (
+                              <div className="mt-2 text-xs text-digital-orange">
+                                {group.playerIds.length} / {getBuddyLimit()} Spieler gewählt
+                              </div>
+                            )}
+                          </div>
+                        )
+                      })}
+                    </div>
+                  )}
+
+                  {/* Add Buddy Group Button */}
+                  <Button
+                    variant="secondary"
+                    onClick={addBuddyGroup}
+                    className="w-full flex items-center justify-center gap-2"
+                  >
+                    <UserPlus className="w-4 h-4" />
+                    Buddy-Gruppe hinzufügen
+                  </Button>
+                </div>
+              </CardContent>
+            )}
+          </Card>
+        )}
+
         {/* Team Creation Controls */}
         <Card className="mb-6">
           <CardHeader>
@@ -392,13 +571,26 @@ function TeamsPageContent() {
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-2 mb-4">
-                        {team.players.map((player) => (
-                          <div
-                            key={player.id}
-                            className="p-3 rounded-lg bg-soft-mint/50 dark:bg-deep-petrol border border-mid-grey/10"
-                          >
-                            <div className="flex items-start justify-between gap-2 mb-1">
-                              <div className="font-bold text-base">{player.name}</div>
+                        {team.players.map((player) => {
+                          // Check if player is in a buddy group
+                          const isBuddy = buddyGroups.some(group =>
+                            group.playerIds.includes(player.id)
+                          )
+
+                          return (
+                            <div
+                              key={player.id}
+                              className="p-3 rounded-lg bg-soft-mint/50 dark:bg-deep-petrol border border-mid-grey/10"
+                            >
+                              <div className="flex items-start justify-between gap-2 mb-1">
+                                <div className="flex items-center gap-2">
+                                  {isBuddy && (
+                                    <div className="w-6 h-6 rounded-full bg-digital-orange/20 flex items-center justify-center flex-shrink-0">
+                                      <UserPlus className="w-3.5 h-3.5 text-digital-orange" strokeWidth={2} />
+                                    </div>
+                                  )}
+                                  <div className="font-bold text-base">{player.name}</div>
+                                </div>
                               {player.positions && player.positions.length > 0 && (
                                 <div className="flex flex-wrap gap-1">
                                   {player.positions.map((pos) => (
@@ -417,7 +609,8 @@ function TeamsPageContent() {
                               {player.spielverstaendnis} • Σ {player.total}
                             </div>
                           </div>
-                        ))}
+                        )
+                        })}
                       </div>
                       <div className="pt-3 border-t border-mid-grey/20 text-sm space-y-1">
                         <div className="flex justify-between">

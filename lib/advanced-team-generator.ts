@@ -18,6 +18,14 @@ import type { Player, PlayerPosition } from './types'
 type PositionEnum = 'GK' | 'DEF' | 'MID' | 'ATT'
 
 /**
+ * Buddy Group - players that must be on the same team
+ */
+export interface BuddyGroup {
+  id: string
+  playerIds: string[]
+}
+
+/**
  * Position mapping from German to English enum
  */
 const POSITION_MAP: Record<PlayerPosition, PositionEnum> = {
@@ -468,11 +476,17 @@ function optimizeThroughSwaps(
   teamA: Player[],
   teamB: Player[],
   config: GeneratorConfig,
-  allPlayers: Player[]
+  allPlayers: Player[],
+  buddyGroups: BuddyGroup[] = []
 ): { teamA: Player[]; teamB: Player[] } {
   let currentTeamA = [...teamA]
   let currentTeamB = [...teamB]
   let currentVariance = calculateVariance(currentTeamA, currentTeamB, config, allPlayers)
+
+  // Create set of buddy player IDs for fast lookup
+  const buddyPlayerIds = new Set(
+    buddyGroups.flatMap(group => group.playerIds)
+  )
 
   let iterations = 0
   let noImprovementCount = 0
@@ -490,6 +504,11 @@ function optimizeThroughSwaps(
       for (let j = 0; j < currentTeamB.length && !improved; j++) {
         const playerA = currentTeamA[i]
         const playerB = currentTeamB[j]
+
+        // Don't swap buddy players (they must stay in their assigned team)
+        if (buddyPlayerIds.has(playerA.id) || buddyPlayerIds.has(playerB.id)) {
+          continue
+        }
 
         // Check if swap is valid (maintains hard constraints)
         if (!isValidSwap(currentTeamA, currentTeamB, playerA, playerB)) {
@@ -531,7 +550,8 @@ function optimizeThroughSwaps(
  */
 export function generateBalancedTeams(
   players: Player[],
-  config: Partial<GeneratorConfig> = {}
+  config: Partial<GeneratorConfig> = {},
+  buddyGroups: BuddyGroup[] = []
 ): { teamA: BalancedTeam; teamB: BalancedTeam } {
   const finalConfig = { ...DEFAULT_CONFIG, ...config }
 
@@ -539,20 +559,42 @@ export function generateBalancedTeams(
     throw new Error('Need at least 2 players to generate teams')
   }
 
-  // Phase 1: Distribute goalkeepers
-  let { teamA, teamB } = distributeGoalkeepers(players)
+  // Phase 0: Distribute buddy groups (NEW)
+  let teamA: Player[] = []
+  let teamB: Player[] = []
 
-  // Get non-goalkeepers
+  if (buddyGroups.length > 0) {
+    // Distribute buddy groups alternately to ensure balance
+    buddyGroups.forEach((group, index) => {
+      const groupPlayers = players.filter(p => group.playerIds.includes(p.id))
+      if (index % 2 === 0) {
+        teamA.push(...groupPlayers)
+      } else {
+        teamB.push(...groupPlayers)
+      }
+    })
+  }
+
+  // Get players already assigned (buddy groups)
   const assignedIds = new Set([...teamA, ...teamB].map((p) => p.id))
-  const nonGoalkeepers = players.filter((p) => !assignedIds.has(p.id))
+
+  // Phase 1: Distribute goalkeepers (only non-buddy players)
+  const remainingPlayers = players.filter((p) => !assignedIds.has(p.id))
+  const gkResult = distributeGoalkeepers(remainingPlayers)
+  teamA = [...teamA, ...gkResult.teamA]
+  teamB = [...teamB, ...gkResult.teamB]
+
+  // Get non-goalkeepers (excluding buddy players and already assigned GKs)
+  const allAssignedIds = new Set([...teamA, ...teamB].map((p) => p.id))
+  const nonGoalkeepers = remainingPlayers.filter((p) => !allAssignedIds.has(p.id))
 
   // Phase 2: Initial distribution
   const result = initialDistribution(nonGoalkeepers, teamA, teamB)
   teamA = result.teamA
   teamB = result.teamB
 
-  // Phase 3: Optimize through swaps
-  const optimized = optimizeThroughSwaps(teamA, teamB, finalConfig, players)
+  // Phase 3: Optimize through swaps (but don't swap buddy players)
+  const optimized = optimizeThroughSwaps(teamA, teamB, finalConfig, players, buddyGroups)
 
   return {
     teamA: {

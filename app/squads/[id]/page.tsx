@@ -25,7 +25,7 @@ import { AuthGuard } from '@/components/AuthGuard'
 import { AppHeader } from '@/components/AppHeader'
 import { PageLayout } from '@/components/PageLayout'
 import { BottomNav } from '@/components/BottomNav'
-import { ArrowLeft, Plus, Edit2, Trash2, Users, TrendingUp, Upload, Download, UserPlus, Check, X } from 'lucide-react'
+import { ArrowLeft, Plus, Edit2, Trash2, Users, TrendingUp, Upload, Download, UserPlus, Check, X, Star } from 'lucide-react'
 import type { Player, Squad, PlayerPosition } from '@/lib/types'
 import Link from 'next/link'
 import { CSVUpload } from '@/components/CSVUpload'
@@ -484,8 +484,9 @@ function SquadDetailContent() {
                 <label className="block text-sm font-medium text-deep-petrol dark:text-soft-mint mb-2">
                   Position(en) - Mehrfachauswahl möglich
                 </label>
-                <p className="text-xs text-mid-grey mb-3">
-                  ⭐ Erste Auswahl = Hauptposition (beste Position des Spielers)
+                <p className="text-xs text-mid-grey mb-3 flex items-center gap-1">
+                  <Star className="w-3.5 h-3.5 fill-neon-lime text-neon-lime" />
+                  Erste Auswahl = Hauptposition (beste Position des Spielers)
                 </p>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                   {availablePositions.map((position) => {
@@ -514,13 +515,13 @@ function SquadDetailContent() {
                           {position}
                           {isSelected && (
                             <span
-                              className={`text-xs px-1.5 py-0.5 rounded-full font-bold ${
+                              className={`text-xs px-1.5 py-0.5 rounded-full font-bold flex items-center ${
                                 isPrimary
                                   ? 'bg-neon-lime text-deep-petrol'
                                   : 'bg-orange-500 text-white'
                               }`}
                             >
-                              {isPrimary ? '⭐' : positionIndex + 1}
+                              {isPrimary ? <Star className="w-3 h-3 fill-current" /> : positionIndex + 1}
                             </span>
                           )}
                         </span>
@@ -622,8 +623,8 @@ function SquadDetailContent() {
 
                       {/* Position Selection in Edit Mode */}
                       <div>
-                        <label className="block text-xs font-medium text-mid-grey mb-2">
-                          Position(en) - ⭐ Erste = Hauptposition
+                        <label className="flex items-center gap-1 text-xs font-medium text-mid-grey mb-2">
+                          Position(en) - <Star className="w-3 h-3 fill-neon-lime text-neon-lime" /> Erste = Hauptposition
                         </label>
                         <div className="grid grid-cols-2 gap-2">
                           {availablePositions.map((position) => {
@@ -652,13 +653,13 @@ function SquadDetailContent() {
                                   {position}
                                   {isSelected && (
                                     <span
-                                      className={`text-xs px-1 py-0.5 rounded font-bold ${
+                                      className={`text-xs px-1 py-0.5 rounded font-bold flex items-center ${
                                         isPrimary
                                           ? 'bg-neon-lime text-deep-petrol'
                                           : 'bg-orange-500 text-white'
                                       }`}
                                     >
-                                      {isPrimary ? '⭐' : posIndex + 1}
+                                      {isPrimary ? <Star className="w-3 h-3 fill-current" /> : posIndex + 1}
                                     </span>
                                   )}
                                 </span>
@@ -668,20 +669,22 @@ function SquadDetailContent() {
                         </div>
                       </div>
 
-                      <div className="flex gap-2 mt-4">
-                        <Button type="submit" variant="primary" className="flex items-center gap-2">
-                          <Check className="w-4 h-4" />
-                          Speichern
-                        </Button>
-                        <Button
-                          type="button"
-                          variant="secondary"
-                          onClick={() => setEditingPlayer(null)}
-                          className="flex items-center gap-2"
+                      <div className="flex gap-2 mt-4 justify-end">
+                        <button
+                          type="submit"
+                          aria-label="Speichern"
+                          className="w-10 h-10 rounded-full bg-neon-lime hover:bg-neon-lime/90 text-deep-petrol flex items-center justify-center transition-smooth"
                         >
-                          <X className="w-4 h-4" />
-                          Abbrechen
-                        </Button>
+                          <Check className="w-5 h-5" strokeWidth={2.5} />
+                        </button>
+                        <button
+                          type="button"
+                          aria-label="Abbrechen"
+                          onClick={() => setEditingPlayer(null)}
+                          className="w-10 h-10 rounded-full bg-mid-grey/20 hover:bg-mid-grey/30 text-mid-grey hover:text-deep-petrol dark:hover:text-white flex items-center justify-center transition-smooth"
+                        >
+                          <X className="w-5 h-5" strokeWidth={2.5} />
+                        </button>
                       </div>
                     </form>
                   ) : (

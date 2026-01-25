@@ -397,8 +397,8 @@ export default function LandingPage() {
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section className="relative bg-deep-petrol overflow-hidden">
+      {/* Hero Section - Clean & Minimal */}
+      <section className="relative bg-deep-petrol overflow-hidden min-h-screen flex items-center">
         <div
           className="absolute inset-0 opacity-[0.07]"
           style={{
@@ -407,60 +407,72 @@ export default function LandingPage() {
           }}
         />
 
-        <PageLayout className="relative z-10">
-          <div className="text-center py-16 md:py-20">
-            {/* Problem Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-red-500/20 border border-red-500/30 mb-6">
-              <XCircle className="w-5 h-5 text-red-400" />
-              <span className="text-sm font-bold text-red-400 uppercase">Das Problem</span>
+        <PageLayout className="relative z-10 w-full">
+          <div className="text-center py-20 md:py-32 max-w-4xl mx-auto">
+            {/* Pre-Headline */}
+            <div className="inline-block px-4 py-1.5 rounded-full border border-neon-lime/30 bg-neon-lime/10 mb-8">
+              <span className="text-sm font-medium text-neon-lime uppercase tracking-wide">
+                Für Trainer & Coaches
+              </span>
             </div>
 
-            {/* Main Headline - Problem */}
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-headline font-bold text-soft-mint mb-6 leading-tight max-w-5xl mx-auto">
-              Unfaire Teams <span className="text-red-400">frustrieren</span>
-              <br />
-              deine Spieler
+            {/* Icon - Balance Scale with Teams */}
+            <div className="mb-12 flex justify-center">
+              <div className="relative w-32 h-32">
+                {/* Center pivot */}
+                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                  <div className="w-2 h-16 bg-neon-lime/80 rounded-full" />
+                  <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-6 h-6 rounded-full bg-neon-lime/80" />
+                </div>
+
+                {/* Balance beam */}
+                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                  <div className="w-40 h-1.5 bg-neon-lime/80 rounded-full" />
+                </div>
+
+                {/* Left team icon */}
+                <div className="absolute top-1/2 left-0 transform -translate-y-1/2 -translate-x-8">
+                  <div className="w-12 h-12 rounded-xl bg-neon-lime/20 border-2 border-neon-lime/60 flex items-center justify-center backdrop-blur-sm">
+                    <Users className="w-6 h-6 text-neon-lime" strokeWidth={2} />
+                  </div>
+                </div>
+
+                {/* Right team icon */}
+                <div className="absolute top-1/2 right-0 transform -translate-y-1/2 translate-x-8">
+                  <div className="w-12 h-12 rounded-xl bg-neon-lime/20 border-2 border-neon-lime/60 flex items-center justify-center backdrop-blur-sm">
+                    <Users className="w-6 h-6 text-neon-lime" strokeWidth={2} />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Main Headline */}
+            <h1 className="text-5xl md:text-7xl lg:text-8xl font-headline font-bold text-soft-mint mb-8 leading-tight">
+              Faire Teams<br />
+              <span className="text-neon-lime">in 3 Sekunden</span>
             </h1>
 
-            <p className="text-xl md:text-2xl text-soft-mint/70 mb-8 max-w-3xl mx-auto leading-relaxed">
-              10 Minuten warten beim Wählen. Ein Team gewinnt 8:1.
-              <br />
-              <span className="text-soft-mint/90">Die Schwächeren verlieren die Lust.</span>
+            {/* Subheadline */}
+            <p className="text-xl md:text-2xl text-soft-mint/80 mb-12 leading-relaxed max-w-2xl mx-auto">
+              KI-gestützter Algorithmus verteilt deine Spieler automatisch –<br className="hidden md:block" />
+              ausgewogen, positionsbasiert, transparent.
             </p>
 
-            {/* Solution Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-neon-lime/20 border border-neon-lime/30 mb-6 mt-8">
-              <Sparkles className="w-5 h-5 text-neon-lime" />
-              <span className="text-sm font-bold text-neon-lime uppercase">Die Lösung</span>
-            </div>
+            {/* CTA */}
+            <Link href="/login">
+              <Button
+                variant="primary"
+                size="lg"
+                className="gap-3 text-lg px-10 py-6 text-deep-petrol font-bold"
+              >
+                Jetzt kostenlos starten
+                <ArrowRight className="w-5 h-5" strokeWidth={2.5} />
+              </Button>
+            </Link>
 
-            {/* Solution Headline */}
-            <h2 className="text-3xl md:text-5xl font-headline font-bold text-neon-lime mb-8 leading-tight">
-              KI-Algorithmus erstellt faire Teams<br />
-              <span className="text-soft-mint text-2xl md:text-4xl">in unter 3 Sekunden</span>
-            </h2>
-
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-              <Link href="/login">
-                <Button
-                  variant="primary"
-                  size="lg"
-                  className="gap-3 text-lg px-8"
-                >
-                  Jetzt kostenlos testen
-                  <ArrowRight className="w-5 h-5" strokeWidth={2} />
-                </Button>
-              </Link>
-            </div>
-
-            <p className="text-sm text-soft-mint/60">
-              100% kostenlos • Keine Kreditkarte erforderlich • In 2 Minuten startklar
+            <p className="text-sm text-soft-mint/50 mt-6">
+              Keine Anmeldung zum Testen • Setup in 2 Minuten
             </p>
-          </div>
-
-          {/* Comparison Graphic */}
-          <div className="hidden lg:block pb-16">
-            <HeroComparisonGraphic />
           </div>
         </PageLayout>
       </section>

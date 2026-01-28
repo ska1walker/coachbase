@@ -55,35 +55,45 @@ function SquadsContent() {
 
     const unsubscribeOwned = onSnapshot(ownedQuery, (snapshot) => {
       const loadSquadsAsync = async () => {
-        const loadedSquads: SquadWithOwner[] = []
+        try {
+          const loadedSquads: SquadWithOwner[] = []
 
-        for (const docSnap of snapshot.docs) {
-          const squadData = {
-            id: docSnap.id,
-            ...docSnap.data(),
-          } as Squad
+          for (const docSnap of snapshot.docs) {
+            const squadData = {
+              id: docSnap.id,
+              ...docSnap.data(),
+            } as Squad
 
-          // Count accepted co-trainers
-          const coTrainerCount = squadData.coTrainerIds?.length || 0
+            // Count accepted co-trainers
+            const coTrainerCount = squadData.coTrainerIds?.length || 0
 
-          // Count pending invites
-          const invitesQuery = query(
-            collection(db, 'squadInvites'),
-            where('squadId', '==', docSnap.id),
-            where('used', '==', false)
-          )
-          const invitesSnapshot = await getDocs(invitesQuery)
-          const pendingInvites = invitesSnapshot.size
+            // Count pending invites
+            let pendingInvites = 0
+            try {
+              const invitesQuery = query(
+                collection(db, 'squadInvites'),
+                where('squadId', '==', docSnap.id),
+                where('used', '==', false)
+              )
+              const invitesSnapshot = await getDocs(invitesQuery)
+              pendingInvites = invitesSnapshot.size
+            } catch (error) {
+              console.error('Error loading pending invites:', error)
+            }
 
-          loadedSquads.push({
-            ...squadData,
-            coTrainerCount,
-            pendingInvites,
-          })
+            loadedSquads.push({
+              ...squadData,
+              coTrainerCount,
+              pendingInvites,
+            })
+          }
+
+          setOwnedSquads(loadedSquads)
+          setLoading(false)
+        } catch (error) {
+          console.error('Error loading owned squads:', error)
+          setLoading(false)
         }
-
-        setOwnedSquads(loadedSquads)
-        setLoading(false)
       }
 
       loadSquadsAsync()
@@ -91,33 +101,37 @@ function SquadsContent() {
 
     const unsubscribeInvited = onSnapshot(invitedQuery, (snapshot) => {
       const loadSquadsAsync = async () => {
-        const loadedSquads: SquadWithOwner[] = []
+        try {
+          const loadedSquads: SquadWithOwner[] = []
 
-        for (const docSnap of snapshot.docs) {
-          const squadData = {
-            id: docSnap.id,
-            ...docSnap.data(),
-          } as Squad
+          for (const docSnap of snapshot.docs) {
+            const squadData = {
+              id: docSnap.id,
+              ...docSnap.data(),
+            } as Squad
 
-          // Load owner name
-          let ownerName = 'Unbekannt'
-          try {
-            const ownerDoc = await getDoc(doc(db, 'users', squadData.ownerId))
-            if (ownerDoc.exists()) {
-              const ownerData = ownerDoc.data()
-              ownerName = ownerData.displayName || `${ownerData.firstName || ''} ${ownerData.lastName || ''}`.trim() || ownerData.email || 'Unbekannt'
+            // Load owner name
+            let ownerName = 'Unbekannt'
+            try {
+              const ownerDoc = await getDoc(doc(db, 'users', squadData.ownerId))
+              if (ownerDoc.exists()) {
+                const ownerData = ownerDoc.data()
+                ownerName = ownerData.displayName || `${ownerData.firstName || ''} ${ownerData.lastName || ''}`.trim() || ownerData.email || 'Unbekannt'
+              }
+            } catch (error) {
+              console.error('Error loading owner name:', error)
             }
-          } catch (error) {
-            console.error('Error loading owner name:', error)
+
+            loadedSquads.push({
+              ...squadData,
+              ownerName,
+            })
           }
 
-          loadedSquads.push({
-            ...squadData,
-            ownerName,
-          })
+          setInvitedSquads(loadedSquads)
+        } catch (error) {
+          console.error('Error loading invited squads:', error)
         }
-
-        setInvitedSquads(loadedSquads)
       }
 
       loadSquadsAsync()

@@ -9,6 +9,7 @@ import { doc, getDoc } from 'firebase/firestore'
 import { Button } from '@/components/ui/Button'
 import { PageLayout } from '@/components/PageLayout'
 import { LandingFooter } from '@/components/LandingFooter'
+import { MobileMenu } from '@/components/MobileMenu'
 import {
   Users,
   User,
@@ -16,7 +17,6 @@ import {
   LogOut,
   Zap,
   Clock,
-  Scale,
   Smartphone,
   ArrowRight,
   ChevronDown,
@@ -29,6 +29,8 @@ import {
   MapPin,
   Timer,
   Sparkles,
+  Menu,
+  Heart,
 } from 'lucide-react'
 
 // Hero Graphic: Before/After Comparison
@@ -266,119 +268,46 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-soft-mint dark:bg-deep-petrol">
-      {/* Header/Navigation */}
+      {/* Header/Navigation - Mobile First with Burger Menu */}
       <header className="border-b border-mid-grey/20 backdrop-blur-md bg-white/80 dark:bg-card-dark/80 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 md:px-8 lg:px-12">
-          <div className="flex items-center justify-between min-h-[72px] py-3">
-            <Link href={user ? "/squads" : "/"} className="flex items-center gap-3 hover:opacity-80 transition-smooth">
-              <div className="w-10 h-10 rounded-xl bg-neon-lime flex items-center justify-center">
-                <Users className="w-6 h-6 text-deep-petrol" strokeWidth={2} />
+          <div className="flex items-center justify-between min-h-[64px]">
+            {/* Logo - Left */}
+            <Link href={user ? "/squads" : "/"} className="flex items-center gap-2 hover:opacity-80 transition-smooth">
+              <div className="w-8 h-8 rounded-lg bg-neon-lime flex items-center justify-center">
+                <Users className="w-5 h-5 text-deep-petrol" strokeWidth={2} />
               </div>
-              <h1 className="text-xl md:text-2xl font-headline font-bold text-deep-petrol dark:text-soft-mint">
+              <h1 className="text-xl font-headline font-bold text-deep-petrol dark:text-soft-mint">
                 CoachBase
               </h1>
             </Link>
 
+            {/* Right Side Actions */}
             {!loading && (
-              <>
+              <div className="flex items-center gap-3">
                 {user ? (
-                  // User Menu
-                  <div className="relative">
+                  <>
+                    {/* Burger Menu Button */}
                     <button
-                      onClick={() => setShowMenu(!showMenu)}
-                      className="flex items-center gap-3 p-2 rounded-lg hover:bg-soft-mint/50 dark:hover:bg-deep-petrol transition-smooth"
+                      onClick={() => setShowMenu(true)}
+                      className="flex items-center gap-2 p-2 rounded-lg hover:bg-soft-mint/50 dark:hover:bg-deep-petrol transition-smooth"
+                      aria-label="Menü öffnen"
                     >
-                      <div className="hidden md:flex flex-col items-end">
-                        <span className="text-sm font-medium text-deep-petrol dark:text-soft-mint">
-                          {displayName || userEmail.split('@')[0]}
-                        </span>
-                        {isAdmin && (
-                          <span className="text-xs text-neon-lime font-bold uppercase">Admin</span>
-                        )}
-                      </div>
-                      <div className="w-10 h-10 rounded-full bg-neon-lime/20 flex items-center justify-center">
-                        <User className="w-5 h-5 text-neon-lime" strokeWidth={2} />
-                      </div>
+                      <Menu className="w-6 h-6 text-deep-petrol dark:text-soft-mint" strokeWidth={2} />
+                      <span className="hidden md:inline text-sm font-medium text-deep-petrol dark:text-soft-mint">
+                        Menü
+                      </span>
                     </button>
 
-                    {showMenu && (
-                      <>
-                        <div
-                          className="fixed inset-0 z-40"
-                          onClick={() => setShowMenu(false)}
-                        />
-
-                        <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-card-dark rounded-lg shadow-lg border border-mid-grey/20 z-50">
-                          <div className="p-4 border-b border-mid-grey/20">
-                            {displayName && (
-                              <p className="text-sm font-bold text-deep-petrol dark:text-soft-mint">
-                                {displayName}
-                              </p>
-                            )}
-                            <p className={`text-sm ${displayName ? 'text-mid-grey' : 'font-medium text-deep-petrol dark:text-soft-mint'}`}>
-                              {userEmail}
-                            </p>
-                            {isAdmin && (
-                              <span className="inline-flex items-center gap-1 mt-1 px-2 py-1 rounded bg-neon-lime/20 text-neon-lime text-xs font-bold">
-                                <Shield className="w-3 h-3" strokeWidth={2} />
-                                ADMIN
-                              </span>
-                            )}
-                          </div>
-
-                          <div className="p-2">
-                            {isAdmin && (
-                              <Link
-                                href="/admin"
-                                onClick={() => setShowMenu(false)}
-                                className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-soft-mint/50 dark:hover:bg-deep-petrol transition-smooth"
-                              >
-                                <Shield className="w-5 h-5 text-digital-orange" strokeWidth={2} />
-                                <span className="text-sm font-medium text-deep-petrol dark:text-soft-mint">
-                                  Admin Dashboard
-                                </span>
-                              </Link>
-                            )}
-
-                            <Link
-                              href="/squads"
-                              onClick={() => setShowMenu(false)}
-                              className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-soft-mint/50 dark:hover:bg-deep-petrol transition-smooth"
-                            >
-                              <Users className="w-5 h-5 text-mid-grey" strokeWidth={2} />
-                              <span className="text-sm font-medium text-deep-petrol dark:text-soft-mint">
-                                Meine Teams
-                              </span>
-                            </Link>
-
-                            <Link
-                              href="/profile"
-                              onClick={() => setShowMenu(false)}
-                              className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-soft-mint/50 dark:hover:bg-deep-petrol transition-smooth"
-                            >
-                              <User className="w-5 h-5 text-mid-grey" strokeWidth={2} />
-                              <span className="text-sm font-medium text-deep-petrol dark:text-soft-mint">
-                                Profil
-                              </span>
-                            </Link>
-                          </div>
-
-                          <div className="p-2 border-t border-mid-grey/20">
-                            <button
-                              onClick={() => {
-                                setShowMenu(false)
-                                handleLogout()
-                              }}
-                              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-smooth text-red-600 dark:text-red-400"
-                            >
-                              <LogOut className="w-5 h-5" strokeWidth={2} />
-                              <span className="text-sm font-medium">Abmelden</span>
-                            </button>
-                          </div>
-                        </div>
-                      </>
-                    )}
-                  </div>
+                    {/* Mobile Menu Portal */}
+                    <MobileMenu
+                      isOpen={showMenu}
+                      onClose={() => setShowMenu(false)}
+                      displayName={displayName}
+                      userEmail={userEmail}
+                      isAdmin={isAdmin}
+                    />
+                  </>
                 ) : (
                   <Link href="/login">
                     <Button
@@ -391,14 +320,14 @@ export default function LandingPage() {
                     </Button>
                   </Link>
                 )}
-              </>
+              </div>
             )}
           </div>
         </div>
       </header>
 
       {/* Hero Section - Clean & Minimal */}
-      <section className="relative bg-deep-petrol overflow-hidden min-h-screen flex items-center">
+      <section className="relative bg-deep-petrol overflow-hidden min-h-screen flex items-center justify-center">
         <div
           className="absolute inset-0 opacity-[0.07]"
           style={{
@@ -408,7 +337,7 @@ export default function LandingPage() {
         />
 
         <PageLayout className="relative z-10 w-full">
-          <div className="text-center py-20 md:py-32 max-w-4xl mx-auto">
+          <div className="text-center flex flex-col items-center justify-center min-h-[calc(100vh-64px)] px-4 py-12 md:py-20">
             {/* Pre-Headline */}
             <div className="inline-block px-4 py-1.5 rounded-full border border-neon-lime/30 bg-neon-lime/10 mb-8">
               <span className="text-sm font-medium text-neon-lime uppercase tracking-wide">
@@ -416,46 +345,29 @@ export default function LandingPage() {
               </span>
             </div>
 
-            {/* Icon - Balance Scale with Teams */}
+            {/* Icon - Shield for Fairness/Protection */}
             <div className="mb-12 flex justify-center">
-              <div className="relative w-32 h-32">
-                {/* Center pivot */}
-                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                  <div className="w-2 h-16 bg-neon-lime/80 rounded-full" />
-                  <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-6 h-6 rounded-full bg-neon-lime/80" />
+              <div className="relative">
+                <div className="w-24 h-24 md:w-32 md:h-32 rounded-2xl bg-neon-lime/20 border-2 border-neon-lime/60 flex items-center justify-center backdrop-blur-sm">
+                  <Shield className="w-12 h-12 md:w-16 md:h-16 text-neon-lime" strokeWidth={1.5} />
                 </div>
-
-                {/* Balance beam */}
-                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                  <div className="w-40 h-1.5 bg-neon-lime/80 rounded-full" />
-                </div>
-
-                {/* Left team icon */}
-                <div className="absolute top-1/2 left-0 transform -translate-y-1/2 -translate-x-8">
-                  <div className="w-12 h-12 rounded-xl bg-neon-lime/20 border-2 border-neon-lime/60 flex items-center justify-center backdrop-blur-sm">
-                    <Users className="w-6 h-6 text-neon-lime" strokeWidth={2} />
-                  </div>
-                </div>
-
-                {/* Right team icon */}
-                <div className="absolute top-1/2 right-0 transform -translate-y-1/2 translate-x-8">
-                  <div className="w-12 h-12 rounded-xl bg-neon-lime/20 border-2 border-neon-lime/60 flex items-center justify-center backdrop-blur-sm">
-                    <Users className="w-6 h-6 text-neon-lime" strokeWidth={2} />
-                  </div>
+                {/* Sparkle effect */}
+                <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-neon-lime flex items-center justify-center animate-pulse">
+                  <Sparkles className="w-4 h-4 text-deep-petrol" strokeWidth={2} />
                 </div>
               </div>
             </div>
 
-            {/* Main Headline */}
-            <h1 className="text-5xl md:text-7xl lg:text-8xl font-headline font-bold text-soft-mint mb-8 leading-tight">
-              Faire Teams<br />
-              <span className="text-neon-lime">in 3 Sekunden</span>
+            {/* Main Headline - Updated */}
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-headline font-bold text-soft-mint mb-8 leading-tight max-w-5xl">
+              Schluss mit der Wahl-Diskussion.<br />
+              <span className="text-neon-lime">Faire Teams auf Klick.</span>
             </h1>
 
             {/* Subheadline */}
-            <p className="text-xl md:text-2xl text-soft-mint/80 mb-12 leading-relaxed max-w-2xl mx-auto">
-              KI-gestützter Algorithmus verteilt deine Spieler automatisch –<br className="hidden md:block" />
-              ausgewogen, positionsbasiert, transparent.
+            <p className="text-lg md:text-xl lg:text-2xl text-soft-mint/80 mb-12 leading-relaxed max-w-3xl mx-auto">
+              Keiner will wählen. Keiner will der Letzte sein.<br className="hidden md:block" />
+              Unser KI-Algorithmus macht Teams transparent, fair und in Sekunden.
             </p>
 
             {/* CTA */}
@@ -463,16 +375,12 @@ export default function LandingPage() {
               <Button
                 variant="primary"
                 size="lg"
-                className="gap-3 text-lg px-10 py-6 text-deep-petrol font-bold"
+                className="gap-3 text-base md:text-lg px-8 md:px-10 py-4 md:py-6 text-deep-petrol font-bold"
               >
                 Jetzt kostenlos starten
                 <ArrowRight className="w-5 h-5" strokeWidth={2.5} />
               </Button>
             </Link>
-
-            <p className="text-sm text-soft-mint/50 mt-6">
-              Keine Anmeldung zum Testen • Setup in 2 Minuten
-            </p>
           </div>
         </PageLayout>
       </section>
@@ -495,11 +403,11 @@ export default function LandingPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
             {/* Step 1 */}
-            <div className="relative">
-              <div className="absolute -top-4 -left-4 w-12 h-12 rounded-full bg-neon-lime flex items-center justify-center">
+            <div className="relative z-10">
+              <div className="absolute -top-4 -left-4 w-12 h-12 rounded-full bg-neon-lime flex items-center justify-center z-20">
                 <span className="text-2xl font-bold text-deep-petrol">1</span>
               </div>
-              <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-neon-lime/20 h-full">
+              <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-neon-lime/20 h-full relative z-10">
                 <div className="w-16 h-16 rounded-2xl bg-neon-lime/20 flex items-center justify-center mb-6 mx-auto">
                   <Users className="w-8 h-8 text-neon-lime" strokeWidth={1.5} />
                 </div>
@@ -514,11 +422,11 @@ export default function LandingPage() {
             </div>
 
             {/* Step 2 */}
-            <div className="relative">
-              <div className="absolute -top-4 -left-4 w-12 h-12 rounded-full bg-neon-lime flex items-center justify-center">
+            <div className="relative z-10">
+              <div className="absolute -top-4 -left-4 w-12 h-12 rounded-full bg-neon-lime flex items-center justify-center z-20">
                 <span className="text-2xl font-bold text-deep-petrol">2</span>
               </div>
-              <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-neon-lime/20 h-full">
+              <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-neon-lime/20 h-full relative z-10">
                 <div className="w-16 h-16 rounded-2xl bg-neon-lime/20 flex items-center justify-center mb-6 mx-auto">
                   <Sparkles className="w-8 h-8 text-neon-lime" strokeWidth={1.5} />
                 </div>
@@ -533,11 +441,11 @@ export default function LandingPage() {
             </div>
 
             {/* Step 3 */}
-            <div className="relative">
-              <div className="absolute -top-4 -left-4 w-12 h-12 rounded-full bg-neon-lime flex items-center justify-center">
+            <div className="relative z-10">
+              <div className="absolute -top-4 -left-4 w-12 h-12 rounded-full bg-neon-lime flex items-center justify-center z-20">
                 <span className="text-2xl font-bold text-deep-petrol">3</span>
               </div>
-              <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-neon-lime/20 h-full">
+              <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-neon-lime/20 h-full relative z-10">
                 <div className="w-16 h-16 rounded-2xl bg-neon-lime/20 flex items-center justify-center mb-6 mx-auto">
                   <Trophy className="w-8 h-8 text-neon-lime" strokeWidth={1.5} />
                 </div>

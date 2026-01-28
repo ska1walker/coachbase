@@ -9,6 +9,18 @@ import { ToastContainer } from '@/components/ui/Toast'
 export const metadata: Metadata = {
   title: 'CoachBase - Faire Mannschaftswahl',
   description: 'Automatisierte und faire Teamaufteilung für Teamsport',
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    minimumScale: 1,
+    maximumScale: 5,
+    userScalable: true,
+    viewportFit: 'cover', // iOS Safe Area support
+  },
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#E8F5E9' },
+    { media: '(prefers-color-scheme: dark)', color: '#003D29' },
+  ],
 }
 
 export default function RootLayout({

@@ -52,6 +52,7 @@ function TeamsPageContent() {
   useEffect(() => {
     if (!squadId) {
       setAllPlayers([])
+      setSelectedPlayerIds(new Set())
       return
     }
 
@@ -70,6 +71,10 @@ function TeamsPageContent() {
         } as Player)
       })
       setAllPlayers(loadedPlayers)
+
+      // Auto-select all players by default
+      const allPlayerIds = new Set(loadedPlayers.map(p => p.id))
+      setSelectedPlayerIds(allPlayerIds)
     })
 
     return () => unsubscribe()
@@ -85,6 +90,16 @@ function TeamsPageContent() {
       }
       return newSet
     })
+  }
+
+  // Bulk selection handlers
+  const selectAllPlayers = () => {
+    const allPlayerIds = new Set(allPlayers.map(p => p.id))
+    setSelectedPlayerIds(allPlayerIds)
+  }
+
+  const deselectAllPlayers = () => {
+    setSelectedPlayerIds(new Set())
   }
 
   // Buddy Group Management
@@ -401,37 +416,73 @@ function TeamsPageContent() {
           </p>
         </div>
 
-        {/* Selected Count */}
-        <div className="mb-4 flex items-center justify-between">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-neon-lime text-deep-petrol font-bold">
-            <Users className="w-5 h-5" />
-            {selectedPlayerIds.size} ausgewählt
+        {/* Team Creation Controls - Moved to top for better UX */}
+        <Card className="mb-6 sticky top-[80px] z-40 shadow-lg">
+          <CardContent className="p-4">
+            <div className="flex flex-col md:flex-row gap-4 items-center">
+              <div className="flex-1 w-full md:w-auto">
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-neon-lime text-deep-petrol font-bold">
+                  <Users className="w-5 h-5" />
+                  {selectedPlayerIds.size} / {allPlayers.length} ausgewählt
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 w-full md:w-auto">
+                <input
+                  type="number"
+                  min="2"
+                  max="10"
+                  value={teamCount}
+                  onChange={(e) => setTeamCount(Number(e.target.value))}
+                  className="w-20 px-3 py-2 rounded-lg bg-white dark:bg-card-dark border-2 border-mid-grey/30 focus:border-neon-lime focus:outline-none transition-smooth text-center"
+                  aria-label="Anzahl der Teams"
+                />
+                <span className="text-sm text-mid-grey hidden md:inline">Teams</span>
+              </div>
+
+              <Button
+                variant="primary"
+                onClick={createTeams}
+                disabled={selectedPlayerIds.size < 4}
+                className="flex items-center justify-center gap-2 w-full md:w-auto"
+              >
+                <Shuffle className="w-5 h-5" />
+                <span className="font-bold">Teams generieren</span>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Selected Count & Bulk Actions */}
+        <div className="mb-4 flex flex-col sm:flex-row gap-2 sm:items-center sm:justify-between">
+          <div className="flex items-center gap-2">
+            <p className="text-sm text-mid-grey">
+              Spieler Auswahl:
+            </p>
           </div>
 
-          {selectedPlayerIds.size > 0 && (
-            <>
-              {/* Mobile: Icon only */}
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={resetSelection}
-                className="md:hidden flex items-center justify-center"
-              >
-                <RotateCcw className="w-5 h-5" />
-              </Button>
-
-              {/* Desktop: Icon + Text */}
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={resetSelection}
-                className="hidden md:flex items-center gap-2"
-              >
-                <RotateCcw className="w-4 h-4" />
-                Zurücksetzen
-              </Button>
-            </>
-          )}
+          <div className="flex items-center gap-2">
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={selectAllPlayers}
+              disabled={selectedPlayerIds.size === allPlayers.length}
+              className="flex items-center gap-2"
+            >
+              <Users className="w-4 h-4" />
+              Alle auswählen
+            </Button>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={deselectAllPlayers}
+              disabled={selectedPlayerIds.size === 0}
+              className="flex items-center gap-2"
+            >
+              <X className="w-4 h-4" />
+              Alle abwählen
+            </Button>
+          </div>
         </div>
 
         {/* Player Selection Grid */}
@@ -583,55 +634,6 @@ function TeamsPageContent() {
           </Card>
         )}
 
-        {/* Team Creation Controls */}
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle>Teams erstellen</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex flex-col md:flex-row gap-4">
-                <div className="flex-1">
-                  <label className="block text-sm font-medium mb-2">
-                    Anzahl der Teams
-                  </label>
-                  <input
-                    type="number"
-                    min="2"
-                    max="10"
-                    value={teamCount}
-                    onChange={(e) => setTeamCount(Number(e.target.value))}
-                    className="w-full px-4 py-3 rounded-lg bg-white dark:bg-card-dark border-2 border-mid-grey/30 focus:border-neon-lime focus:outline-none transition-smooth"
-                  />
-                </div>
-                <div className="flex items-end">
-                  {/* Mobile: Icon only */}
-                  <Button
-                    variant="primary"
-                    fullWidth
-                    onClick={createTeams}
-                    disabled={selectedPlayerIds.size < 4}
-                    className="md:hidden flex items-center justify-center"
-                  >
-                    <Shuffle className="w-6 h-6" />
-                  </Button>
-
-                  {/* Desktop: Icon + Text */}
-                  <Button
-                    variant="primary"
-                    fullWidth
-                    onClick={createTeams}
-                    disabled={selectedPlayerIds.size < 4}
-                    className="hidden md:flex items-center justify-center gap-2"
-                  >
-                    <Shuffle className="w-5 h-5" />
-                    Teams generieren
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
 
         {/* Generated Teams */}
         {teams.length > 0 && (

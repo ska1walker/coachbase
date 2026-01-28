@@ -127,9 +127,10 @@ export function AppHeader() {
             {/* Dropdown Menu */}
             {showMenu && (
               <>
-                {/* Backdrop */}
+                {/* Backdrop - excludes bottom navigation area (64px) */}
                 <div
-                  className="fixed inset-0 z-40"
+                  className="fixed top-0 left-0 right-0 z-40"
+                  style={{ bottom: '64px' }}
                   onClick={() => setShowMenu(false)}
                 />
 

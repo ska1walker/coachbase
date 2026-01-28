@@ -3,23 +3,30 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { auth, db } from '@/lib/firebase'
-import { collection, query, where, onSnapshot, addDoc, deleteDoc, doc, updateDoc, arrayRemove } from 'firebase/firestore'
+import { collection, query, where, onSnapshot, addDoc, deleteDoc, doc, updateDoc, arrayRemove, getDoc, getDocs } from 'firebase/firestore'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { AuthGuard } from '@/components/AuthGuard'
 import { AppHeader } from '@/components/AppHeader'
 import { PageLayout } from '@/components/PageLayout'
-import { Users, Plus, Trash2, Unlink, AlertTriangle } from 'lucide-react'
+import { Users, Plus, Trash2, Unlink, AlertTriangle, UserCircle, Clock, CheckCircle } from 'lucide-react'
 import type { Squad } from '@/lib/types'
 import { BottomNav } from '@/components/BottomNav'
 import { useUserStats } from '@/hooks/useUserStats'
 
+// Type for squad with owner info
+type SquadWithOwner = Squad & {
+  ownerName?: string
+  coTrainerCount?: number
+  pendingInvites?: number
+}
+
 function SquadsContent() {
   const router = useRouter()
   const [loading, setLoading] = useState(true)
-  const [ownedSquads, setOwnedSquads] = useState<Squad[]>([])
-  const [invitedSquads, setInvitedSquads] = useState<Squad[]>([])
+  const [ownedSquads, setOwnedSquads] = useState<SquadWithOwner[]>([])
+  const [invitedSquads, setInvitedSquads] = useState<SquadWithOwner[]>([])
   const [newSquadName, setNewSquadName] = useState('')
   const [creating, setCreating] = useState(false)
   const { trackSquadCreated } = useUserStats()
@@ -46,26 +53,65 @@ function SquadsContent() {
       where('coTrainerIds', 'array-contains', user.uid)
     )
 
-    const unsubscribeOwned = onSnapshot(ownedQuery, (snapshot) => {
-      const loadedSquads: Squad[] = []
-      snapshot.forEach((doc) => {
+    const unsubscribeOwned = onSnapshot(ownedQuery, async (snapshot) => {
+      const loadedSquads: SquadWithOwner[] = []
+
+      for (const docSnap of snapshot.docs) {
+        const squadData = {
+          id: docSnap.id,
+          ...docSnap.data(),
+        } as Squad
+
+        // Count accepted co-trainers
+        const coTrainerCount = squadData.coTrainerIds?.length || 0
+
+        // Count pending invites
+        const invitesQuery = query(
+          collection(db, 'squadInvites'),
+          where('squadId', '==', docSnap.id),
+          where('used', '==', false)
+        )
+        const invitesSnapshot = await getDocs(invitesQuery)
+        const pendingInvites = invitesSnapshot.size
+
         loadedSquads.push({
-          id: doc.id,
-          ...doc.data(),
-        } as Squad)
-      })
+          ...squadData,
+          coTrainerCount,
+          pendingInvites,
+        })
+      }
+
       setOwnedSquads(loadedSquads)
       setLoading(false)
     })
 
-    const unsubscribeInvited = onSnapshot(invitedQuery, (snapshot) => {
-      const loadedSquads: Squad[] = []
-      snapshot.forEach((doc) => {
+    const unsubscribeInvited = onSnapshot(invitedQuery, async (snapshot) => {
+      const loadedSquads: SquadWithOwner[] = []
+
+      for (const docSnap of snapshot.docs) {
+        const squadData = {
+          id: docSnap.id,
+          ...docSnap.data(),
+        } as Squad
+
+        // Load owner name
+        let ownerName = 'Unbekannt'
+        try {
+          const ownerDoc = await getDoc(doc(db, 'users', squadData.ownerId))
+          if (ownerDoc.exists()) {
+            const ownerData = ownerDoc.data()
+            ownerName = ownerData.displayName || `${ownerData.firstName || ''} ${ownerData.lastName || ''}`.trim() || ownerData.email || 'Unbekannt'
+          }
+        } catch (error) {
+          console.error('Error loading owner name:', error)
+        }
+
         loadedSquads.push({
-          id: doc.id,
-          ...doc.data(),
-        } as Squad)
-      })
+          ...squadData,
+          ownerName,
+        })
+      }
+
       setInvitedSquads(loadedSquads)
     })
 
@@ -237,17 +283,39 @@ function SquadsContent() {
                     >
                       <CardContent className="p-6">
                         <div className="flex items-start justify-between mb-4">
-                          <div className="flex items-center gap-3">
+                          <div className="flex items-center gap-3 flex-1">
                             <div className="w-12 h-12 rounded-lg bg-neon-lime/20 flex items-center justify-center">
                               <Users className="w-6 h-6 text-neon-lime" />
                             </div>
-                            <div>
+                            <div className="flex-1">
                               <h3 className="font-bold text-lg text-deep-petrol dark:text-soft-mint">
                                 {squad.name}
                               </h3>
                               <p className="text-sm text-mid-grey">
                                 {squad.createdAt?.toDate?.() ? squad.createdAt.toDate().toLocaleDateString('de-DE') : 'N/A'}
                               </p>
+
+                              {/* Co-Trainer Status Badges */}
+                              {(squad.coTrainerCount! > 0 || squad.pendingInvites! > 0) && (
+                                <div className="flex flex-wrap gap-1.5 mt-2">
+                                  {squad.coTrainerCount! > 0 && (
+                                    <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-neon-lime/20 border border-neon-lime/40">
+                                      <CheckCircle className="w-3 h-3 text-neon-lime" />
+                                      <span className="text-xs font-medium text-neon-lime">
+                                        {squad.coTrainerCount} {squad.coTrainerCount === 1 ? 'Akzeptiert' : 'Akzeptiert'}
+                                      </span>
+                                    </div>
+                                  )}
+                                  {squad.pendingInvites! > 0 && (
+                                    <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-digital-orange/20 border border-digital-orange/40">
+                                      <Clock className="w-3 h-3 text-digital-orange" />
+                                      <span className="text-xs font-medium text-digital-orange">
+                                        {squad.pendingInvites} {squad.pendingInvites === 1 ? 'Ausstehend' : 'Ausstehend'}
+                                      </span>
+                                    </div>
+                                  )}
+                                </div>
+                              )}
                             </div>
                           </div>
                           <button
@@ -261,7 +329,7 @@ function SquadsContent() {
                           </button>
                         </div>
 
-                        <div className="text-sm text-mid-grey">
+                        <div className="text-sm text-mid-grey mt-4">
                           Klicke um Spieler zu verwalten
                         </div>
                       </CardContent>
@@ -286,7 +354,7 @@ function SquadsContent() {
                     >
                       <CardContent className="p-6">
                         <div className="flex items-start justify-between mb-4">
-                          <div className="flex items-center gap-3">
+                          <div className="flex items-center gap-3 flex-1">
                             <div className="w-12 h-12 rounded-lg bg-digital-orange/20 flex items-center justify-center">
                               <Users className="w-6 h-6 text-digital-orange" />
                             </div>
@@ -294,6 +362,15 @@ function SquadsContent() {
                               <h3 className="font-bold text-lg text-deep-petrol dark:text-soft-mint mb-1">
                                 {squad.name}
                               </h3>
+
+                              {/* Owner Info */}
+                              <div className="flex items-center gap-1.5 mb-2">
+                                <UserCircle className="w-3.5 h-3.5 text-mid-grey" />
+                                <span className="text-xs text-mid-grey">
+                                  Besitzer: {squad.ownerName}
+                                </span>
+                              </div>
+
                               <div className="flex items-center gap-2">
                                 <p className="text-sm text-mid-grey">
                                   {squad.createdAt?.toDate?.() ? squad.createdAt.toDate().toLocaleDateString('de-DE') : 'N/A'}
@@ -317,8 +394,8 @@ function SquadsContent() {
                           </button>
                         </div>
 
-                        <div className="text-sm text-mid-grey">
-                          Klicke um Spieler zu verwalten
+                        <div className="text-sm text-mid-grey mt-4">
+                          Klicke um Team zu erstellen
                         </div>
                       </CardContent>
                     </Card>

@@ -14,6 +14,7 @@ import { Users, Plus, Trash2, Unlink, AlertTriangle } from 'lucide-react'
 import type { Squad } from '@/lib/types'
 import { BottomNav } from '@/components/BottomNav'
 import { useUserStats } from '@/hooks/useUserStats'
+import { SquadMemberBadges } from '@/components/SquadMemberBadges'
 
 function SquadsContent() {
   const router = useRouter()
@@ -25,10 +26,11 @@ function SquadsContent() {
   const { trackSquadCreated } = useUserStats()
 
   // Confirmation dialog state
-  const [confirmAction, setConfirmAction] = useState<'delete' | 'unlink' | null>(null)
+  const [confirmAction, setConfirmAction] = useState<'delete' | 'unlink' | 'removeMember' | null>(null)
   const [confirmSquadId, setConfirmSquadId] = useState<string | null>(null)
   const [confirmSquadName, setConfirmSquadName] = useState<string>('')
   const [confirmInput, setConfirmInput] = useState('')
+  const [memberToRemove, setMemberToRemove] = useState<{ userId: string; userName: string } | null>(null)
 
   useEffect(() => {
     const user = auth.currentUser
@@ -117,16 +119,26 @@ function SquadsContent() {
     setConfirmSquadId(null)
     setConfirmSquadName('')
     setConfirmInput('')
+    setMemberToRemove(null)
+  }
+
+  const openRemoveMemberConfirmation = (squadId: string, userId: string, userName: string) => {
+    setConfirmAction('removeMember')
+    setConfirmSquadId(squadId)
+    setMemberToRemove({ userId, userName })
+    setConfirmInput('')
   }
 
   const executeConfirmedAction = async () => {
     if (!confirmSquadId || !confirmAction) return
 
-    // Validate input
-    const expectedInput = confirmAction === 'delete' ? 'löschen' : 'unlinken'
-    if (confirmInput.toLowerCase() !== expectedInput) {
-      alert(`Bitte "${expectedInput}" eingeben, um fortzufahren.`)
-      return
+    // Validate input for delete and unlink only
+    if (confirmAction !== 'removeMember') {
+      const expectedInput = confirmAction === 'delete' ? 'löschen' : 'unlinken'
+      if (confirmInput.toLowerCase() !== expectedInput) {
+        alert(`Bitte "${expectedInput}" eingeben, um fortzufahren.`)
+        return
+      }
     }
 
     try {
@@ -138,6 +150,10 @@ function SquadsContent() {
 
         await updateDoc(doc(db, 'squads', confirmSquadId), {
           coTrainerIds: arrayRemove(user.uid)
+        })
+      } else if (confirmAction === 'removeMember' && memberToRemove) {
+        await updateDoc(doc(db, 'squads', confirmSquadId), {
+          coTrainerIds: arrayRemove(memberToRemove.userId)
         })
       }
       cancelConfirmation()
@@ -237,11 +253,11 @@ function SquadsContent() {
                     >
                       <CardContent className="p-6">
                         <div className="flex items-start justify-between mb-4">
-                          <div className="flex items-center gap-3">
-                            <div className="w-12 h-12 rounded-lg bg-neon-lime/20 flex items-center justify-center">
+                          <div className="flex items-center gap-3 flex-1">
+                            <div className="w-12 h-12 rounded-lg bg-neon-lime/20 flex items-center justify-center flex-shrink-0">
                               <Users className="w-6 h-6 text-neon-lime" />
                             </div>
-                            <div>
+                            <div className="flex-1 min-w-0">
                               <h3 className="font-bold text-lg text-deep-petrol dark:text-soft-mint">
                                 {squad.name}
                               </h3>
@@ -250,15 +266,27 @@ function SquadsContent() {
                               </p>
                             </div>
                           </div>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              openDeleteConfirmation(squad.id, squad.name)
-                            }}
-                            className="p-2 rounded-lg hover:bg-soft-mint/50 dark:hover:bg-card-dark transition-smooth"
-                          >
-                            <Trash2 className="w-5 h-5 text-mid-grey hover:text-red-500" />
-                          </button>
+                          <div className="flex items-center gap-3 flex-shrink-0">
+                            <div onClick={(e) => e.stopPropagation()}>
+                              <SquadMemberBadges
+                                squadId={squad.id}
+                                coTrainerIds={squad.coTrainerIds}
+                                ownerId={squad.ownerId}
+                                onRemoveMember={(userId, userName) =>
+                                  openRemoveMemberConfirmation(squad.id, userId, userName)
+                                }
+                              />
+                            </div>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                openDeleteConfirmation(squad.id, squad.name)
+                              }}
+                              className="p-2 rounded-lg hover:bg-soft-mint/50 dark:hover:bg-card-dark transition-smooth"
+                            >
+                              <Trash2 className="w-5 h-5 text-mid-grey hover:text-red-500" />
+                            </button>
+                          </div>
                         </div>
 
                         <div className="text-sm text-mid-grey">
@@ -337,7 +365,11 @@ function SquadsContent() {
             <CardHeader>
               <CardTitle className="text-red-600 dark:text-red-400 flex items-center gap-2">
                 <AlertTriangle className="w-5 h-5" />
-                {confirmAction === 'delete' ? 'Team löschen' : 'Verbindung trennen'}
+                {confirmAction === 'delete'
+                  ? 'Team löschen'
+                  : confirmAction === 'removeMember'
+                  ? 'Mitglied entfernen'
+                  : 'Verbindung trennen'}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -345,25 +377,29 @@ function SquadsContent() {
                 <p className="text-deep-petrol dark:text-soft-mint">
                   {confirmAction === 'delete'
                     ? `Möchtest du das Team "${confirmSquadName}" wirklich löschen? Alle Spieler und die gesamte History werden unwiderruflich gelöscht.`
+                    : confirmAction === 'removeMember' && memberToRemove
+                    ? `Möchtest du "${memberToRemove.userName}" wirklich aus dem Team entfernen? Der Nutzer verliert den Zugriff und alle seine Daten werden entfernt.`
                     : `Möchtest du dich wirklich von "${confirmSquadName}" entfernen? Du verlierst den Zugriff auf dieses Team.`
                   }
                 </p>
 
-                <div>
-                  <label className="block text-sm font-medium mb-2 text-deep-petrol dark:text-soft-mint">
-                    Bitte tippe <span className="font-bold text-red-600 dark:text-red-400">
-                      "{confirmAction === 'delete' ? 'löschen' : 'unlinken'}"
-                    </span> ein, um fortzufahren:
-                  </label>
-                  <Input
-                    type="text"
-                    value={confirmInput}
-                    onChange={(e) => setConfirmInput(e.target.value)}
-                    placeholder={confirmAction === 'delete' ? 'löschen' : 'unlinken'}
-                    className="w-full"
-                    autoFocus
-                  />
-                </div>
+                {confirmAction !== 'removeMember' && (
+                  <div>
+                    <label className="block text-sm font-medium mb-2 text-deep-petrol dark:text-soft-mint">
+                      Bitte tippe <span className="font-bold text-red-600 dark:text-red-400">
+                        "{confirmAction === 'delete' ? 'löschen' : 'unlinken'}"
+                      </span> ein, um fortzufahren:
+                    </label>
+                    <Input
+                      type="text"
+                      value={confirmInput}
+                      onChange={(e) => setConfirmInput(e.target.value)}
+                      placeholder={confirmAction === 'delete' ? 'löschen' : 'unlinken'}
+                      className="w-full"
+                      autoFocus
+                    />
+                  </div>
+                )}
 
                 <div className="flex gap-3 pt-4">
                   <Button
@@ -376,7 +412,11 @@ function SquadsContent() {
                   <Button
                     variant="primary"
                     onClick={executeConfirmedAction}
-                    disabled={confirmInput.toLowerCase() !== (confirmAction === 'delete' ? 'löschen' : 'unlinken')}
+                    disabled={
+                      confirmAction === 'removeMember'
+                        ? false
+                        : confirmInput.toLowerCase() !== (confirmAction === 'delete' ? 'löschen' : 'unlinken')
+                    }
                     className="flex-1 bg-red-600 hover:bg-red-700 disabled:bg-mid-grey disabled:cursor-not-allowed"
                   >
                     {confirmAction === 'delete' ? 'Löschen' : 'Entfernen'}

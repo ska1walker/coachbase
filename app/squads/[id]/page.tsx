@@ -323,8 +323,16 @@ function SquadDetailContent() {
                   {/* Mobile: Icon only */}
                   <Button
                     variant="secondary"
-                    onClick={() => setShowInviteModal(true)}
+                    onClick={() => {
+                      const activeMembers = squad?.coTrainerIds?.length || 0
+                      if (activeMembers >= 5) {
+                        alert('Maximal 5 Mitglieder können zu einem Team hinzugefügt werden.')
+                        return
+                      }
+                      setShowInviteModal(true)
+                    }}
                     className="md:hidden flex items-center justify-center"
+                    disabled={(squad?.coTrainerIds?.length || 0) >= 5}
                   >
                     <UserPlus className="w-5 h-5" strokeWidth={2} />
                   </Button>
@@ -332,8 +340,16 @@ function SquadDetailContent() {
                   {/* Desktop: Icon + Text */}
                   <Button
                     variant="secondary"
-                    onClick={() => setShowInviteModal(true)}
+                    onClick={() => {
+                      const activeMembers = squad?.coTrainerIds?.length || 0
+                      if (activeMembers >= 5) {
+                        alert('Maximal 5 Mitglieder können zu einem Team hinzugefügt werden.')
+                        return
+                      }
+                      setShowInviteModal(true)
+                    }}
                     className="hidden md:flex items-center gap-2"
+                    disabled={(squad?.coTrainerIds?.length || 0) >= 5}
                   >
                     <UserPlus className="w-4 h-4" strokeWidth={2} />
                     Co-Trainer einladen

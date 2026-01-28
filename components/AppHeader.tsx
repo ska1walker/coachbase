@@ -17,6 +17,11 @@ export function AppHeader() {
   const [isAdmin, setIsAdmin] = useState(false)
   const [showMenu, setShowMenu] = useState(false)
 
+  // Close menu when route changes
+  useEffect(() => {
+    setShowMenu(false)
+  }, [pathname])
+
   useEffect(() => {
     const loadUserData = async () => {
       const user = auth.currentUser
@@ -122,10 +127,11 @@ export function AppHeader() {
             {/* Dropdown Menu */}
             {showMenu && (
               <>
-                {/* Backdrop */}
+                {/* Backdrop - Click outside to close */}
                 <div
-                  className="fixed top-0 left-0 right-0 bottom-16 md:bottom-0 z-30"
+                  className="fixed inset-0 z-40"
                   onClick={() => setShowMenu(false)}
+                  style={{ pointerEvents: 'auto' }}
                 />
 
                 {/* Menu */}

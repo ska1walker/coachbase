@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { auth, db } from '@/lib/firebase'
-import { Users, User, Shield, LogOut, Share2, FileText, Lock, Heart } from 'lucide-react'
+import { Users, User, Shield, LogOut, Share2, FileText, Lock, Heart, Menu, X } from 'lucide-react'
 import { signOut } from 'firebase/auth'
 import { useRouter } from 'next/navigation'
 import { doc, getDoc } from 'firebase/firestore'
@@ -105,23 +105,18 @@ export function AppHeader() {
               </span>
             </button>
 
-            {/* User Menu */}
+            {/* Burger Menu */}
             <div className="relative">
             <button
               onClick={() => setShowMenu(!showMenu)}
-              className="flex items-center gap-3 p-2 rounded-lg hover:bg-soft-mint/50 dark:hover:bg-deep-petrol transition-smooth"
+              className="flex items-center gap-2 p-2 rounded-lg hover:bg-soft-mint/50 dark:hover:bg-deep-petrol transition-smooth"
+              aria-label="Menü öffnen"
             >
-              <div className="hidden md:flex flex-col items-end">
-                <span className="text-sm font-medium text-deep-petrol dark:text-soft-mint">
-                  {displayName || userEmail.split('@')[0]}
-                </span>
-                {isAdmin && (
-                  <span className="text-xs text-neon-lime font-bold uppercase">Admin</span>
-                )}
-              </div>
-              <div className="w-10 h-10 rounded-full bg-neon-lime/20 flex items-center justify-center">
-                <User className="w-5 h-5 text-neon-lime" />
-              </div>
+              {showMenu ? (
+                <X className="w-6 h-6 text-deep-petrol dark:text-soft-mint" strokeWidth={2} />
+              ) : (
+                <Menu className="w-6 h-6 text-deep-petrol dark:text-soft-mint" strokeWidth={2} />
+              )}
             </button>
 
             {/* Dropdown Menu */}

@@ -17,35 +17,6 @@ export function AppHeader() {
   const [isAdmin, setIsAdmin] = useState(false)
   const [showMenu, setShowMenu] = useState(false)
 
-  // Close menu when clicking outside - ONLY add listener when menu is open
-  useEffect(() => {
-    if (!showMenu) return
-
-    const handleClickOutside = (e: MouseEvent) => {
-      const target = e.target as HTMLElement
-      // Only close menu, don't interfere with the actual click
-      if (!target.closest('[data-user-menu]')) {
-        setShowMenu(false)
-      }
-    }
-
-    // Add listener with slight delay to avoid capturing the opening click
-    const timer = setTimeout(() => {
-      // Use bubble phase (default) and don't prevent propagation
-      document.addEventListener('click', handleClickOutside)
-    }, 10)
-
-    return () => {
-      clearTimeout(timer)
-      document.removeEventListener('click', handleClickOutside)
-    }
-  }, [showMenu])
-
-  // Close menu on route change
-  useEffect(() => {
-    setShowMenu(false)
-  }, [pathname])
-
   useEffect(() => {
     const loadUserData = async () => {
       const user = auth.currentUser
@@ -135,7 +106,7 @@ export function AppHeader() {
             </button>
 
             {/* User Menu */}
-            <div className="relative" data-user-menu>
+            <div className="relative">
             <button
               onClick={() => setShowMenu(!showMenu)}
               className="flex items-center gap-3 p-2 rounded-lg hover:bg-soft-mint/50 dark:hover:bg-deep-petrol transition-smooth"
@@ -155,6 +126,14 @@ export function AppHeader() {
 
             {/* Dropdown Menu */}
             {showMenu && (
+              <>
+                {/* Backdrop */}
+                <div
+                  className="fixed inset-0 z-40"
+                  onClick={() => setShowMenu(false)}
+                />
+
+                {/* Menu */}
                 <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-card-dark rounded-lg shadow-lg border border-mid-grey/20 z-50">
                   <div className="p-4 border-b border-mid-grey/20">
                     {displayName && (
@@ -258,6 +237,7 @@ export function AppHeader() {
                     </button>
                   </div>
                 </div>
+              </>
             )}
             </div>
           </div>

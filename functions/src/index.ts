@@ -241,15 +241,6 @@ export const createInvite = functions.https.onCall(async (data, context) => {
       )
     }
 
-    // Check member limit (max 5 active members)
-    const coTrainerIds = squadData?.coTrainerIds || []
-    if (coTrainerIds.length >= 5) {
-      throw new functions.https.HttpsError(
-        'failed-precondition',
-        'Maximum of 5 members can be added to a squad'
-      )
-    }
-
     // Get caller's email
     const callerUser = await admin.auth().getUser(context.auth.uid)
 

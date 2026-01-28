@@ -42,11 +42,7 @@ export function InviteCoTrainer({ squadId, squadName, onClose }: InviteCoTrainer
       }
     } catch (err: any) {
       console.error('Error creating invite:', err)
-      if (err.code === 'functions/failed-precondition') {
-        setError('Maximal 5 Mitglieder können zu einem Team hinzugefügt werden.')
-      } else {
-        setError(err.message || 'Ein Fehler ist aufgetreten')
-      }
+      setError(err.message || 'Ein Fehler ist aufgetreten')
     } finally {
       setLoading(false)
     }

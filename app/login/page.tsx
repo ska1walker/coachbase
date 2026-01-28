@@ -15,8 +15,6 @@ export default function LoginPage() {
   const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [firstName, setFirstName] = useState('')
-  const [lastName, setLastName] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [isRegister, setIsRegister] = useState(false)
@@ -43,7 +41,7 @@ export default function LoginPage() {
     setError('')
     setLoading(true)
 
-    if (!email || !password || !firstName || !lastName) {
+    if (!email || !password) {
       setError('Bitte fülle alle Felder aus')
       setLoading(false)
       return
@@ -58,14 +56,9 @@ export default function LoginPage() {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password)
 
-      // Create user document in Firestore with firstName and lastName
-      const displayName = `${firstName.trim()} ${lastName.trim()}`
-
+      // Create user document in Firestore
       await setDoc(doc(db, 'users', userCredential.user.uid), {
         email: userCredential.user.email,
-        firstName: firstName.trim(),
-        lastName: lastName.trim(),
-        displayName: displayName,
         role: 'user',
         createdAt: new Date(),
       })
@@ -110,29 +103,6 @@ export default function LoginPage() {
           )}
 
           <form onSubmit={isRegister ? handleRegister : handleLogin} className="space-y-4">
-            {isRegister && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Input
-                  label="Vorname"
-                  type="text"
-                  value={firstName}
-                  onChange={(e) => setFirstName(e.target.value)}
-                  placeholder="Max"
-                  required
-                  disabled={loading}
-                />
-                <Input
-                  label="Nachname"
-                  type="text"
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
-                  placeholder="Mustermann"
-                  required
-                  disabled={loading}
-                />
-              </div>
-            )}
-
             <Input
               label="E-Mail"
               type="email"
@@ -178,8 +148,6 @@ export default function LoginPage() {
                 onClick={() => {
                   setIsRegister(!isRegister)
                   setError('')
-                  setFirstName('')
-                  setLastName('')
                 }}
                 className="w-full text-sm text-mid-grey hover:text-neon-lime transition-smooth"
               >

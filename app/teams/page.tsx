@@ -404,26 +404,21 @@ function TeamsPageContent() {
           </div>
         </Card>
 
-        {/* Info Box */}
-        <div className="mb-6 p-4 rounded-lg bg-neon-lime/10 border-l-4 border-neon-lime">
-          <p className="text-sm text-deep-petrol dark:text-soft-mint">
-            <strong>Tipp:</strong> Klicke auf die Spieler, die heute mitspielen. Die ausgewählten
-            Spieler werden dann fair auf Teams verteilt.
-          </p>
-          <p className="text-xs text-mid-grey mt-2 flex items-center gap-1">
-            <AlertTriangle className="w-3.5 h-3.5" />
-            Mindestens 4 Spieler erforderlich für Team-Generierung
-          </p>
-        </div>
-
         {/* Team Creation Controls - Moved to top for better UX */}
         <Card className="mb-6 sticky top-[80px] z-40 shadow-lg">
           <CardContent className="p-4">
             <div className="flex flex-col md:flex-row gap-4 items-center">
               <div className="flex-1 w-full md:w-auto">
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-neon-lime text-deep-petrol font-bold">
+                <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg font-bold transition-smooth ${
+                  selectedPlayerIds.size < 4
+                    ? 'bg-digital-orange/20 text-digital-orange border-2 border-digital-orange/40'
+                    : 'bg-neon-lime text-deep-petrol'
+                }`}>
                   <Users className="w-5 h-5" />
                   {selectedPlayerIds.size} / {allPlayers.length} ausgewählt
+                  {selectedPlayerIds.size < 4 && (
+                    <span className="text-xs ml-1">(min. 4)</span>
+                  )}
                 </div>
               </div>
 
@@ -441,13 +436,24 @@ function TeamsPageContent() {
               </div>
 
               <Button
-                variant="primary"
+                variant={selectedPlayerIds.size < 4 ? "secondary" : "primary"}
                 onClick={createTeams}
                 disabled={selectedPlayerIds.size < 4}
-                className="flex items-center justify-center gap-2 w-full md:w-auto"
+                className={`flex items-center justify-center gap-2 w-full md:w-auto ${
+                  selectedPlayerIds.size < 4
+                    ? 'opacity-50 cursor-not-allowed'
+                    : ''
+                }`}
               >
+                {selectedPlayerIds.size < 4 && (
+                  <AlertTriangle className="w-5 h-5" />
+                )}
                 <Shuffle className="w-5 h-5" />
-                <span className="font-bold">Teams generieren</span>
+                <span className="font-bold">
+                  {selectedPlayerIds.size < 4
+                    ? 'Zu wenig Spieler'
+                    : 'Teams generieren'}
+                </span>
               </Button>
             </div>
           </CardContent>

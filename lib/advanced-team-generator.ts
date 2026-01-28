@@ -559,30 +559,84 @@ export function generateBalancedTeams(
     throw new Error('Need at least 2 players to generate teams')
   }
 
-  // Phase 0: Distribute buddy groups (NEW)
+  // Phase 0: Validate and distribute buddy groups with STRICT team size parity
   let teamA: Player[] = []
   let teamB: Player[] = []
 
   if (buddyGroups.length > 0) {
-    // Calculate target team size
-    const targetSize = Math.floor(players.length / 2)
+    // Calculate target team sizes
+    const totalPlayers = players.length
+    const targetSizeA = Math.ceil(totalPlayers / 2)  // Larger team if odd
+    const targetSizeB = Math.floor(totalPlayers / 2) // Smaller team if odd
+    const maxDiff = totalPlayers % 2  // 0 for even, 1 for odd
 
-    // Distribute buddy groups to balance team sizes
-    buddyGroups.forEach((group) => {
-      const groupPlayers = players.filter(p => group.playerIds.includes(p.id))
+    // Filter out empty buddy groups
+    const validBuddyGroups = buddyGroups
+      .map(group => ({
+        ...group,
+        players: players.filter(p => group.playerIds.includes(p.id))
+      }))
+      .filter(group => group.players.length >= 2)
 
-      // Add to team with fewer players, prioritizing equal distribution
-      if (teamA.length <= teamB.length) {
-        // Only add to teamA if it won't exceed target by too much
-        if (teamA.length + groupPlayers.length <= targetSize + 1) {
-          teamA.push(...groupPlayers)
+    // Sort buddy groups by size (largest first) for greedy allocation
+    validBuddyGroups.sort((a, b) => b.players.length - a.players.length)
+
+    // Validate: Check if any buddy group is too large
+    const largestGroup = validBuddyGroups[0]
+    if (largestGroup && largestGroup.players.length > targetSizeA) {
+      throw new Error(
+        `Buddy-Gruppe zu groß! Eine Gruppe hat ${largestGroup.players.length} Spieler, ` +
+        `aber die maximale Teamgröße ist ${targetSizeA}. ` +
+        `Bitte reduziere die Buddy-Gruppe oder füge mehr Spieler hinzu.`
+      )
+    }
+
+    // Distribute buddy groups using bin-packing algorithm
+    for (const group of validBuddyGroups) {
+      const groupSize = group.players.length
+      const currentDiff = Math.abs(teamA.length - teamB.length)
+
+      // Check which team can accept this group while maintaining parity
+      const canAddToA = teamA.length + groupSize <= targetSizeA
+      const canAddToB = teamB.length + groupSize <= targetSizeB ||
+                        (teamB.length + groupSize === targetSizeA && totalPlayers % 2 === 0)
+
+      if (teamA.length < teamB.length && canAddToA) {
+        // TeamA has fewer players and can accept
+        teamA.push(...group.players)
+      } else if (teamB.length < teamA.length && canAddToB) {
+        // TeamB has fewer players and can accept
+        teamB.push(...group.players)
+      } else if (teamA.length === teamB.length) {
+        // Equal size - add to team that stays within limits
+        if (canAddToA) {
+          teamA.push(...group.players)
+        } else if (canAddToB) {
+          teamB.push(...group.players)
         } else {
-          teamB.push(...groupPlayers)
+          throw new Error(
+            `Buddy-Gruppe mit ${groupSize} Spielern passt nicht in die Team-Verteilung. ` +
+            `Aktuelle Größen: Team A = ${teamA.length}, Team B = ${teamB.length}. ` +
+            `Maximale Teamgröße: ${targetSizeA}.`
+          )
         }
       } else {
-        teamB.push(...groupPlayers)
+        // Cannot maintain parity with this group
+        throw new Error(
+          `Buddy-Gruppe-Verteilung würde zu ungleichen Teams führen. ` +
+          `Bitte reduziere die Buddy-Gruppen-Größen oder passe die Spieleranzahl an.`
+        )
       }
-    })
+    }
+
+    // Final validation: Ensure team size difference is at most 1
+    const finalDiff = Math.abs(teamA.length - teamB.length)
+    if (finalDiff > maxDiff) {
+      throw new Error(
+        `Team-Größen nach Buddy-Verteilung: Team A = ${teamA.length}, Team B = ${teamB.length}. ` +
+        `Differenz (${finalDiff}) überschreitet Maximum (${maxDiff}).`
+      )
+    }
   }
 
   // Get players already assigned (buddy groups)

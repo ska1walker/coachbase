@@ -22,6 +22,22 @@ export function AppHeader() {
     setShowMenu(false)
   }, [pathname])
 
+  // Close menu when clicking outside
+  useEffect(() => {
+    if (!showMenu) return
+
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement
+      // Check if click is outside the menu container
+      if (!target.closest('[data-menu-container]')) {
+        setShowMenu(false)
+      }
+    }
+
+    document.addEventListener('click', handleClickOutside)
+    return () => document.removeEventListener('click', handleClickOutside)
+  }, [showMenu])
+
   useEffect(() => {
     const loadUserData = async () => {
       const user = auth.currentUser
@@ -111,7 +127,7 @@ export function AppHeader() {
             </button>
 
             {/* Burger Menu */}
-            <div className="relative">
+            <div className="relative" data-menu-container>
             <button
               onClick={() => setShowMenu(!showMenu)}
               className="flex items-center gap-2 p-2 rounded-lg hover:bg-soft-mint/50 dark:hover:bg-deep-petrol transition-smooth"
@@ -126,15 +142,6 @@ export function AppHeader() {
 
             {/* Dropdown Menu */}
             {showMenu && (
-              <>
-                {/* Backdrop - Click outside to close */}
-                <div
-                  className="fixed inset-0 z-40"
-                  onClick={() => setShowMenu(false)}
-                  style={{ pointerEvents: 'auto' }}
-                />
-
-                {/* Menu */}
                 <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-card-dark rounded-lg shadow-lg border border-mid-grey/20 z-50">
                   <div className="p-4 border-b border-mid-grey/20">
                     {displayName && (
@@ -238,7 +245,6 @@ export function AppHeader() {
                     </button>
                   </div>
                 </div>
-              </>
             )}
             </div>
           </div>

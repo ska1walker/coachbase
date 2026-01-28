@@ -4,6 +4,7 @@ import { ThemeProvider } from '@/components/ThemeProvider'
 import { LevelUpProvider } from '@/contexts/LevelUpContext'
 import { ConfettiWrapper } from '@/components/ConfettiWrapper'
 import { VersionFooter } from '@/components/VersionFooter'
+import { ToastContainer } from '@/components/ui/Toast'
 
 export const metadata: Metadata = {
   title: 'CoachBase - Faire Mannschaftswahl',
@@ -28,6 +29,7 @@ export default function RootLayout({
             {children}
             <ConfettiWrapper />
             <VersionFooter />
+            <ToastContainer />
           </LevelUpProvider>
         </ThemeProvider>
       </body>

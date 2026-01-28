@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/Input'
 import { AuthGuard } from '@/components/AuthGuard'
 import { AppHeader } from '@/components/AppHeader'
 import { PageLayout } from '@/components/PageLayout'
-import { Users, Plus, Trash2, Unlink } from 'lucide-react'
+import { Users, Plus, Trash2, Unlink, AlertTriangle } from 'lucide-react'
 import type { Squad } from '@/lib/types'
 import { BottomNav } from '@/components/BottomNav'
 import { useUserStats } from '@/hooks/useUserStats'
@@ -335,8 +335,9 @@ function SquadsContent() {
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <Card className="max-w-md w-full">
             <CardHeader>
-              <CardTitle className="text-red-600 dark:text-red-400">
-                {confirmAction === 'delete' ? '⚠️ Team löschen' : '⚠️ Verbindung trennen'}
+              <CardTitle className="text-red-600 dark:text-red-400 flex items-center gap-2">
+                <AlertTriangle className="w-5 h-5" />
+                {confirmAction === 'delete' ? 'Team löschen' : 'Verbindung trennen'}
               </CardTitle>
             </CardHeader>
             <CardContent>

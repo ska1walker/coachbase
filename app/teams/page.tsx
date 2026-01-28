@@ -7,9 +7,10 @@ import { db, auth } from '@/lib/firebase'
 import { Button } from '@/components/ui/Button'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card'
 import { PlayerSelectionCard } from '@/components/PlayerSelectionCard'
-import { Users, Shuffle, RotateCcw, Shield, ArrowRight, MessageCircle, ChevronDown, ChevronUp, UserPlus, X, Shirt } from 'lucide-react'
+import { Users, Shuffle, RotateCcw, Shield, ArrowRight, MessageCircle, ChevronDown, ChevronUp, UserPlus, X, Shirt, AlertTriangle, Info, Scale, Sparkles } from 'lucide-react'
 import Link from 'next/link'
 import { useUserStats } from '@/hooks/useUserStats'
+import { showToast } from '@/components/ui/Toast'
 import { generateBalancedTeams, analyzeTeamBalance, type GeneratedTeam } from '@/lib/team-generator'
 import {
   generateBalancedTeams as generateAdvancedTeams,
@@ -123,12 +124,12 @@ function TeamsPageContent() {
         )
 
         if (playerInOtherGroup) {
-          alert('Dieser Spieler ist bereits in einer anderen Buddy-Gruppe!')
+          showToast('Dieser Spieler ist bereits in einer anderen Buddy-Gruppe!', 'warning')
           return group
         }
 
         if (group.playerIds.length >= limit) {
-          alert(`Max. ${limit} Spieler pro Buddy-Gruppe!`)
+          showToast(`Max. ${limit} Spieler pro Buddy-Gruppe!`, 'warning')
           return group
         }
 
@@ -139,12 +140,12 @@ function TeamsPageContent() {
 
   const createTeams = () => {
     if (selectedPlayerIds.size < 4) {
-      alert('Bitte wähle mindestens 4 Spieler aus!')
+      showToast('Bitte wähle mindestens 4 Spieler aus!', 'warning')
       return
     }
 
     if (teamCount < 2 || teamCount > selectedPlayerIds.size) {
-      alert(`Anzahl der Teams muss zwischen 2 und ${selectedPlayerIds.size} liegen!`)
+      showToast(`Anzahl der Teams muss zwischen 2 und ${selectedPlayerIds.size} liegen!`, 'warning')
       return
     }
 
@@ -211,7 +212,7 @@ function TeamsPageContent() {
       setMatchScores([])
     } catch (error) {
       console.error('Error generating teams:', error)
-      alert('Fehler beim Generieren der Teams!')
+      showToast('Fehler beim Generieren der Teams!', 'error')
     }
   }
 
@@ -252,10 +253,10 @@ function TeamsPageContent() {
       // Initialize scores array with zeros
       setMatchScores(new Array(teams.length).fill(0))
       setShowSaveMatchDialog(false)
-      alert('Match gespeichert! Du kannst jetzt das Ergebnis eintragen.')
+      showToast('Match gespeichert! Du kannst jetzt das Ergebnis eintragen.', 'success')
     } catch (error) {
       console.error('Error saving match:', error)
-      alert('Fehler beim Speichern des Matches!')
+      showToast('Fehler beim Speichern des Matches!', 'error')
     } finally {
       setIsSavingMatch(false)
     }
@@ -398,8 +399,9 @@ function TeamsPageContent() {
             <strong>Tipp:</strong> Klicke auf die Spieler, die heute mitspielen. Die ausgewählten
             Spieler werden dann fair auf Teams verteilt.
           </p>
-          <p className="text-xs text-mid-grey mt-2">
-            ⚠️ Mindestens 4 Spieler erforderlich für Team-Generierung
+          <p className="text-xs text-mid-grey mt-2 flex items-center gap-1">
+            <AlertTriangle className="w-3.5 h-3.5" />
+            Mindestens 4 Spieler erforderlich für Team-Generierung
           </p>
         </div>
 
@@ -497,8 +499,9 @@ function TeamsPageContent() {
                 <div className="space-y-4">
                   {/* Info Box */}
                   <div className="p-4 rounded-lg bg-digital-orange/10 border border-digital-orange/30">
-                    <p className="text-sm text-deep-petrol dark:text-soft-mint mb-2">
-                      <strong>ℹ️ Buddy-Gruppen:</strong> Spieler in einer Buddy-Gruppe werden garantiert ins gleiche Team gesetzt.
+                    <p className="text-sm text-deep-petrol dark:text-soft-mint mb-2 flex items-start gap-2">
+                      <Info className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                      <span><strong>Buddy-Gruppen:</strong> Spieler in einer Buddy-Gruppe werden garantiert ins gleiche Team gesetzt.</span>
                     </p>
                     <p className="text-xs text-mid-grey">
                       {selectedPlayerIds.size >= 10
@@ -781,7 +784,8 @@ function TeamsPageContent() {
                 <CardHeader>
                   <CardTitle className="flex items-center justify-between">
                     <span className="flex items-center gap-2">
-                      ⚖️ Team Balance Analyse
+                      <Scale className="w-5 h-5" />
+                      Team Balance Analyse
                       {balanceScoreCard.isPerfect && (
                         <span className="text-xs px-2 py-1 rounded-full bg-neon-lime text-deep-petrol font-bold">
                           PERFEKT

@@ -1,11 +1,11 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { collection, query, where, orderBy, onSnapshot, doc, updateDoc } from 'firebase/firestore'
+import { collection, query, where, orderBy, onSnapshot, doc, updateDoc, getDocs, collectionGroup } from 'firebase/firestore'
 import { db, auth } from '@/lib/firebase'
 import { Card, CardHeader, CardTitle, CardContent } from './ui/Card'
-import { Calendar, Users, Heart } from 'lucide-react'
-import type { MatchHistory } from '@/lib/types'
+import { Calendar, Users, Heart, TrendingUp } from 'lucide-react'
+import type { MatchHistory, Squad } from '@/lib/types'
 import { cn } from '@/lib/utils'
 
 interface MatchHistoryListProps {
@@ -16,52 +16,119 @@ export function MatchHistoryList({ squadId }: MatchHistoryListProps) {
   const [matches, setMatches] = useState<MatchHistory[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedMatch, setSelectedMatch] = useState<MatchHistory | null>(null)
+  const [squadNames, setSquadNames] = useState<Record<string, string>>({})
 
   useEffect(() => {
     const user = auth.currentUser
     if (!user) return
 
-    let q
-
     if (squadId) {
       // Load history for specific squad
-      q = query(
-        collection(db, 'match_history'),
-        where('squadId', '==', squadId),
+      const q = query(
+        collection(db, 'squads', squadId, 'matches'),
         orderBy('date', 'desc')
       )
-    } else {
-      // Load all history for user
-      q = query(
-        collection(db, 'match_history'),
-        where('ownerId', '==', user.uid),
-        orderBy('date', 'desc')
-      )
-    }
 
-    const unsubscribe = onSnapshot(
-      q,
-      (snapshot) => {
-        const loadedMatches: MatchHistory[] = []
+      const unsubscribe = onSnapshot(
+        q,
+        (snapshot) => {
+          const loadedMatches: MatchHistory[] = []
+          snapshot.forEach((doc) => {
+            loadedMatches.push({
+              id: doc.id,
+              ...doc.data(),
+            } as MatchHistory)
+          })
+          setMatches(loadedMatches)
+          setLoading(false)
+        },
+        (error) => {
+          console.error('Error loading match history:', error)
+          setLoading(false)
+          setMatches([])
+        }
+      )
+
+      return () => unsubscribe()
+    } else {
+      // Load all matches from all user's squads
+      loadAllUserMatches(user.uid)
+    }
+  }, [squadId])
+
+  const loadAllUserMatches = async (userId: string) => {
+    try {
+      // Step 1: Load all squads where user is owner or co-trainer
+      const ownedSquadsQuery = query(
+        collection(db, 'squads'),
+        where('ownerId', '==', userId)
+      )
+      const invitedSquadsQuery = query(
+        collection(db, 'squads'),
+        where('coTrainerIds', 'array-contains', userId)
+      )
+
+      const [ownedSnapshot, invitedSnapshot] = await Promise.all([
+        getDocs(ownedSquadsQuery),
+        getDocs(invitedSquadsQuery)
+      ])
+
+      const squadIds = new Set<string>()
+      const squadNamesMap: Record<string, string> = {}
+
+      ownedSnapshot.forEach((doc) => {
+        squadIds.add(doc.id)
+        squadNamesMap[doc.id] = (doc.data() as Squad).name
+      })
+
+      invitedSnapshot.forEach((doc) => {
+        squadIds.add(doc.id)
+        squadNamesMap[doc.id] = (doc.data() as Squad).name
+      })
+
+      setSquadNames(squadNamesMap)
+
+      // Step 2: Load matches from all squads
+      if (squadIds.size === 0) {
+        setMatches([])
+        setLoading(false)
+        return
+      }
+
+      const matchPromises = Array.from(squadIds).map(async (squadId) => {
+        const matchesQuery = query(
+          collection(db, 'squads', squadId, 'matches'),
+          orderBy('date', 'desc')
+        )
+        const snapshot = await getDocs(matchesQuery)
+        const squadMatches: MatchHistory[] = []
         snapshot.forEach((doc) => {
-          loadedMatches.push({
+          squadMatches.push({
             id: doc.id,
             ...doc.data(),
           } as MatchHistory)
         })
-        setMatches(loadedMatches)
-        setLoading(false)
-      },
-      (error) => {
-        console.error('Error loading match history:', error)
-        // Set loading to false even on error (e.g., missing index)
-        setLoading(false)
-        setMatches([])
-      }
-    )
+        return squadMatches
+      })
 
-    return () => unsubscribe()
-  }, [squadId])
+      const allMatchArrays = await Promise.all(matchPromises)
+      const allMatches = allMatchArrays.flat()
+
+      // Sort by date descending
+      allMatches.sort((a, b) => {
+        const aTime = a.date?.toMillis?.() || 0
+        const bTime = b.date?.toMillis?.() || 0
+        return bTime - aTime
+      })
+
+      setMatches(allMatches)
+      setLoading(false)
+    } catch (error) {
+      console.error('Error loading all matches:', error)
+      setLoading(false)
+      setMatches([])
+    }
+  }
 
   const toggleLike = async (matchId: string, currentLiked: boolean) => {
     try {
@@ -122,6 +189,16 @@ export function MatchHistoryList({ squadId }: MatchHistoryListProps) {
               <CardContent className="p-4">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1">
+                    {/* Squad Name - only show if not filtered by squadId */}
+                    {!squadId && match.squadId && squadNames[match.squadId] && (
+                      <div className="flex items-center gap-2 mb-2">
+                        <TrendingUp className="w-4 h-4 text-neon-lime" />
+                        <span className="text-sm font-bold text-neon-lime">
+                          {squadNames[match.squadId]}
+                        </span>
+                      </div>
+                    )}
+
                     <div className="flex items-center gap-2 mb-2">
                       <Calendar className="w-4 h-4 text-mid-grey" />
                       <span className="text-sm text-mid-grey">

@@ -343,26 +343,6 @@ function SquadDetailContent() {
                 </div>
               )}
 
-              {/* Match History Button */}
-              <Link href={`/squads/${squadId}/history`}>
-                {/* Mobile: Icon only */}
-                <Button
-                  variant="secondary"
-                  className="md:hidden flex items-center justify-center"
-                >
-                  <History className="w-5 h-5" strokeWidth={2} />
-                </Button>
-
-                {/* Desktop: Icon + Text */}
-                <Button
-                  variant="secondary"
-                  className="hidden md:flex items-center gap-2"
-                >
-                  <History className="w-4 h-4" strokeWidth={2} />
-                  Match History
-                </Button>
-              </Link>
-
               {isOwner && (
                 <>
                   {/* Mobile: Icon only */}

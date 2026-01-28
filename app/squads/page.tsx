@@ -53,66 +53,74 @@ function SquadsContent() {
       where('coTrainerIds', 'array-contains', user.uid)
     )
 
-    const unsubscribeOwned = onSnapshot(ownedQuery, async (snapshot) => {
-      const loadedSquads: SquadWithOwner[] = []
+    const unsubscribeOwned = onSnapshot(ownedQuery, (snapshot) => {
+      const loadSquadsAsync = async () => {
+        const loadedSquads: SquadWithOwner[] = []
 
-      for (const docSnap of snapshot.docs) {
-        const squadData = {
-          id: docSnap.id,
-          ...docSnap.data(),
-        } as Squad
+        for (const docSnap of snapshot.docs) {
+          const squadData = {
+            id: docSnap.id,
+            ...docSnap.data(),
+          } as Squad
 
-        // Count accepted co-trainers
-        const coTrainerCount = squadData.coTrainerIds?.length || 0
+          // Count accepted co-trainers
+          const coTrainerCount = squadData.coTrainerIds?.length || 0
 
-        // Count pending invites
-        const invitesQuery = query(
-          collection(db, 'squadInvites'),
-          where('squadId', '==', docSnap.id),
-          where('used', '==', false)
-        )
-        const invitesSnapshot = await getDocs(invitesQuery)
-        const pendingInvites = invitesSnapshot.size
+          // Count pending invites
+          const invitesQuery = query(
+            collection(db, 'squadInvites'),
+            where('squadId', '==', docSnap.id),
+            where('used', '==', false)
+          )
+          const invitesSnapshot = await getDocs(invitesQuery)
+          const pendingInvites = invitesSnapshot.size
 
-        loadedSquads.push({
-          ...squadData,
-          coTrainerCount,
-          pendingInvites,
-        })
-      }
-
-      setOwnedSquads(loadedSquads)
-      setLoading(false)
-    })
-
-    const unsubscribeInvited = onSnapshot(invitedQuery, async (snapshot) => {
-      const loadedSquads: SquadWithOwner[] = []
-
-      for (const docSnap of snapshot.docs) {
-        const squadData = {
-          id: docSnap.id,
-          ...docSnap.data(),
-        } as Squad
-
-        // Load owner name
-        let ownerName = 'Unbekannt'
-        try {
-          const ownerDoc = await getDoc(doc(db, 'users', squadData.ownerId))
-          if (ownerDoc.exists()) {
-            const ownerData = ownerDoc.data()
-            ownerName = ownerData.displayName || `${ownerData.firstName || ''} ${ownerData.lastName || ''}`.trim() || ownerData.email || 'Unbekannt'
-          }
-        } catch (error) {
-          console.error('Error loading owner name:', error)
+          loadedSquads.push({
+            ...squadData,
+            coTrainerCount,
+            pendingInvites,
+          })
         }
 
-        loadedSquads.push({
-          ...squadData,
-          ownerName,
-        })
+        setOwnedSquads(loadedSquads)
+        setLoading(false)
       }
 
-      setInvitedSquads(loadedSquads)
+      loadSquadsAsync()
+    })
+
+    const unsubscribeInvited = onSnapshot(invitedQuery, (snapshot) => {
+      const loadSquadsAsync = async () => {
+        const loadedSquads: SquadWithOwner[] = []
+
+        for (const docSnap of snapshot.docs) {
+          const squadData = {
+            id: docSnap.id,
+            ...docSnap.data(),
+          } as Squad
+
+          // Load owner name
+          let ownerName = 'Unbekannt'
+          try {
+            const ownerDoc = await getDoc(doc(db, 'users', squadData.ownerId))
+            if (ownerDoc.exists()) {
+              const ownerData = ownerDoc.data()
+              ownerName = ownerData.displayName || `${ownerData.firstName || ''} ${ownerData.lastName || ''}`.trim() || ownerData.email || 'Unbekannt'
+            }
+          } catch (error) {
+            console.error('Error loading owner name:', error)
+          }
+
+          loadedSquads.push({
+            ...squadData,
+            ownerName,
+          })
+        }
+
+        setInvitedSquads(loadedSquads)
+      }
+
+      loadSquadsAsync()
     })
 
     return () => {

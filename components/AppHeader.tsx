@@ -17,28 +17,34 @@ export function AppHeader() {
   const [isAdmin, setIsAdmin] = useState(false)
   const [showMenu, setShowMenu] = useState(false)
 
-  // Close menu when clicking outside
+  // Close menu when clicking outside - ONLY add listener when menu is open
   useEffect(() => {
     if (!showMenu) return
 
     const handleClickOutside = (e: MouseEvent) => {
       const target = e.target as HTMLElement
-      // Close menu if clicking outside the menu container
+      // Only close menu, don't interfere with the actual click
       if (!target.closest('[data-user-menu]')) {
         setShowMenu(false)
       }
     }
 
-    // Small delay to prevent immediate closing when opening menu
+    // Add listener with slight delay to avoid capturing the opening click
     const timer = setTimeout(() => {
+      // Use bubble phase (default) and don't prevent propagation
       document.addEventListener('click', handleClickOutside)
-    }, 0)
+    }, 10)
 
     return () => {
       clearTimeout(timer)
       document.removeEventListener('click', handleClickOutside)
     }
   }, [showMenu])
+
+  // Close menu on route change
+  useEffect(() => {
+    setShowMenu(false)
+  }, [pathname])
 
   useEffect(() => {
     const loadUserData = async () => {

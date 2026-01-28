@@ -220,40 +220,61 @@ function calculateImbalance(teams: GeneratedTeam[]): ImbalanceMetrics {
 }
 
 /**
- * Initial greedy assignment with position awareness
+ * Initial greedy assignment with position awareness and STRICT team size parity
  */
 function initialAssignment(players: Player[], teamCount: number): Player[][] {
   const teams: Player[][] = Array.from({ length: teamCount }, () => [])
 
+  // Calculate target team size
+  const targetSize = Math.floor(players.length / teamCount)
+  const remainder = players.length % teamCount
+
   // Sort players by total strength (descending)
   const sortedPlayers = [...players].sort((a, b) => b.total - a.total)
 
-  // Assign players using a position-aware greedy approach
+  // Assign players using a position-aware greedy approach with size constraints
   sortedPlayers.forEach((player) => {
     // Calculate current stats for all teams
     const teamsStats = teams.map(calculateTeamStats)
 
-    // Find team with lowest total strength (greedy base)
-    let bestTeamIndex = 0
-    let lowestStrength = teamsStats[0].totalStrength
+    // Find teams that can still accept players (not at max size yet)
+    const eligibleTeams: number[] = []
 
-    for (let i = 1; i < teams.length; i++) {
-      if (teamsStats[i].totalStrength < lowestStrength) {
-        lowestStrength = teamsStats[i].totalStrength
-        bestTeamIndex = i
+    teams.forEach((team, index) => {
+      // Team can accept if it's below target size, or at target size but should get a remainder player
+      const maxSize = index < remainder ? targetSize + 1 : targetSize
+      if (team.length < maxSize) {
+        eligibleTeams.push(index)
+      }
+    })
+
+    // If no eligible teams (shouldn't happen), fall back to smallest team
+    if (eligibleTeams.length === 0) {
+      eligibleTeams.push(0)
+    }
+
+    // Among eligible teams, find the one with lowest total strength
+    let bestTeamIndex = eligibleTeams[0]
+    let lowestStrength = teamsStats[eligibleTeams[0]].totalStrength
+
+    for (let i = 1; i < eligibleTeams.length; i++) {
+      const teamIdx = eligibleTeams[i]
+      if (teamsStats[teamIdx].totalStrength < lowestStrength) {
+        lowestStrength = teamsStats[teamIdx].totalStrength
+        bestTeamIndex = teamIdx
       }
     }
 
-    // If player has positions, check if another team needs this position more
+    // If player has positions, check if another eligible team needs this position more
     if (player.positions && player.positions.length > 0) {
       const bestPosition = getBestPositionForTeam(player, teamsStats[bestTeamIndex], teamsStats)
 
       if (bestPosition) {
-        // Check if any other weak team desperately needs this position
-        for (let i = 0; i < teams.length; i++) {
-          if (i === bestTeamIndex) continue
+        // Check if any other eligible team desperately needs this position
+        for (const teamIdx of eligibleTeams) {
+          if (teamIdx === bestTeamIndex) continue
 
-          const teamStats = teamsStats[i]
+          const teamStats = teamsStats[teamIdx]
           const strengthDiff = Math.abs(teamStats.totalStrength - lowestStrength)
 
           // Only consider teams that are not too far ahead in strength
@@ -263,7 +284,7 @@ function initialAssignment(players: Player[], teamCount: number): Player[][] {
 
             // If this team needs the position much more, assign there
             if (currentPosCount < bestTeamPosCount - 1) {
-              bestTeamIndex = i
+              bestTeamIndex = teamIdx
               break
             }
           }
@@ -278,7 +299,7 @@ function initialAssignment(players: Player[], teamCount: number): Player[][] {
 }
 
 /**
- * Optimize teams through swapping
+ * Optimize teams through swapping with STRICT team size parity
  */
 function optimizeTeamsWithSwaps(
   teams: Player[][],
@@ -289,6 +310,11 @@ function optimizeTeamsWithSwaps(
   let currentImbalance = calculateImbalance(currentStats)
   let iterations = 0
   let noImprovementCount = 0
+
+  // Calculate allowed team size variance
+  const totalPlayers = currentTeams.reduce((sum, team) => sum + team.length, 0)
+  const teamCount = currentTeams.length
+  const maxSizeDiff = totalPlayers % teamCount === 0 ? 0 : 1
 
   while (iterations < maxIterations && noImprovementCount < 50) {
     let improved = false
@@ -315,6 +341,16 @@ function optimizeTeamsWithSwaps(
               }
               return [...team]
             })
+
+            // STRICT SIZE CHECK: Ensure no team size violation
+            const teamSizes = newTeams.map(t => t.length)
+            const minSize = Math.min(...teamSizes)
+            const maxSize = Math.max(...teamSizes)
+
+            // Reject swap if it violates size parity constraint
+            if (maxSize - minSize > maxSizeDiff) {
+              continue
+            }
 
             const newStats = newTeams.map(calculateTeamStats)
             const newImbalance = calculateImbalance(newStats)

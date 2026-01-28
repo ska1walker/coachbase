@@ -360,12 +360,14 @@ function calculateVariance(
 
 /**
  * Check if a swap maintains hard constraints
+ * STRICT: Team sizes must remain equal (or differ by max 1 if total is odd)
  */
 function isValidSwap(
   teamA: Player[],
   teamB: Player[],
   playerA: Player,
-  playerB: Player
+  playerB: Player,
+  totalPlayers: number
 ): boolean {
   // Create hypothetical teams
   const newTeamA = teamA.filter((p) => p.id !== playerA.id).concat(playerB)
@@ -374,9 +376,10 @@ function isValidSwap(
   const statsA = calculateTeamStats(newTeamA)
   const statsB = calculateTeamStats(newTeamB)
 
-  // Hard Constraint 1: Team size must be equal (+/- 1)
+  // Hard Constraint 1: Team size must be STRICTLY equal (±1 only if total is odd)
   const sizeDiff = Math.abs(statsA.playerCount - statsB.playerCount)
-  if (sizeDiff > 1) return false
+  const maxAllowedDiff = totalPlayers % 2 // 0 for even, 1 for odd
+  if (sizeDiff > maxAllowedDiff) return false
 
   // Hard Constraint 2: Both teams must have at least one goalkeeper
   if (!statsA.hasGoalkeeper || !statsB.hasGoalkeeper) return false
@@ -436,6 +439,7 @@ function distributeGoalkeepers(players: Player[]): { teamA: Player[]; teamB: Pla
 
 /**
  * Phase 2: Initial distribution of non-goalkeepers by position and strength
+ * STRICT: Ensures equal team sizes (±1 only if total players is odd)
  */
 function initialDistribution(
   nonGoalkeepers: Player[],
@@ -445,22 +449,38 @@ function initialDistribution(
   // Sort by total strength (descending)
   const sorted = [...nonGoalkeepers].sort((a, b) => b.total - a.total)
 
-  // Snake draft
+  // Calculate target sizes including already assigned players (GKs, buddies)
+  const totalPlayers = teamA.length + teamB.length + sorted.length
+  const targetSizeA = Math.ceil(totalPlayers / 2)
+  const targetSizeB = Math.floor(totalPlayers / 2)
+
+  // Snake draft with strict size limits
   sorted.forEach((player, index) => {
-    const round = Math.floor(index / 2)
-    if (round % 2 === 0) {
-      // Even round: Team A, then Team B
-      if (index % 2 === 0) {
-        teamA.push(player)
-      } else {
-        teamB.push(player)
-      }
+    // Check if teams are at capacity
+    const teamAFull = teamA.length >= targetSizeA
+    const teamBFull = teamB.length >= targetSizeB
+
+    if (teamAFull && !teamBFull) {
+      teamB.push(player)
+    } else if (teamBFull && !teamAFull) {
+      teamA.push(player)
     } else {
-      // Odd round: Team B, then Team A (snake)
-      if (index % 2 === 0) {
-        teamB.push(player)
+      // Both teams can accept - use snake draft pattern
+      const round = Math.floor(index / 2)
+      if (round % 2 === 0) {
+        // Even round: Team A, then Team B
+        if (index % 2 === 0) {
+          teamA.push(player)
+        } else {
+          teamB.push(player)
+        }
       } else {
-        teamA.push(player)
+        // Odd round: Team B, then Team A (snake)
+        if (index % 2 === 0) {
+          teamB.push(player)
+        } else {
+          teamA.push(player)
+        }
       }
     }
   })
@@ -470,7 +490,7 @@ function initialDistribution(
 
 /**
  * Phase 3: Optimize through swapping
- * Minimize variance across ALL attributes
+ * Minimize variance across ALL attributes with STRICT team size parity
  */
 function optimizeThroughSwaps(
   teamA: Player[],
@@ -487,6 +507,10 @@ function optimizeThroughSwaps(
   const buddyPlayerIds = new Set(
     buddyGroups.flatMap(group => group.playerIds)
   )
+
+  // Calculate allowed team size variance
+  const totalPlayers = allPlayers.length
+  const maxAllowedDiff = totalPlayers % 2 // 0 for even, 1 for odd
 
   let iterations = 0
   let noImprovementCount = 0
@@ -510,8 +534,8 @@ function optimizeThroughSwaps(
           continue
         }
 
-        // Check if swap is valid (maintains hard constraints)
-        if (!isValidSwap(currentTeamA, currentTeamB, playerA, playerB)) {
+        // Check if swap is valid (maintains hard constraints including size parity)
+        if (!isValidSwap(currentTeamA, currentTeamB, playerA, playerB, totalPlayers)) {
           continue
         }
 

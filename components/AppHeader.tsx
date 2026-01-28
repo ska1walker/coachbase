@@ -17,6 +17,29 @@ export function AppHeader() {
   const [isAdmin, setIsAdmin] = useState(false)
   const [showMenu, setShowMenu] = useState(false)
 
+  // Close menu when clicking outside
+  useEffect(() => {
+    if (!showMenu) return
+
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as HTMLElement
+      // Close menu if clicking outside the menu container
+      if (!target.closest('[data-user-menu]')) {
+        setShowMenu(false)
+      }
+    }
+
+    // Small delay to prevent immediate closing when opening menu
+    const timer = setTimeout(() => {
+      document.addEventListener('click', handleClickOutside)
+    }, 0)
+
+    return () => {
+      clearTimeout(timer)
+      document.removeEventListener('click', handleClickOutside)
+    }
+  }, [showMenu])
+
   useEffect(() => {
     const loadUserData = async () => {
       const user = auth.currentUser
@@ -106,7 +129,7 @@ export function AppHeader() {
             </button>
 
             {/* User Menu */}
-            <div className="relative">
+            <div className="relative" data-user-menu>
             <button
               onClick={() => setShowMenu(!showMenu)}
               className="flex items-center gap-3 p-2 rounded-lg hover:bg-soft-mint/50 dark:hover:bg-deep-petrol transition-smooth"
@@ -126,15 +149,6 @@ export function AppHeader() {
 
             {/* Dropdown Menu */}
             {showMenu && (
-              <>
-                {/* Backdrop - excludes bottom navigation area (64px) */}
-                <div
-                  className="fixed top-0 left-0 right-0 z-40"
-                  style={{ bottom: '64px' }}
-                  onClick={() => setShowMenu(false)}
-                />
-
-                {/* Menu */}
                 <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-card-dark rounded-lg shadow-lg border border-mid-grey/20 z-50">
                   <div className="p-4 border-b border-mid-grey/20">
                     {displayName && (
@@ -238,7 +252,6 @@ export function AppHeader() {
                     </button>
                   </div>
                 </div>
-              </>
             )}
             </div>
           </div>

@@ -1,10 +1,12 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { collection, query, where, orderBy, onSnapshot, doc, updateDoc, getDocs, collectionGroup } from 'firebase/firestore'
+import { collection, query, where, orderBy, onSnapshot, doc, updateDoc, getDocs, deleteDoc, Timestamp } from 'firebase/firestore'
 import { db, auth } from '@/lib/firebase'
 import { Card, CardHeader, CardTitle, CardContent } from './ui/Card'
-import { Calendar, Users, Heart, TrendingUp } from 'lucide-react'
+import { Button } from './ui/Button'
+import { Input } from './ui/Input'
+import { Calendar, Users, Heart, TrendingUp, Edit2, Trash2, X, Check, AlertTriangle } from 'lucide-react'
 import type { MatchHistory, Squad } from '@/lib/types'
 import { cn } from '@/lib/utils'
 
@@ -17,6 +19,13 @@ export function MatchHistoryList({ squadId }: MatchHistoryListProps) {
   const [loading, setLoading] = useState(true)
   const [selectedMatch, setSelectedMatch] = useState<MatchHistory | null>(null)
   const [squadNames, setSquadNames] = useState<Record<string, string>>({})
+
+  // Edit state
+  const [editingMatchId, setEditingMatchId] = useState<string | null>(null)
+  const [editScores, setEditScores] = useState<number[]>([])
+
+  // Delete confirmation state
+  const [deleteConfirmMatchId, setDeleteConfirmMatchId] = useState<string | null>(null)
 
   useEffect(() => {
     const user = auth.currentUser
@@ -130,13 +139,70 @@ export function MatchHistoryList({ squadId }: MatchHistoryListProps) {
     }
   }
 
-  const toggleLike = async (matchId: string, currentLiked: boolean) => {
+  const toggleLike = async (match: MatchHistory, currentLiked: boolean) => {
     try {
-      await updateDoc(doc(db, 'match_history', matchId), {
+      const matchRef = doc(db, 'squads', match.squadId, 'matches', match.id)
+      await updateDoc(matchRef, {
         liked: !currentLiked,
       })
     } catch (error) {
       console.error('Error toggling like:', error)
+    }
+  }
+
+  const startEditingScore = (match: MatchHistory) => {
+    setEditingMatchId(match.id)
+    // Initialize with existing scores or zeros
+    const initialScores = match.result?.scores || new Array(match.teamCount).fill(0)
+    setEditScores([...initialScores])
+  }
+
+  const cancelEditingScore = () => {
+    setEditingMatchId(null)
+    setEditScores([])
+  }
+
+  const saveScore = async (match: MatchHistory) => {
+    try {
+      const matchRef = doc(db, 'squads', match.squadId, 'matches', match.id)
+      await updateDoc(matchRef, {
+        result: {
+          scores: editScores,
+          savedAt: Timestamp.now()
+        }
+      })
+
+      // Optimistic UI update
+      setMatches(prev => prev.map(m =>
+        m.id === match.id
+          ? { ...m, result: { scores: editScores, savedAt: Timestamp.now() } }
+          : m
+      ))
+
+      setEditingMatchId(null)
+      setEditScores([])
+    } catch (error) {
+      console.error('Error saving score:', error)
+      alert('Fehler beim Speichern des Ergebnisses!')
+    }
+  }
+
+  const deleteMatch = async (match: MatchHistory) => {
+    try {
+      const matchRef = doc(db, 'squads', match.squadId, 'matches', match.id)
+      await deleteDoc(matchRef)
+
+      // Optimistic UI update
+      setMatches(prev => prev.filter(m => m.id !== match.id))
+      setDeleteConfirmMatchId(null)
+
+      // Close detail view if deleted match was selected
+      if (selectedMatch?.id === match.id) {
+        setSelectedMatch(null)
+      }
+    } catch (error) {
+      console.error('Error deleting match:', error)
+      alert('Fehler beim Löschen des Matches!')
     }
   }
 
@@ -174,6 +240,45 @@ export function MatchHistoryList({ squadId }: MatchHistoryListProps) {
 
   return (
     <div className="space-y-4">
+      {/* Delete Confirmation Dialog */}
+      {deleteConfirmMatchId && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <Card className="max-w-md w-full">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-red-600">
+                <AlertTriangle className="w-5 h-5" />
+                Match löschen?
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-mid-grey mb-6">
+                Möchtest du dieses Match wirklich unwiderruflich löschen? Diese Aktion kann nicht rückgängig gemacht werden.
+              </p>
+              <div className="flex gap-3">
+                <Button
+                  variant="secondary"
+                  onClick={() => setDeleteConfirmMatchId(null)}
+                  className="flex-1"
+                >
+                  Abbrechen
+                </Button>
+                <Button
+                  variant="primary"
+                  onClick={() => {
+                    const match = matches.find(m => m.id === deleteConfirmMatchId)
+                    if (match) deleteMatch(match)
+                  }}
+                  className="flex-1 bg-red-600 hover:bg-red-700"
+                >
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Löschen
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
       {/* Match List */}
       {!selectedMatch && (
         <div className="space-y-3">
@@ -218,34 +323,120 @@ export function MatchHistoryList({ squadId }: MatchHistoryListProps) {
                       </span>
                     </div>
 
-                    {/* Quick Preview */}
-                    <div className="mt-2 text-sm text-mid-grey">
-                      {match.teams.map((team, idx) => (
-                        <span key={idx}>
-                          Team {team.teamNumber}: {team.players.length} Spieler
-                          {idx < match.teams.length - 1 ? ' • ' : ''}
-                        </span>
-                      ))}
-                    </div>
+                    {/* Result Display or Edit */}
+                    {editingMatchId === match.id ? (
+                      <div className="mt-3 p-3 rounded-lg bg-neon-lime/10 border border-neon-lime/30" onClick={(e) => e.stopPropagation()}>
+                        <p className="text-xs font-bold text-neon-lime mb-2">ERGEBNIS BEARBEITEN</p>
+                        <div className="flex items-center gap-2">
+                          {editScores.map((score, idx) => (
+                            <div key={idx} className="flex items-center gap-1">
+                              <span className="text-xs text-mid-grey">Team {idx + 1}:</span>
+                              <input
+                                type="number"
+                                min="0"
+                                value={score}
+                                onChange={(e) => {
+                                  const newScores = [...editScores]
+                                  newScores[idx] = parseInt(e.target.value) || 0
+                                  setEditScores(newScores)
+                                }}
+                                className="w-16 px-2 py-1 text-sm rounded border border-mid-grey/30 bg-white dark:bg-card-dark"
+                              />
+                            </div>
+                          ))}
+                        </div>
+                        <div className="flex gap-2 mt-2">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              saveScore(match)
+                            }}
+                            className="flex items-center gap-1 px-3 py-1 rounded bg-neon-lime text-deep-petrol text-xs font-bold hover:bg-neon-lime/80"
+                          >
+                            <Check className="w-3 h-3" />
+                            Speichern
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              cancelEditingScore()
+                            }}
+                            className="flex items-center gap-1 px-3 py-1 rounded bg-mid-grey/20 text-mid-grey text-xs hover:bg-mid-grey/30"
+                          >
+                            <X className="w-3 h-3" />
+                            Abbrechen
+                          </button>
+                        </div>
+                      </div>
+                    ) : match.result?.scores ? (
+                      <div className="mt-3 p-3 rounded-lg bg-digital-orange/10 border border-digital-orange/30">
+                        <p className="text-xs font-bold text-digital-orange mb-1">ERGEBNIS</p>
+                        <div className="flex items-center gap-3 text-lg font-bold text-deep-petrol dark:text-soft-mint">
+                          {match.result.scores.map((score, idx) => (
+                            <span key={idx}>
+                              {idx > 0 && <span className="text-mid-grey mx-2">:</span>}
+                              {score}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="mt-2 text-sm text-mid-grey">
+                        {match.teams.map((team, idx) => (
+                          <span key={idx}>
+                            Team {team.teamNumber}: {team.players.length} Spieler
+                            {idx < match.teams.length - 1 ? ' • ' : ''}
+                          </span>
+                        ))}
+                      </div>
+                    )}
                   </div>
 
-                  {/* Like Button */}
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      toggleLike(match.id, match.liked || false)
-                    }}
-                    className="p-2 rounded-lg hover:bg-soft-mint/50 dark:hover:bg-card-dark transition-smooth"
-                  >
-                    <Heart
-                      className={cn(
-                        'w-6 h-6 transition-smooth',
-                        match.liked
-                          ? 'fill-neon-lime text-neon-lime'
-                          : 'text-mid-grey'
-                      )}
-                    />
-                  </button>
+                  {/* Action Buttons */}
+                  <div className="flex flex-col gap-2">
+                    {/* Edit Score Button */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        startEditingScore(match)
+                      }}
+                      className="p-2 rounded-lg hover:bg-digital-orange/20 transition-smooth"
+                      title="Ergebnis bearbeiten"
+                    >
+                      <Edit2 className="w-5 h-5 text-digital-orange" />
+                    </button>
+
+                    {/* Delete Button */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setDeleteConfirmMatchId(match.id)
+                      }}
+                      className="p-2 rounded-lg hover:bg-red-500/20 transition-smooth"
+                      title="Match löschen"
+                    >
+                      <Trash2 className="w-5 h-5 text-red-500" />
+                    </button>
+
+                    {/* Like Button */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        toggleLike(match, match.liked || false)
+                      }}
+                      className="p-2 rounded-lg hover:bg-soft-mint/50 dark:hover:bg-card-dark transition-smooth"
+                      title="Als Favorit markieren"
+                    >
+                      <Heart
+                        className={cn(
+                          'w-5 h-5 transition-smooth',
+                          match.liked
+                            ? 'fill-neon-lime text-neon-lime'
+                            : 'text-mid-grey'
+                        )}
+                      />
+                    </button>
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -266,25 +457,58 @@ export function MatchHistoryList({ squadId }: MatchHistoryListProps) {
           <Card>
             <CardHeader>
               <div className="flex items-start justify-between">
-                <div>
+                <div className="flex-1">
                   <CardTitle>Match Details</CardTitle>
                   <p className="text-sm text-mid-grey mt-1">
                     {formatDate(selectedMatch.date)}
                   </p>
+
+                  {/* Result Display in Detail View */}
+                  {selectedMatch.result?.scores && (
+                    <div className="mt-3 p-3 rounded-lg bg-digital-orange/10 border border-digital-orange/30 inline-block">
+                      <p className="text-xs font-bold text-digital-orange mb-1">ENDERGEBNIS</p>
+                      <div className="flex items-center gap-3 text-2xl font-bold text-deep-petrol dark:text-soft-mint">
+                        {selectedMatch.result.scores.map((score, idx) => (
+                          <span key={idx}>
+                            {idx > 0 && <span className="text-mid-grey mx-2">:</span>}
+                            {score}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
-                <button
-                  onClick={() => toggleLike(selectedMatch.id, selectedMatch.liked || false)}
-                  className="p-2 rounded-lg hover:bg-soft-mint/50 dark:hover:bg-card-dark"
-                >
-                  <Heart
-                    className={cn(
-                      'w-6 h-6',
-                      selectedMatch.liked
-                        ? 'fill-neon-lime text-neon-lime'
-                        : 'text-mid-grey'
-                    )}
-                  />
-                </button>
+
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => startEditingScore(selectedMatch)}
+                    className="p-2 rounded-lg hover:bg-digital-orange/20 transition-smooth"
+                    title="Ergebnis bearbeiten"
+                  >
+                    <Edit2 className="w-5 h-5 text-digital-orange" />
+                  </button>
+                  <button
+                    onClick={() => setDeleteConfirmMatchId(selectedMatch.id)}
+                    className="p-2 rounded-lg hover:bg-red-500/20 transition-smooth"
+                    title="Match löschen"
+                  >
+                    <Trash2 className="w-5 h-5 text-red-500" />
+                  </button>
+                  <button
+                    onClick={() => toggleLike(selectedMatch, selectedMatch.liked || false)}
+                    className="p-2 rounded-lg hover:bg-soft-mint/50 dark:hover:bg-card-dark transition-smooth"
+                    title="Als Favorit markieren"
+                  >
+                    <Heart
+                      className={cn(
+                        'w-5 h-5',
+                        selectedMatch.liked
+                          ? 'fill-neon-lime text-neon-lime'
+                          : 'text-mid-grey'
+                      )}
+                    />
+                  </button>
+                </div>
               </div>
             </CardHeader>
 

@@ -124,7 +124,7 @@ export function AppHeader() {
               <>
                 {/* Backdrop */}
                 <div
-                  className="fixed inset-0 z-30"
+                  className="fixed top-0 left-0 right-0 bottom-16 md:bottom-0 z-30"
                   onClick={() => setShowMenu(false)}
                 />
 

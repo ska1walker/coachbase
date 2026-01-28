@@ -506,7 +506,7 @@ export default function LandingPage() {
             {/* Feature 1: Fair Teams */}
             <div className="bg-white dark:bg-card-dark rounded-2xl p-8 border border-mid-grey/20 hover:border-neon-lime/50 transition-smooth">
               <div className="w-14 h-14 rounded-2xl bg-neon-lime/20 flex items-center justify-center mb-6">
-                <Scale className="w-8 h-8 text-neon-lime" strokeWidth={1.5} />
+                <Shield className="w-8 h-8 text-neon-lime" strokeWidth={1.5} />
               </div>
               <h3 className="text-2xl font-headline font-bold text-deep-petrol dark:text-soft-mint mb-3">
                 Garantiert faire Teams

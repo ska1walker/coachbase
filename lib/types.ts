@@ -11,7 +11,9 @@ export interface User {
   stats?: UserStats
   lastActive?: Timestamp
   // Profile fields
-  displayName?: string
+  firstName: string // Required during registration
+  lastName: string // Required during registration
+  displayName?: string // Auto-generated from firstName + lastName, can be customized
   clubName?: string
   location?: string
   bio?: string

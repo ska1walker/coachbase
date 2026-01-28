@@ -453,191 +453,9 @@ function TeamsPageContent() {
           </CardContent>
         </Card>
 
-        {/* Selected Count & Bulk Actions */}
-        <div className="mb-4 flex flex-col sm:flex-row gap-2 sm:items-center sm:justify-between">
-          <div className="flex items-center gap-2">
-            <p className="text-sm text-mid-grey">
-              Spieler Auswahl:
-            </p>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={selectAllPlayers}
-              disabled={selectedPlayerIds.size === allPlayers.length}
-              className="flex items-center gap-2"
-            >
-              <Users className="w-4 h-4" />
-              Alle auswählen
-            </Button>
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={deselectAllPlayers}
-              disabled={selectedPlayerIds.size === 0}
-              className="flex items-center gap-2"
-            >
-              <X className="w-4 h-4" />
-              Alle abwählen
-            </Button>
-          </div>
-        </div>
-
-        {/* Player Selection Grid */}
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle>Spieler auswählen</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {!squadId ? (
-              <p className="text-center text-mid-grey py-8">
-                Bitte wähle zuerst ein Team in der Verwaltung aus.
-              </p>
-            ) : allPlayers.length === 0 ? (
-              <p className="text-center text-mid-grey py-8">
-                Noch keine Spieler vorhanden. Bitte zuerst Spieler in der Verwaltung anlegen.
-              </p>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                {allPlayers.map((player) => (
-                  <PlayerSelectionCard
-                    key={player.id}
-                    player={player}
-                    selected={selectedPlayerIds.has(player.id)}
-                    onToggle={handleTogglePlayer}
-                  />
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Buddy Groups Section - Collapsible */}
-        {selectedPlayerIds.size >= 8 && (
-          <Card className="mb-6">
-            <button
-              onClick={() => setShowBuddySection(!showBuddySection)}
-              className="w-full p-6 flex items-center justify-between hover:bg-soft-mint/30 dark:hover:bg-deep-petrol/30 transition-smooth"
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-digital-orange/20 flex items-center justify-center">
-                  <UserPlus className="w-5 h-5 text-digital-orange" strokeWidth={2} />
-                </div>
-                <div className="text-left">
-                  <h3 className="font-headline font-bold text-deep-petrol dark:text-soft-mint">
-                    Buddy-Gruppen festlegen
-                  </h3>
-                  <p className="text-sm text-mid-grey">
-                    Optional: Spieler gruppieren die zusammen spielen sollen
-                  </p>
-                </div>
-              </div>
-              {showBuddySection ? (
-                <ChevronUp className="w-5 h-5 text-mid-grey" />
-              ) : (
-                <ChevronDown className="w-5 h-5 text-mid-grey" />
-              )}
-            </button>
-
-            {showBuddySection && (
-              <CardContent className="border-t border-mid-grey/20">
-                <div className="space-y-4">
-                  {/* Info Box */}
-                  <div className="p-4 rounded-lg bg-digital-orange/10 border border-digital-orange/30">
-                    <p className="text-sm text-deep-petrol dark:text-soft-mint mb-2 flex items-start gap-2">
-                      <Info className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                      <span><strong>Buddy-Gruppen:</strong> Spieler in einer Buddy-Gruppe werden garantiert ins gleiche Team gesetzt.</span>
-                    </p>
-                    <p className="text-xs text-mid-grey">
-                      {selectedPlayerIds.size >= 10
-                        ? `Bei ${selectedPlayerIds.size} Spielern: Max. 3 Buddies pro Gruppe`
-                        : `Bei ${selectedPlayerIds.size} Spielern: Max. 2 Buddies pro Gruppe`}
-                    </p>
-                  </div>
-
-                  {/* Buddy Groups */}
-                  {buddyGroups.length > 0 && (
-                    <div className="space-y-3">
-                      {buddyGroups.map((group, index) => {
-                        const selectedPlayers = allPlayers.filter(p =>
-                          selectedPlayerIds.has(p.id)
-                        )
-                        return (
-                          <div
-                            key={group.id}
-                            className="p-4 rounded-lg border-2 border-digital-orange/30 bg-digital-orange/5"
-                          >
-                            <div className="flex items-center justify-between mb-3">
-                              <span className="font-medium text-deep-petrol dark:text-soft-mint">
-                                Buddy-Gruppe {index + 1}
-                              </span>
-                              <button
-                                onClick={() => removeBuddyGroup(group.id)}
-                                className="w-6 h-6 rounded-full hover:bg-red-500/20 flex items-center justify-center transition-smooth"
-                                aria-label="Gruppe entfernen"
-                              >
-                                <X className="w-4 h-4 text-red-500" strokeWidth={2} />
-                              </button>
-                            </div>
-
-                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
-                              {selectedPlayers.map(player => {
-                                const isInGroup = group.playerIds.includes(player.id)
-                                const isInOtherGroup = buddyGroups.some(g =>
-                                  g.id !== group.id && g.playerIds.includes(player.id)
-                                )
-
-                                return (
-                                  <button
-                                    key={player.id}
-                                    onClick={() => togglePlayerInBuddyGroup(group.id, player.id)}
-                                    disabled={isInOtherGroup}
-                                    className={`p-2 rounded-lg text-sm font-medium transition-smooth ${
-                                      isInGroup
-                                        ? 'bg-digital-orange text-white border-2 border-digital-orange'
-                                        : isInOtherGroup
-                                        ? 'bg-mid-grey/10 text-mid-grey/50 border border-mid-grey/20 cursor-not-allowed'
-                                        : 'bg-white dark:bg-card-dark border border-mid-grey/30 hover:border-digital-orange text-deep-petrol dark:text-soft-mint'
-                                    }`}
-                                  >
-                                    {player.name}
-                                  </button>
-                                )
-                              })}
-                            </div>
-
-                            {group.playerIds.length > 0 && (
-                              <div className="mt-2 text-xs text-digital-orange">
-                                {group.playerIds.length} / {getBuddyLimit()} Spieler gewählt
-                              </div>
-                            )}
-                          </div>
-                        )
-                      })}
-                    </div>
-                  )}
-
-                  {/* Add Buddy Group Button */}
-                  <Button
-                    variant="secondary"
-                    onClick={addBuddyGroup}
-                    className="w-full flex items-center justify-center gap-2"
-                  >
-                    <UserPlus className="w-4 h-4" />
-                    Buddy-Gruppe hinzufügen
-                  </Button>
-                </div>
-              </CardContent>
-            )}
-          </Card>
-        )}
-
-
         {/* Generated Teams */}
         {teams.length > 0 && (
-          <div className="space-y-6">
+          <div className="space-y-6 mb-6">
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {teams.map((team, index) => {
@@ -1045,6 +863,187 @@ function TeamsPageContent() {
               </Card>
             )}
           </div>
+        )}
+
+        {/* Selected Count & Bulk Actions */}
+        <div className="mb-4 flex flex-col sm:flex-row gap-2 sm:items-center sm:justify-between">
+          <div className="flex items-center gap-2">
+            <p className="text-sm text-mid-grey">
+              Spieler Auswahl:
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={selectAllPlayers}
+              disabled={selectedPlayerIds.size === allPlayers.length}
+              className="flex items-center gap-2"
+            >
+              <Users className="w-4 h-4" />
+              Alle auswählen
+            </Button>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={deselectAllPlayers}
+              disabled={selectedPlayerIds.size === 0}
+              className="flex items-center gap-2"
+            >
+              <X className="w-4 h-4" />
+              Alle abwählen
+            </Button>
+          </div>
+        </div>
+
+        {/* Player Selection Grid */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle>Spieler auswählen</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {!squadId ? (
+              <p className="text-center text-mid-grey py-8">
+                Bitte wähle zuerst ein Team in der Verwaltung aus.
+              </p>
+            ) : allPlayers.length === 0 ? (
+              <p className="text-center text-mid-grey py-8">
+                Noch keine Spieler vorhanden. Bitte zuerst Spieler in der Verwaltung anlegen.
+              </p>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                {allPlayers.map((player) => (
+                  <PlayerSelectionCard
+                    key={player.id}
+                    player={player}
+                    selected={selectedPlayerIds.has(player.id)}
+                    onToggle={handleTogglePlayer}
+                  />
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Buddy Groups Section - Collapsible */}
+        {selectedPlayerIds.size >= 8 && (
+          <Card className="mb-6">
+            <button
+              onClick={() => setShowBuddySection(!showBuddySection)}
+              className="w-full p-6 flex items-center justify-between hover:bg-soft-mint/30 dark:hover:bg-deep-petrol/30 transition-smooth"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-digital-orange/20 flex items-center justify-center">
+                  <UserPlus className="w-5 h-5 text-digital-orange" strokeWidth={2} />
+                </div>
+                <div className="text-left">
+                  <h3 className="font-headline font-bold text-deep-petrol dark:text-soft-mint">
+                    Buddy-Gruppen festlegen
+                  </h3>
+                  <p className="text-sm text-mid-grey">
+                    Optional: Spieler gruppieren die zusammen spielen sollen
+                  </p>
+                </div>
+              </div>
+              {showBuddySection ? (
+                <ChevronUp className="w-5 h-5 text-mid-grey" />
+              ) : (
+                <ChevronDown className="w-5 h-5 text-mid-grey" />
+              )}
+            </button>
+
+            {showBuddySection && (
+              <CardContent className="border-t border-mid-grey/20">
+                <div className="space-y-4">
+                  {/* Info Box */}
+                  <div className="p-4 rounded-lg bg-digital-orange/10 border border-digital-orange/30">
+                    <p className="text-sm text-deep-petrol dark:text-soft-mint mb-2 flex items-start gap-2">
+                      <Info className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                      <span><strong>Buddy-Gruppen:</strong> Spieler in einer Buddy-Gruppe werden garantiert ins gleiche Team gesetzt.</span>
+                    </p>
+                    <p className="text-xs text-mid-grey">
+                      {selectedPlayerIds.size >= 10
+                        ? `Bei ${selectedPlayerIds.size} Spielern: Max. 3 Buddies pro Gruppe`
+                        : `Bei ${selectedPlayerIds.size} Spielern: Max. 2 Buddies pro Gruppe`}
+                    </p>
+                  </div>
+
+                  {/* Buddy Groups */}
+                  {buddyGroups.length > 0 && (
+                    <div className="space-y-3">
+                      {buddyGroups.map((group, index) => {
+                        const selectedPlayers = allPlayers.filter(p =>
+                          selectedPlayerIds.has(p.id)
+                        )
+                        return (
+                          <div
+                            key={group.id}
+                            className="p-4 rounded-lg border-2 border-digital-orange/30 bg-digital-orange/5"
+                          >
+                            <div className="flex items-center justify-between mb-3">
+                              <span className="font-medium text-deep-petrol dark:text-soft-mint">
+                                Buddy-Gruppe {index + 1}
+                              </span>
+                              <button
+                                onClick={() => removeBuddyGroup(group.id)}
+                                className="w-6 h-6 rounded-full hover:bg-red-500/20 flex items-center justify-center transition-smooth"
+                                aria-label="Gruppe entfernen"
+                              >
+                                <X className="w-4 h-4 text-red-500" strokeWidth={2} />
+                              </button>
+                            </div>
+
+                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+                              {selectedPlayers.map(player => {
+                                const isInGroup = group.playerIds.includes(player.id)
+                                const isInOtherGroup = buddyGroups.some(g =>
+                                  g.id !== group.id && g.playerIds.includes(player.id)
+                                )
+
+                                return (
+                                  <button
+                                    key={player.id}
+                                    onClick={() => togglePlayerInBuddyGroup(group.id, player.id)}
+                                    disabled={isInOtherGroup}
+                                    className={`p-2 rounded-lg text-sm font-medium transition-smooth ${
+                                      isInGroup
+                                        ? 'bg-digital-orange text-white border-2 border-digital-orange'
+                                        : isInOtherGroup
+                                        ? 'bg-mid-grey/10 text-mid-grey/50 border border-mid-grey/20 cursor-not-allowed'
+                                        : 'bg-white dark:bg-card-dark border border-mid-grey/30 hover:border-digital-orange text-deep-petrol dark:text-soft-mint'
+                                    }`}
+                                  >
+                                    {player.name}
+                                  </button>
+                                )
+                              })}
+                            </div>
+
+                            {group.playerIds.length > 0 && (
+                              <div className="mt-2 text-xs text-digital-orange">
+                                {group.playerIds.length} / {getBuddyLimit()} Spieler gewählt
+                              </div>
+                            )}
+                          </div>
+                        )
+                      })}
+                    </div>
+                  )}
+
+                  {/* Add Buddy Group Button */}
+                  <Button
+                    variant="secondary"
+                    onClick={addBuddyGroup}
+                    className="w-full flex items-center justify-center gap-2"
+                  >
+                    <UserPlus className="w-4 h-4" />
+                    Buddy-Gruppe hinzufügen
+                  </Button>
+                </div>
+              </CardContent>
+            )}
+          </Card>
         )}
       </div>
     </div>

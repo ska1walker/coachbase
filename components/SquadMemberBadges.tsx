@@ -96,7 +96,10 @@ export function SquadMemberBadges({
   if (members.length === 0) return null
 
   return (
-    <div className="flex items-center gap-2 flex-wrap">
+    <div
+      className="flex items-center gap-2 flex-wrap"
+      onClick={(e) => e.stopPropagation()}
+    >
       {members.map((member) => {
         const isHovered = hoveredMember === member.uid
         const showRemove = canRemoveMember(member.uid) && isHovered

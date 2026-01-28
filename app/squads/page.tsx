@@ -267,16 +267,14 @@ function SquadsContent() {
                             </div>
                           </div>
                           <div className="flex items-center gap-3 flex-shrink-0">
-                            <div onClick={(e) => e.stopPropagation()}>
-                              <SquadMemberBadges
-                                squadId={squad.id}
-                                coTrainerIds={squad.coTrainerIds}
-                                ownerId={squad.ownerId}
-                                onRemoveMember={(userId, userName) =>
-                                  openRemoveMemberConfirmation(squad.id, userId, userName)
-                                }
-                              />
-                            </div>
+                            <SquadMemberBadges
+                              squadId={squad.id}
+                              coTrainerIds={squad.coTrainerIds}
+                              ownerId={squad.ownerId}
+                              onRemoveMember={(userId, userName) =>
+                                openRemoveMemberConfirmation(squad.id, userId, userName)
+                              }
+                            />
                             <button
                               onClick={(e) => {
                                 e.stopPropagation()

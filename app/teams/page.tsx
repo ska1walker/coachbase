@@ -216,10 +216,6 @@ function TeamsPageContent() {
     }
   }
 
-  const rerollLeibchen = () => {
-    if (teams.length === 0) return
-    setLeibchenTeamIndex(Math.floor(Math.random() * teams.length))
-  }
 
   const saveMatch = async () => {
     if (!squadId || teams.length === 0 || !auth.currentUser) return
@@ -640,24 +636,6 @@ function TeamsPageContent() {
         {/* Generated Teams */}
         {teams.length > 0 && (
           <div className="space-y-6">
-            {/* Leibchen Control */}
-            <div className="flex items-center justify-between p-4 rounded-lg bg-digital-orange/10 border border-digital-orange/30">
-              <div className="flex items-center gap-2">
-                <Shirt className="w-5 h-5 text-digital-orange" strokeWidth={2} />
-                <span className="font-medium text-deep-petrol dark:text-soft-mint">
-                  Leibchen-Zuteilung
-                </span>
-              </div>
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={rerollLeibchen}
-                className="flex items-center gap-2"
-              >
-                <Shuffle className="w-4 h-4" />
-                Neu würfeln
-              </Button>
-            </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {teams.map((team, index) => {

@@ -297,7 +297,52 @@ function SquadDetailContent() {
               </p>
             </div>
 
-            <div className="flex gap-3">
+            <div className="flex flex-wrap gap-3">
+              {/* Teams generieren Button - Primary CTA */}
+              {players.length >= 4 ? (
+                <Link href={`/teams?squad=${squadId}`}>
+                  {/* Mobile: Icon only */}
+                  <Button
+                    variant="primary"
+                    className="md:hidden flex items-center justify-center"
+                  >
+                    <Users className="w-5 h-5" strokeWidth={2} />
+                  </Button>
+
+                  {/* Desktop: Icon + Text */}
+                  <Button
+                    variant="primary"
+                    className="hidden md:flex items-center gap-2"
+                  >
+                    <Users className="w-5 h-5" strokeWidth={2} />
+                    Teams generieren
+                  </Button>
+                </Link>
+              ) : (
+                <div className="relative group">
+                  {/* Mobile: Icon only (disabled) */}
+                  <Button
+                    variant="primary"
+                    disabled
+                    className="md:hidden flex items-center justify-center"
+                    title={`Noch ${4 - players.length} Spieler benötigt`}
+                  >
+                    <Users className="w-5 h-5" strokeWidth={2} />
+                  </Button>
+
+                  {/* Desktop: Icon + Text (disabled) */}
+                  <Button
+                    variant="primary"
+                    disabled
+                    className="hidden md:flex items-center gap-2"
+                    title={`Noch ${4 - players.length} Spieler benötigt`}
+                  >
+                    <Users className="w-5 h-5" strokeWidth={2} />
+                    Teams generieren
+                  </Button>
+                </div>
+              )}
+
               {/* Match History Button */}
               <Link href={`/squads/${squadId}/history`}>
                 {/* Mobile: Icon only */}
@@ -777,44 +822,6 @@ function SquadDetailContent() {
         )}
 
         {/* Team Generation Button */}
-        <div className="mt-8">
-          <Card>
-            <CardContent className="p-6">
-              {players.length < 4 ? (
-                <div className="text-center py-4">
-                  <Users className="w-12 h-12 mx-auto mb-3 text-mid-grey" />
-                  <p className="text-mid-grey font-medium mb-1">
-                    Mindestens 4 Spieler erforderlich
-                  </p>
-                  <p className="text-sm text-mid-grey">
-                    Noch {4 - players.length} Spieler hinzufügen
-                  </p>
-                </div>
-              ) : (
-                <Link href={`/teams?squad=${squadId}`}>
-                  {/* Mobile: Only Icon */}
-                  <Button
-                    variant="primary"
-                    fullWidth
-                    className="md:hidden flex items-center justify-center"
-                  >
-                    <Plus className="w-6 h-6" />
-                  </Button>
-
-                  {/* Desktop: Icon + Text */}
-                  <Button
-                    variant="primary"
-                    fullWidth
-                    className="hidden md:flex items-center justify-center gap-2"
-                  >
-                    <Users className="w-5 h-5" />
-                    Teams generieren ({players.length} Spieler)
-                  </Button>
-                </Link>
-              )}
-            </CardContent>
-          </Card>
-        </div>
       </PageLayout>
 
       <BottomNav />

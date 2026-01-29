@@ -370,10 +370,13 @@ function TeamsPageContent() {
   }
 
   // Get players that are not in teams yet (Nachzügler)
+  // FIXED: Only consider SELECTED players, not all players
   const assignedPlayerIds = new Set(
     teams.flatMap((team) => team.players.map((p) => p.id))
   )
-  const latecomers = allPlayers.filter((p) => !assignedPlayerIds.has(p.id))
+  const latecomers = allPlayers.filter((p) =>
+    selectedPlayerIds.has(p.id) && !assignedPlayerIds.has(p.id)
+  )
 
   return (
     <div className="min-h-screen p-4 md:p-6 lg:p-8">

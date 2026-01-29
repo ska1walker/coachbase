@@ -328,16 +328,17 @@ function optimizeTeamsWithSwaps(
         // Try all possible swaps
         for (let playerAIdx = 0; playerAIdx < teamA.length; playerAIdx++) {
           for (let playerBIdx = 0; playerBIdx < teamB.length; playerBIdx++) {
-            // Create hypothetical swap
+            const playerA = teamA[playerAIdx]
+            const playerB = teamB[playerBIdx]
+
+            // Create hypothetical swap - FIXED: Proper swap instead of index overwrite
             const newTeams = currentTeams.map((team, idx) => {
               if (idx === i) {
-                const newTeam = [...team]
-                newTeam[playerAIdx] = teamB[playerBIdx]
-                return newTeam
+                // Remove playerA, add playerB
+                return team.filter((p) => p.id !== playerA.id).concat(playerB)
               } else if (idx === j) {
-                const newTeam = [...team]
-                newTeam[playerBIdx] = teamA[playerAIdx]
-                return newTeam
+                // Remove playerB, add playerA
+                return team.filter((p) => p.id !== playerB.id).concat(playerA)
               }
               return [...team]
             })

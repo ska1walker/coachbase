@@ -400,6 +400,9 @@ function SquadDetailContent() {
           </Card>
         </div>
 
+        {/* Trainer Dashboard - TEMPORARILY DISABLED FOR TESTING */}
+        {/* <TrainerDashboard squadId={squadId} players={players} /> */}
+
         {/* Co-Trainer Management - Only visible to Owner */}
         {isOwner && coTrainers.length > 0 && (
           <Card className="mb-8">

@@ -362,10 +362,15 @@ function optimizeTeamsWithSwaps(
               currentStats = newStats
               currentImbalance = newImbalance
               improved = true
+              // CRITICAL: Break out of all nested loops to avoid stale team references
+              break
             }
           }
+          if (improved) break
         }
+        if (improved) break
       }
+      if (improved) break
     }
 
     iterations++

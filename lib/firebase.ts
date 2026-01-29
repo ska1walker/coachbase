@@ -24,6 +24,13 @@ export { app }
  */
 export const isDevelopment = (): boolean => {
   // Check if we're in development mode or Vercel Preview
+  // Use typeof check to avoid SSR issues
+  if (typeof window === 'undefined') {
+    // Server-side: check NODE_ENV
+    return process.env.NODE_ENV !== 'production'
+  }
+
+  // Client-side: check both NODE_ENV and VERCEL_ENV
   return (
     process.env.NODE_ENV !== 'production' ||
     process.env.NEXT_PUBLIC_VERCEL_ENV === 'preview'

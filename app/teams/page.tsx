@@ -1063,10 +1063,10 @@ function TeamsPageContent() {
 export default function TeamsPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen p-4 md:p-6 lg:p-8 flex items-center justify-center">
+      <div className="min-h-screen bg-deep-petrol dark:bg-deep-petrol p-4 md:p-6 lg:p-8 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-4 border-neon-lime border-t-transparent mx-auto mb-4"></div>
-          <p className="text-mid-grey">Lädt...</p>
+          <p className="text-soft-mint">Teams werden geladen...</p>
         </div>
       </div>
     }>

@@ -23,18 +23,18 @@ export { app }
  * Returns true if running in development/preview environment
  */
 export const isDevelopment = (): boolean => {
-  // Check if we're in development mode or Vercel Preview
-  // Use typeof check to avoid SSR issues
-  if (typeof window === 'undefined') {
-    // Server-side: check NODE_ENV
-    return process.env.NODE_ENV !== 'production'
-  }
+  // TEMPORARILY DISABLED: Use same database for all environments
+  // TODO: Re-enable after dashboard is working
+  return false
 
-  // Client-side: check both NODE_ENV and VERCEL_ENV
-  return (
-    process.env.NODE_ENV !== 'production' ||
-    process.env.NEXT_PUBLIC_VERCEL_ENV === 'preview'
-  )
+  // Original implementation (commented out):
+  // if (typeof window === 'undefined') {
+  //   return process.env.NODE_ENV !== 'production'
+  // }
+  // return (
+  //   process.env.NODE_ENV !== 'production' ||
+  //   process.env.NEXT_PUBLIC_VERCEL_ENV === 'preview'
+  // )
 }
 
 /**

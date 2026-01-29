@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { auth, db } from '@/lib/firebase'
+import { COLLECTIONS } from '@/lib/collections'
 import { collection, query, where, onSnapshot, addDoc, deleteDoc, doc, updateDoc, arrayRemove, getDoc, getDocs } from 'firebase/firestore'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
@@ -43,13 +44,13 @@ function SquadsContent() {
 
     // Query for owned squads
     const ownedQuery = query(
-      collection(db, 'squads'),
+      collection(db, COLLECTIONS.SQUADS),
       where('ownerId', '==', user.uid)
     )
 
     // Query for invited squads (where user is in coTrainerIds)
     const invitedQuery = query(
-      collection(db, 'squads'),
+      collection(db, COLLECTIONS.SQUADS),
       where('coTrainerIds', 'array-contains', user.uid)
     )
 
@@ -71,7 +72,7 @@ function SquadsContent() {
             let pendingInvites = 0
             try {
               const invitesQuery = query(
-                collection(db, 'squadInvites'),
+                collection(db, COLLECTIONS.SQUAD_INVITES),
                 where('squadId', '==', docSnap.id),
                 where('used', '==', false)
               )
@@ -149,7 +150,7 @@ function SquadsContent() {
 
     setCreating(true)
     try {
-      await addDoc(collection(db, 'squads'), {
+      await addDoc(collection(db, COLLECTIONS.SQUADS), {
         name: newSquadName.trim(),
         ownerId: auth.currentUser.uid,
         createdAt: new Date(),
@@ -199,12 +200,12 @@ function SquadsContent() {
 
     try {
       if (confirmAction === 'delete') {
-        await deleteDoc(doc(db, 'squads', confirmSquadId))
+        await deleteDoc(doc(db, COLLECTIONS.SQUADS, confirmSquadId))
       } else if (confirmAction === 'unlink') {
         const user = auth.currentUser
         if (!user) return
 
-        await updateDoc(doc(db, 'squads', confirmSquadId), {
+        await updateDoc(doc(db, COLLECTIONS.SQUADS, confirmSquadId), {
           coTrainerIds: arrayRemove(user.uid)
         })
       }

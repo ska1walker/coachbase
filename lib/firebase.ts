@@ -17,3 +17,32 @@ const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0
 export const auth = getAuth(app)
 export const db = getFirestore(app)
 export { app }
+
+/**
+ * Environment detection utility
+ * Returns true if running in development/preview environment
+ */
+export const isDevelopment = (): boolean => {
+  // Check if we're in development mode or Vercel Preview
+  return (
+    process.env.NODE_ENV !== 'production' ||
+    process.env.NEXT_PUBLIC_VERCEL_ENV === 'preview'
+  )
+}
+
+/**
+ * Get environment-prefixed collection name
+ *
+ * @param baseName - Base collection name (e.g., 'squads', 'players')
+ * @returns Prefixed collection name for dev/prod separation
+ *
+ * @example
+ * // In development/preview:
+ * getCollectionName('squads') // Returns 'dev_squads'
+ *
+ * // In production:
+ * getCollectionName('squads') // Returns 'squads'
+ */
+export const getCollectionName = (baseName: string): string => {
+  return isDevelopment() ? `dev_${baseName}` : baseName
+}

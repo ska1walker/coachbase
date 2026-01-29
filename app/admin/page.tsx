@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { auth, db } from '@/lib/firebase'
+import { COLLECTIONS } from '@/lib/collections'
 import {
   collection,
   query,
@@ -74,7 +75,7 @@ function AdminContent() {
     if (viewState.mode !== 'squads' || !viewState.selectedUser) return
 
     const q = query(
-      collection(db, 'squads'),
+      collection(db, COLLECTIONS.SQUADS),
       where('ownerId', '==', viewState.selectedUser.uid),
       orderBy('name')
     )
@@ -98,7 +99,7 @@ function AdminContent() {
     if (viewState.mode !== 'players' || !viewState.selectedSquad) return
 
     const q = query(
-      collection(db, 'players'),
+      collection(db, COLLECTIONS.PLAYERS),
       where('squadId', '==', viewState.selectedSquad.id),
       orderBy('name')
     )
@@ -121,7 +122,7 @@ function AdminContent() {
     if (!confirm('Spieler wirklich löschen?')) return
 
     try {
-      await deleteDoc(doc(db, 'players', playerId))
+      await deleteDoc(doc(db, COLLECTIONS.PLAYERS, playerId))
     } catch (error) {
       console.error('Error deleting player:', error)
       alert('Fehler beim Löschen!')
@@ -133,13 +134,13 @@ function AdminContent() {
 
     try {
       // Delete all players in squad first
-      const playersQuery = query(collection(db, 'players'), where('squadId', '==', squadId))
+      const playersQuery = query(collection(db, COLLECTIONS.PLAYERS), where('squadId', '==', squadId))
       const playersSnapshot = await getDocs(playersQuery)
       const deletePromises = playersSnapshot.docs.map((doc) => deleteDoc(doc.ref))
       await Promise.all(deletePromises)
 
       // Delete squad
-      await deleteDoc(doc(db, 'squads', squadId))
+      await deleteDoc(doc(db, COLLECTIONS.SQUADS, squadId))
     } catch (error) {
       console.error('Error deleting squad:', error)
       alert('Fehler beim Löschen!')

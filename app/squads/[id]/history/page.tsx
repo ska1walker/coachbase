@@ -28,7 +28,7 @@ function HistoryContent() {
     if (!squadId) return
 
     const q = query(
-      collection(db, 'squads', squadId, 'matches'),
+      collection(db, COLLECTIONS.SQUADS, squadId, COLLECTIONS.MATCHES),
       orderBy('createdAt', 'desc')
     )
 
@@ -57,7 +57,7 @@ function HistoryContent() {
   const saveResult = async (matchId: string) => {
     setIsSaving(true)
     try {
-      const matchRef = doc(db, 'squads', squadId, 'matches', matchId)
+      const matchRef = doc(db, COLLECTIONS.SQUADS, squadId, 'matches', matchId)
       await updateDoc(matchRef, {
         result: {
           scores: editScores,

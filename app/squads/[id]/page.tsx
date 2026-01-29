@@ -4,6 +4,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { auth, db } from '@/lib/firebase'
+import { COLLECTIONS } from '@/lib/collections'
 import {
   collection,
   query,
@@ -73,7 +74,7 @@ function SquadDetailContent() {
     if (!squadId) return
 
     const loadSquad = async () => {
-      const squadDoc = await getDoc(doc(db, 'squads', squadId))
+      const squadDoc = await getDoc(doc(db, COLLECTIONS.SQUADS, squadId))
       if (squadDoc.exists()) {
         setSquad({
           id: squadDoc.id,
@@ -92,7 +93,7 @@ function SquadDetailContent() {
     if (!squadId) return
 
     const q = query(
-      collection(db, 'players'),
+      collection(db, COLLECTIONS.PLAYERS),
       where('squadId', '==', squadId),
       orderBy('name')
     )
@@ -165,7 +166,7 @@ function SquadDetailContent() {
     }
 
     try {
-      await addDoc(collection(db, 'players'), playerData)
+      await addDoc(collection(db, COLLECTIONS.PLAYERS), playerData)
       // Reset form
       setName('')
       setTechnik(5)
@@ -188,7 +189,7 @@ function SquadDetailContent() {
     if (!editingPlayer) return
 
     try {
-      await updateDoc(doc(db, 'players', editingPlayer.id), {
+      await updateDoc(doc(db, COLLECTIONS.PLAYERS, editingPlayer.id), {
         name: editingPlayer.name,
         technik: editingPlayer.technik,
         fitness: editingPlayer.fitness,
@@ -227,7 +228,7 @@ function SquadDetailContent() {
     if (!confirm('Spieler wirklich löschen?')) return
 
     try {
-      await deleteDoc(doc(db, 'players', playerId))
+      await deleteDoc(doc(db, COLLECTIONS.PLAYERS, playerId))
     } catch (error) {
       console.error('Error deleting player:', error)
       alert('Fehler beim Löschen!')
@@ -251,7 +252,7 @@ function SquadDetailContent() {
     if (!confirm('Möchtest du diesen Co-Trainer wirklich entfernen?')) return
 
     try {
-      await updateDoc(doc(db, 'squads', squadId), {
+      await updateDoc(doc(db, COLLECTIONS.SQUADS, squadId), {
         coTrainerIds: arrayRemove(coTrainerUid),
       })
     } catch (error) {

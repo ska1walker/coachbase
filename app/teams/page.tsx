@@ -57,7 +57,7 @@ function TeamsPageContent() {
     }
 
     const q = query(
-      collection(db, 'players'),
+      collection(db, COLLECTIONS.PLAYERS),
       where('squadId', '==', squadId),
       orderBy('name')
     )
@@ -249,7 +249,7 @@ function TeamsPageContent() {
       }))
 
       // Save match to Firestore
-      const matchDoc = await addDoc(collection(db, 'squads', squadId, 'matches'), {
+      const matchDoc = await addDoc(collection(db, COLLECTIONS.SQUADS, squadId, COLLECTIONS.MATCHES), {
         squadId: squadId,
         ownerId: auth.currentUser.uid,
         date: Timestamp.now(),
@@ -278,7 +278,7 @@ function TeamsPageContent() {
 
     setIsSavingMatch(true)
     try {
-      const matchRef = doc(db, 'squads', squadId, 'matches', savedMatchId)
+      const matchRef = doc(db, COLLECTIONS.SQUADS, squadId, 'matches', savedMatchId)
       await updateDoc(matchRef, {
         result: {
           scores: matchScores,

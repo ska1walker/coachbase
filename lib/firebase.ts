@@ -19,23 +19,14 @@ export const db = getFirestore(app)
 export { app }
 
 /**
- * Environment detection utility
- * Returns true if running in development/preview environment
+ * Environment prefix for Firestore collections
+ * Set at build time by Vercel environment variable
+ *
+ * - Production: '' (no prefix)
+ * - Preview: 'dev_'
+ * - Development: 'dev_'
  */
-export const isDevelopment = (): boolean => {
-  // TEMPORARILY DISABLED: Use same database for all environments
-  // TODO: Re-enable after dashboard is working
-  return false
-
-  // Original implementation (commented out):
-  // if (typeof window === 'undefined') {
-  //   return process.env.NODE_ENV !== 'production'
-  // }
-  // return (
-  //   process.env.NODE_ENV !== 'production' ||
-  //   process.env.NEXT_PUBLIC_VERCEL_ENV === 'preview'
-  // )
-}
+const ENV_PREFIX = process.env.NEXT_PUBLIC_FIRESTORE_PREFIX || ''
 
 /**
  * Get environment-prefixed collection name
@@ -44,12 +35,12 @@ export const isDevelopment = (): boolean => {
  * @returns Prefixed collection name for dev/prod separation
  *
  * @example
- * // In development/preview:
+ * // In development/preview (NEXT_PUBLIC_FIRESTORE_PREFIX='dev_'):
  * getCollectionName('squads') // Returns 'dev_squads'
  *
- * // In production:
+ * // In production (NEXT_PUBLIC_FIRESTORE_PREFIX=''):
  * getCollectionName('squads') // Returns 'squads'
  */
 export const getCollectionName = (baseName: string): string => {
-  return isDevelopment() ? `dev_${baseName}` : baseName
+  return `${ENV_PREFIX}${baseName}`
 }

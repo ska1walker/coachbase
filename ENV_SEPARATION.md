@@ -109,13 +109,18 @@ const playerDoc = doc(db, 'players', id)   // ❌ Falsch!
 
 ## 🔍 Environment Variables
 
-**NICHT NÖTIG!**
+**ERFORDERLICH:** Environment Variable in Vercel setzen!
 
-Das System nutzt:
-- `process.env.NODE_ENV` (automatisch von Next.js gesetzt)
-- `process.env.NEXT_PUBLIC_VERCEL_ENV` (automatisch von Vercel gesetzt)
+```bash
+NEXT_PUBLIC_FIRESTORE_PREFIX
+```
 
-Keine manuellen Env-Variablen erforderlich! 🎉
+**Werte:**
+- **Production:** `` (leer)
+- **Preview:** `dev_`
+- **Local:** `dev_` (in `.env.local`)
+
+**Setup-Anleitung:** Siehe `VERCEL_SETUP.md`
 
 ---
 

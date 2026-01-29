@@ -28,6 +28,15 @@ export { app }
  */
 const ENV_PREFIX = process.env.NEXT_PUBLIC_FIRESTORE_PREFIX || ''
 
+// Debug: Log environment info (only in browser)
+if (typeof window !== 'undefined') {
+  console.log('[Firebase] Environment:', {
+    PREFIX: ENV_PREFIX,
+    NODE_ENV: process.env.NODE_ENV,
+    VERCEL_ENV: process.env.NEXT_PUBLIC_VERCEL_ENV,
+  })
+}
+
 /**
  * Get environment-prefixed collection name
  *

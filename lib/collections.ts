@@ -8,19 +8,19 @@
 import { getCollectionName } from './firebase'
 
 /**
- * Main collection names
- * These are automatically prefixed with 'dev_' in development/preview
+ * Main collection names with lazy evaluation
+ * These are computed at runtime to ensure environment detection works correctly
  */
 export const COLLECTIONS = {
-  // Top-level collections
-  SQUADS: getCollectionName('squads'),
-  PLAYERS: getCollectionName('players'),
+  // Top-level collections - use getters for lazy evaluation
+  get SQUADS() { return getCollectionName('squads') },
+  get PLAYERS() { return getCollectionName('players') },
   USERS: 'users', // Users are NOT prefixed (shared across environments)
-  SQUAD_INVITES: getCollectionName('squadInvites'),
+  get SQUAD_INVITES() { return getCollectionName('squadInvites') },
 
   // Subcollections (use with parent ID)
   MATCHES: 'matches', // Subcollection under squads/{id}/matches
-} as const
+}
 
 /**
  * Get subcollection path for matches

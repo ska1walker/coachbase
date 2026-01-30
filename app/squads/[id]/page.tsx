@@ -28,6 +28,7 @@ import { PageLayout } from '@/components/PageLayout'
 import { BottomNav } from '@/components/BottomNav'
 import { ArrowLeft, Plus, Edit2, Trash2, Users, TrendingUp, Upload, Download, UserPlus, Check, X, Star, History } from 'lucide-react'
 import type { Player, Squad, PlayerPosition } from '@/lib/types'
+import { DashboardStatsCards } from '@/components/dashboard/DashboardStatsCards'
 import Link from 'next/link'
 import { CSVUpload } from '@/components/CSVUpload'
 import { exportPlayersToCSV } from '@/lib/csv-utils'
@@ -370,35 +371,9 @@ function SquadDetailContent() {
           </div>
         </div>
 
-        {/* Statistics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-          <Card>
-            <CardContent className="p-6 flex items-center gap-4">
-              <div className="w-12 h-12 rounded-lg bg-neon-lime/20 flex items-center justify-center">
-                <Users className="w-6 h-6 text-neon-lime" />
-              </div>
-              <div>
-                <p className="text-sm text-mid-grey uppercase tracking-label">Spieler</p>
-                <p className="text-3xl font-bold text-deep-petrol dark:text-soft-mint">
-                  {players.length}
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-6 flex items-center gap-4">
-              <div className="w-12 h-12 rounded-lg bg-digital-orange/20 flex items-center justify-center">
-                <TrendingUp className="w-6 h-6 text-digital-orange" />
-              </div>
-              <div>
-                <p className="text-sm text-mid-grey uppercase tracking-label">Ø Stärke</p>
-                <p className="text-3xl font-bold text-deep-petrol dark:text-soft-mint">
-                  {avgTotal}
-                </p>
-              </div>
-            </CardContent>
-          </Card>
+        {/* Dashboard Stats Cards */}
+        <div className="mb-8">
+          <DashboardStatsCards players={players} />
         </div>
 
         {/* Trainer Dashboard - TEMPORARILY DISABLED FOR TESTING */}

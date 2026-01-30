@@ -15,6 +15,7 @@ import Link from 'next/link'
 import type { Player, Squad, SquadSnapshot } from '@/lib/types'
 import { DashboardStatsCards } from '@/components/dashboard/DashboardStatsCards'
 import { SquadDevelopmentChart } from '@/components/dashboard/SquadDevelopmentChart'
+import { PositionBalanceChart } from '@/components/dashboard/PositionBalanceChart'
 import { createDailySnapshot, fetchSnapshots } from '@/lib/dashboard-utils'
 
 function DashboardContent() {
@@ -148,6 +149,11 @@ function DashboardContent() {
           ) : (
             <SquadDevelopmentChart snapshots={snapshots} />
           )}
+        </div>
+
+        {/* Position Balance Chart */}
+        <div className="mb-8">
+          <PositionBalanceChart players={players} />
         </div>
 
         {/* Placeholder for future charts */}

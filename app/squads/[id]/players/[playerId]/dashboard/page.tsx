@@ -19,7 +19,7 @@ import { createPlayerDailySnapshot, fetchPlayerSnapshots } from '@/lib/player-da
 function PlayerDashboardContent() {
   const router = useRouter()
   const params = useParams()
-  const squadId = params.squadId as string
+  const squadId = params.id as string
   const playerId = params.playerId as string
 
   const [squad, setSquad] = useState<Squad | null>(null)

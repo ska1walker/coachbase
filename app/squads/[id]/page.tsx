@@ -301,21 +301,12 @@ function SquadDetailContent() {
             <div className="flex flex-wrap gap-3">
               {/* Dashboard Button */}
               <Link href={`/squads/${squadId}/dashboard`}>
-                {/* Mobile: Icon only */}
                 <Button
                   variant="secondary"
-                  className="md:hidden flex items-center justify-center"
+                  className="flex items-center justify-center"
+                  title="Dashboard"
                 >
                   <BarChart3 className="w-5 h-5" strokeWidth={2} />
-                </Button>
-
-                {/* Desktop: Icon + Text */}
-                <Button
-                  variant="secondary"
-                  className="hidden md:flex items-center gap-2"
-                >
-                  <BarChart3 className="w-5 h-5" strokeWidth={2} />
-                  Dashboard
                 </Button>
               </Link>
 
@@ -365,26 +356,14 @@ function SquadDetailContent() {
               )}
 
               {isOwner && (
-                <>
-                  {/* Mobile: Icon only */}
-                  <Button
-                    variant="secondary"
-                    onClick={() => setShowInviteModal(true)}
-                    className="md:hidden flex items-center justify-center"
-                  >
-                    <UserPlus className="w-5 h-5" strokeWidth={2} />
-                  </Button>
-
-                  {/* Desktop: Icon + Text */}
-                  <Button
-                    variant="secondary"
-                    onClick={() => setShowInviteModal(true)}
-                    className="hidden md:flex items-center gap-2"
-                  >
-                    <UserPlus className="w-4 h-4" strokeWidth={2} />
-                    Co-Trainer einladen
-                  </Button>
-                </>
+                <Button
+                  variant="secondary"
+                  onClick={() => setShowInviteModal(true)}
+                  className="flex items-center justify-center"
+                  title="Co-Trainer einladen"
+                >
+                  <UserPlus className="w-5 h-5" strokeWidth={2} />
+                </Button>
               )}
             </div>
           </div>
@@ -439,11 +418,11 @@ function SquadDetailContent() {
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle>Neuen Spieler hinzufügen</CardTitle>
               <div className="flex gap-2">
-                {/* Mobile: Icons only */}
                 <Button
                   variant="secondary"
                   onClick={() => setShowCSVUpload(true)}
-                  className="md:hidden flex items-center justify-center"
+                  className="flex items-center justify-center"
+                  title="CSV Import"
                 >
                   <Upload className="w-5 h-5" />
                 </Button>
@@ -451,29 +430,10 @@ function SquadDetailContent() {
                   <Button
                     variant="secondary"
                     onClick={handleExportCSV}
-                    className="md:hidden flex items-center justify-center"
+                    className="flex items-center justify-center"
+                    title="CSV Export"
                   >
                     <Download className="w-5 h-5" />
-                  </Button>
-                )}
-
-                {/* Desktop: Icons + Text */}
-                <Button
-                  variant="secondary"
-                  onClick={() => setShowCSVUpload(true)}
-                  className="hidden md:flex items-center gap-2"
-                >
-                  <Upload className="w-4 h-4" />
-                  CSV Import
-                </Button>
-                {players.length > 0 && (
-                  <Button
-                    variant="secondary"
-                    onClick={handleExportCSV}
-                    className="hidden md:flex items-center gap-2"
-                  >
-                    <Download className="w-4 h-4" />
-                    CSV Export
                   </Button>
                 )}
               </div>

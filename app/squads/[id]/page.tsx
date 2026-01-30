@@ -285,7 +285,7 @@ function SquadDetailContent() {
 
         {/* Header */}
         <div className="mb-8">
-          <div className="flex items-start justify-between gap-4 mb-2">
+          <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-2">
             <div className="flex-1">
               <h1 className="text-4xl font-headline font-bold text-deep-petrol dark:text-soft-mint mb-2">
                 {squad.name}
@@ -295,7 +295,7 @@ function SquadDetailContent() {
               </p>
             </div>
 
-            <div className="flex flex-wrap gap-3 flex-shrink-0">
+            <div className="flex flex-wrap gap-3 flex-shrink-0 md:self-start">
               {/* Dashboard Button */}
               <Link href={`/squads/${squadId}/dashboard`}>
                 <Button

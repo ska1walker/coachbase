@@ -285,7 +285,7 @@ function SquadDetailContent() {
 
         {/* Header */}
         <div className="mb-8">
-          <div className="flex items-start gap-4 mb-2">
+          <div className="flex items-start justify-between gap-4 mb-2">
             <div className="flex-1">
               <h1 className="text-4xl font-headline font-bold text-deep-petrol dark:text-soft-mint mb-2">
                 {squad.name}
@@ -528,7 +528,7 @@ function SquadDetailContent() {
               {/* Mobile: Icon only */}
               <Button
                 type="submit"
-                variant="primary"
+                variant="secondary"
                 className="md:hidden flex items-center justify-center"
               >
                 <Plus className="w-6 h-6" />
@@ -537,7 +537,7 @@ function SquadDetailContent() {
               {/* Desktop: Icon + Text */}
               <Button
                 type="submit"
-                variant="primary"
+                variant="secondary"
                 className="hidden md:flex items-center gap-2"
               >
                 <Plus className="w-5 h-5" />

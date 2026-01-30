@@ -8,6 +8,8 @@ import { COLLECTIONS } from '@/lib/collections'
 import { Button } from '@/components/ui/Button'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card'
 import { PlayerSelectionCard } from '@/components/PlayerSelectionCard'
+import { AppHeader } from '@/components/AppHeader'
+import { BottomNav } from '@/components/BottomNav'
 import { Users, Shuffle, RotateCcw, ArrowRight, MessageCircle, ChevronDown, ChevronUp, UserPlus, X, Shirt, AlertTriangle, Info, Scale, Sparkles } from 'lucide-react'
 import { BackButton } from '@/components/ui/BackButton'
 import { useUserStats } from '@/hooks/useUserStats'
@@ -380,8 +382,9 @@ function TeamsPageContent() {
   )
 
   return (
-    <div className="min-h-screen p-4 md:p-6 lg:p-8">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-soft-mint dark:bg-deep-petrol pb-20 md:pb-8">
+      <AppHeader />
+      <div className="max-w-7xl mx-auto p-4 md:p-6 lg:p-8">
         {/* Back Button */}
         <div className="mb-6">
           <BackButton
@@ -1052,6 +1055,8 @@ function TeamsPageContent() {
           </Card>
         )}
       </div>
+
+      <BottomNav />
     </div>
   )
 }

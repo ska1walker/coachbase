@@ -16,6 +16,7 @@ import {
 import { AuthGuard } from '@/components/AuthGuard'
 import { AppHeader } from '@/components/AppHeader'
 import { PageLayout } from '@/components/PageLayout'
+import { BottomNav } from '@/components/BottomNav'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
@@ -178,7 +179,7 @@ function AdminContent() {
   }
 
   return (
-    <div className="min-h-screen bg-soft-mint dark:bg-deep-petrol">
+    <div className="min-h-screen bg-soft-mint dark:bg-deep-petrol pb-20 md:pb-8">
       <AppHeader />
       <PageLayout>
         {/* Header */}
@@ -462,6 +463,8 @@ function AdminContent() {
           </div>
         )}
       </PageLayout>
+
+      <BottomNav />
     </div>
   )
 }

@@ -20,9 +20,11 @@ export function DashboardStatsCards({ players }: DashboardStatsCardsProps) {
   // Find most used positions
   const positionCounts: Record<string, number> = {}
   players.forEach(player => {
-    player.positions.forEach(pos => {
-      positionCounts[pos] = (positionCounts[pos] || 0) + 1
-    })
+    if (player.positions) {
+      player.positions.forEach(pos => {
+        positionCounts[pos] = (positionCounts[pos] || 0) + 1
+      })
+    }
   })
   const topPosition = Object.entries(positionCounts)
     .sort(([, a], [, b]) => b - a)[0]?.[0] || '-'

@@ -688,22 +688,35 @@ function SquadDetailContent() {
                         <h3 className="font-bold text-lg text-deep-petrol dark:text-soft-mint">
                           {player.name}
                         </h3>
-                        {isOwner && (
-                          <div className="flex gap-1">
+                        <div className="flex gap-1">
+                          {/* Dashboard Button - Always visible */}
+                          <Link href={`/squads/${squadId}/players/${player.id}/dashboard`}>
                             <button
-                              onClick={() => setEditingPlayer(player)}
                               className="p-2 rounded-lg hover:bg-soft-mint/50 dark:hover:bg-card-dark transition-smooth"
+                              title="Player Dashboard"
                             >
-                              <Edit2 className="w-4 h-4 text-mid-grey" />
+                              <BarChart3 className="w-4 h-4 text-digital-orange" />
                             </button>
-                            <button
-                              onClick={() => handleDeletePlayer(player.id)}
-                              className="p-2 rounded-lg hover:bg-soft-mint/50 dark:hover:bg-card-dark transition-smooth"
-                            >
-                              <Trash2 className="w-4 h-4 text-mid-grey hover:text-red-500" />
-                            </button>
-                          </div>
-                        )}
+                          </Link>
+
+                          {/* Edit/Delete - Owner only */}
+                          {isOwner && (
+                            <>
+                              <button
+                                onClick={() => setEditingPlayer(player)}
+                                className="p-2 rounded-lg hover:bg-soft-mint/50 dark:hover:bg-card-dark transition-smooth"
+                              >
+                                <Edit2 className="w-4 h-4 text-mid-grey" />
+                              </button>
+                              <button
+                                onClick={() => handleDeletePlayer(player.id)}
+                                className="p-2 rounded-lg hover:bg-soft-mint/50 dark:hover:bg-card-dark transition-smooth"
+                              >
+                                <Trash2 className="w-4 h-4 text-mid-grey hover:text-red-500" />
+                              </button>
+                            </>
+                          )}
+                        </div>
                       </div>
 
                       <div className="space-y-2 text-sm">

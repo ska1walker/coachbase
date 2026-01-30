@@ -295,52 +295,50 @@ function SquadDetailContent() {
               </p>
             </div>
 
-            <div className="flex flex-wrap gap-3 md:ml-auto">
-              {/* Dashboard Button - Icon only, consistent size */}
+            <div className="flex flex-wrap gap-3 items-center md:ml-auto">
+              {/* Dashboard Button - Icon only */}
               <Link href={`/squads/${squadId}/dashboard`}>
                 <Button
                   variant="secondary"
-                  className="flex items-center justify-center w-11 h-11 p-0"
+                  className="flex items-center justify-center min-w-[44px] h-[44px] p-0"
                   title="Dashboard"
                 >
                   <BarChart3 className="w-5 h-5" strokeWidth={2} />
                 </Button>
               </Link>
 
-              {/* Teams generieren Button - Primary CTA */}
+              {/* Co-Trainer Button - Icon only */}
+              {isOwner && (
+                <Button
+                  variant="secondary"
+                  onClick={() => setShowInviteModal(true)}
+                  className="flex items-center justify-center min-w-[44px] h-[44px] p-0"
+                  title="Co-Trainer einladen"
+                >
+                  <UserPlus className="w-5 h-5" strokeWidth={2} />
+                </Button>
+              )}
+
+              {/* Teams generieren Button - Primary CTA, always last/rightmost */}
               {players.length >= 4 ? (
                 <Link href={`/teams?squad=${squadId}`}>
                   <Button
                     variant="primary"
-                    className="flex items-center gap-2 whitespace-nowrap"
+                    className="flex items-center gap-2"
                   >
                     <Users className="w-5 h-5" strokeWidth={2} />
                     <span className="hidden md:inline">Teams generieren</span>
                   </Button>
                 </Link>
               ) : (
-                <div className="relative group">
-                  <Button
-                    variant="primary"
-                    disabled
-                    className="flex items-center gap-2 whitespace-nowrap"
-                    title={`Noch ${4 - players.length} Spieler benötigt`}
-                  >
-                    <Users className="w-5 h-5" strokeWidth={2} />
-                    <span className="hidden md:inline">Teams generieren</span>
-                  </Button>
-                </div>
-              )}
-
-              {/* Co-Trainer Button - Icon only, consistent size */}
-              {isOwner && (
                 <Button
-                  variant="secondary"
-                  onClick={() => setShowInviteModal(true)}
-                  className="flex items-center justify-center w-11 h-11 p-0"
-                  title="Co-Trainer einladen"
+                  variant="primary"
+                  disabled
+                  className="flex items-center gap-2"
+                  title={`Noch ${4 - players.length} Spieler benötigt`}
                 >
-                  <UserPlus className="w-5 h-5" strokeWidth={2} />
+                  <Users className="w-5 h-5" strokeWidth={2} />
+                  <span className="hidden md:inline">Teams generieren</span>
                 </Button>
               )}
             </div>

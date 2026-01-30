@@ -115,7 +115,7 @@ function DashboardContent() {
         {/* Header with Back Button */}
         <div className="mb-8">
           <Link href={`/squads/${squadId}`}>
-            <Button variant="ghost" size="sm" className="mb-4">
+            <Button variant="secondary" size="sm" className="mb-4">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Zurück zu {squad?.name}
             </Button>

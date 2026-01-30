@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { collection, query, where, orderBy, onSnapshot, doc, updateDoc, getDocs, deleteDoc, Timestamp } from 'firebase/firestore'
 import { db, auth } from '@/lib/firebase'
+import { COLLECTIONS } from '@/lib/collections'
 import { Card, CardHeader, CardTitle, CardContent } from './ui/Card'
 import { Button } from './ui/Button'
 import { Input } from './ui/Input'
@@ -34,7 +35,7 @@ export function MatchHistoryList({ squadId }: MatchHistoryListProps) {
     if (squadId) {
       // Load history for specific squad
       const q = query(
-        collection(db, 'squads', squadId, 'matches'),
+        collection(db, COLLECTIONS.SQUADS, squadId, 'matches'),
         orderBy('date', 'desc')
       )
 
@@ -69,11 +70,11 @@ export function MatchHistoryList({ squadId }: MatchHistoryListProps) {
     try {
       // Step 1: Load all squads where user is owner or co-trainer
       const ownedSquadsQuery = query(
-        collection(db, 'squads'),
+        collection(db, COLLECTIONS.SQUADS),
         where('ownerId', '==', userId)
       )
       const invitedSquadsQuery = query(
-        collection(db, 'squads'),
+        collection(db, COLLECTIONS.SQUADS),
         where('coTrainerIds', 'array-contains', userId)
       )
 
@@ -106,7 +107,7 @@ export function MatchHistoryList({ squadId }: MatchHistoryListProps) {
 
       const matchPromises = Array.from(squadIds).map(async (squadId) => {
         const matchesQuery = query(
-          collection(db, 'squads', squadId, 'matches'),
+          collection(db, COLLECTIONS.SQUADS, squadId, 'matches'),
           orderBy('date', 'desc')
         )
         const snapshot = await getDocs(matchesQuery)
@@ -141,7 +142,7 @@ export function MatchHistoryList({ squadId }: MatchHistoryListProps) {
 
   const toggleLike = async (match: MatchHistory, currentLiked: boolean) => {
     try {
-      const matchRef = doc(db, 'squads', match.squadId, 'matches', match.id)
+      const matchRef = doc(db, COLLECTIONS.SQUADS, match.squadId, 'matches', match.id)
       await updateDoc(matchRef, {
         liked: !currentLiked,
       })
@@ -164,7 +165,7 @@ export function MatchHistoryList({ squadId }: MatchHistoryListProps) {
 
   const saveScore = async (match: MatchHistory) => {
     try {
-      const matchRef = doc(db, 'squads', match.squadId, 'matches', match.id)
+      const matchRef = doc(db, COLLECTIONS.SQUADS, match.squadId, 'matches', match.id)
       await updateDoc(matchRef, {
         result: {
           scores: editScores,
@@ -189,7 +190,7 @@ export function MatchHistoryList({ squadId }: MatchHistoryListProps) {
 
   const deleteMatch = async (match: MatchHistory) => {
     try {
-      const matchRef = doc(db, 'squads', match.squadId, 'matches', match.id)
+      const matchRef = doc(db, COLLECTIONS.SQUADS, match.squadId, 'matches', match.id)
       await deleteDoc(matchRef)
 
       // Optimistic UI update

@@ -99,6 +99,58 @@ service cloud.firestore {
       }
     }
 
+    // Dev Squads collection (for Preview environment)
+    match /dev_squads/{squadId} {
+      // Users can read squads they own OR co-train
+      allow read: if isAuthenticated() && (
+        resource.data.ownerId == request.auth.uid ||
+        request.auth.uid in resource.data.get('coTrainerIds', [])
+      );
+
+      // Admins can read all squads
+      allow read: if isAdmin();
+
+      // Users can create squads for themselves
+      allow create: if isAuthenticated() &&
+                       request.resource.data.ownerId == request.auth.uid;
+
+      // ONLY OWNERS can update their own squads (Co-Trainers cannot!)
+      allow update: if isOwner(resource.data.ownerId);
+
+      // ONLY OWNERS can delete their own squads
+      allow delete: if isOwner(resource.data.ownerId);
+
+      // Admins have full access
+      allow read, write: if isAdmin();
+
+      // Matches subcollection
+      match /matches/{matchId} {
+        // Users can read if they are owner OR co-trainer of the squad (inline check)
+        allow read: if isAuthenticated() && (
+          request.auth.uid == get(/databases/$(database)/documents/dev_squads/$(squadId)).data.ownerId ||
+          request.auth.uid in get(/databases/$(database)/documents/dev_squads/$(squadId)).data.get('coTrainerIds', [])
+        );
+
+        // BOTH owners AND co-trainers can create matches (inline check)
+        allow create: if isAuthenticated() && (
+          request.auth.uid == get(/databases/$(database)/documents/dev_squads/$(squadId)).data.ownerId ||
+          request.auth.uid in get(/databases/$(database)/documents/dev_squads/$(squadId)).data.get('coTrainerIds', [])
+        );
+
+        // BOTH owners AND co-trainers can update matches (inline check)
+        allow update: if isAuthenticated() && (
+          request.auth.uid == get(/databases/$(database)/documents/dev_squads/$(squadId)).data.ownerId ||
+          request.auth.uid in get(/databases/$(database)/documents/dev_squads/$(squadId)).data.get('coTrainerIds', [])
+        );
+
+        // ONLY OWNERS can delete matches
+        allow delete: if isAuthenticated() && isOwner(get(/databases/$(database)/documents/dev_squads/$(squadId)).data.ownerId);
+
+        // Admins have full access
+        allow read, write: if isAdmin();
+      }
+    }
+
     // Players collection
     match /players/{playerId} {
       // Users can read players if they are owner OR co-trainer of the squad
@@ -114,6 +166,29 @@ service cloud.firestore {
       // ONLY OWNERS can update/delete players (Co-Trainers cannot!)
       allow update, delete: if isAuthenticated() && (
         isOwner(get(/databases/$(database)/documents/squads/$(resource.data.squadId)).data.ownerId) ||
+        isAdmin()
+      );
+
+      // Admins have full access
+      allow write: if isAdmin();
+    }
+
+    // Dev Players collection (for Preview environment)
+    match /dev_players/{playerId} {
+      // Users can read players if they are owner OR co-trainer of the squad (inline check)
+      allow read: if isAuthenticated() && (
+        (request.auth.uid == get(/databases/$(database)/documents/dev_squads/$(resource.data.squadId)).data.ownerId ||
+         request.auth.uid in get(/databases/$(database)/documents/dev_squads/$(resource.data.squadId)).data.get('coTrainerIds', [])) ||
+        isAdmin()
+      );
+
+      // ONLY OWNERS can create players (Co-Trainers cannot!)
+      allow create: if isAuthenticated() &&
+                       isOwner(get(/databases/$(database)/documents/dev_squads/$(request.resource.data.squadId)).data.ownerId);
+
+      // ONLY OWNERS can update/delete players (Co-Trainers cannot!)
+      allow update, delete: if isAuthenticated() && (
+        isOwner(get(/databases/$(database)/documents/dev_squads/$(resource.data.squadId)).data.ownerId) ||
         isAdmin()
       );
 
@@ -162,6 +237,26 @@ service cloud.firestore {
       // Squad owners can delete their invites
       allow delete: if isAuthenticated() &&
                        isOwner(get(/databases/$(database)/documents/squads/$(resource.data.squadId)).data.ownerId);
+
+      // Admins have full access
+      allow read, write: if isAdmin();
+    }
+
+    // Dev Squad Invites collection (for Preview environment)
+    match /dev_squadInvites/{inviteId} {
+      // Anyone authenticated can read an invite by token (for accepting)
+      allow read: if isAuthenticated();
+
+      // ONLY squad owners can create invites
+      allow create: if isAuthenticated() &&
+                       isOwner(get(/databases/$(database)/documents/dev_squads/$(request.resource.data.squadId)).data.ownerId);
+
+      // ONLY Cloud Functions can update invites (when accepting)
+      allow update: if false;
+
+      // Squad owners can delete their invites
+      allow delete: if isAuthenticated() &&
+                       isOwner(get(/databases/$(database)/documents/dev_squads/$(resource.data.squadId)).data.ownerId);
 
       // Admins have full access
       allow read, write: if isAdmin();

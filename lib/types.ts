@@ -29,6 +29,17 @@ export interface Squad {
   createdAt: Timestamp
 }
 
+// Squad Snapshot Types (for Dashboard)
+export interface SquadSnapshot {
+  id: string
+  squadId: string
+  date: string // YYYY-MM-DD format
+  averageStrength: number
+  playerCount: number
+  timestamp: Timestamp
+  createdAt: Timestamp
+}
+
 // Player Types (Updated with squadId reference)
 export type PlayerPosition = 'Torhüter' | 'Abwehr' | 'Mittelfeld' | 'Angriff'
 

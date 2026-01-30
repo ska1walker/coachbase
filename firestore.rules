@@ -97,6 +97,18 @@ service cloud.firestore {
         // Admins have full access
         allow read, write: if isAdmin();
       }
+
+      // Snapshots subcollection (for Dashboard)
+      match /snapshots/{snapshotId} {
+        // Users can read snapshots if they are owner OR co-trainer of the squad
+        allow read: if isAuthenticated() && isOwnerOrCoTrainer(squadId);
+
+        // Auto-created by app, allow create/update for owners and co-trainers
+        allow create, update: if isAuthenticated() && isOwnerOrCoTrainer(squadId);
+
+        // Admins have full access
+        allow read, write: if isAdmin();
+      }
     }
 
     // Dev Squads collection (for Preview environment)
@@ -145,6 +157,24 @@ service cloud.firestore {
 
         // ONLY OWNERS can delete matches
         allow delete: if isAuthenticated() && isOwner(get(/databases/$(database)/documents/dev_squads/$(squadId)).data.ownerId);
+
+        // Admins have full access
+        allow read, write: if isAdmin();
+      }
+
+      // Snapshots subcollection (for Dashboard in Preview environment)
+      match /snapshots/{snapshotId} {
+        // Users can read snapshots if they are owner OR co-trainer of the squad (inline check)
+        allow read: if isAuthenticated() && (
+          request.auth.uid == get(/databases/$(database)/documents/dev_squads/$(squadId)).data.ownerId ||
+          request.auth.uid in get(/databases/$(database)/documents/dev_squads/$(squadId)).data.get('coTrainerIds', [])
+        );
+
+        // Auto-created by app, allow create/update for owners and co-trainers (inline check)
+        allow create, update: if isAuthenticated() && (
+          request.auth.uid == get(/databases/$(database)/documents/dev_squads/$(squadId)).data.ownerId ||
+          request.auth.uid in get(/databases/$(database)/documents/dev_squads/$(squadId)).data.get('coTrainerIds', [])
+        );
 
         // Admins have full access
         allow read, write: if isAdmin();

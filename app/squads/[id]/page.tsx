@@ -27,8 +27,10 @@ import { AppHeader } from '@/components/AppHeader'
 import { PageLayout } from '@/components/PageLayout'
 import { BottomNav } from '@/components/BottomNav'
 import { ArrowLeft, Plus, Edit2, Trash2, Users, TrendingUp, Upload, Download, UserPlus, Check, X, Star, History } from 'lucide-react'
-import type { Player, Squad, PlayerPosition } from '@/lib/types'
+import type { Player, Squad, PlayerPosition, SquadSnapshot } from '@/lib/types'
 import { DashboardStatsCards } from '@/components/dashboard/DashboardStatsCards'
+import { SquadDevelopmentChart } from '@/components/dashboard/SquadDevelopmentChart'
+import { createDailySnapshot, fetchSnapshots } from '@/lib/dashboard-utils'
 import Link from 'next/link'
 import { CSVUpload } from '@/components/CSVUpload'
 import { exportPlayersToCSV } from '@/lib/csv-utils'
@@ -45,6 +47,10 @@ function SquadDetailContent() {
   const [loading, setLoading] = useState(true)
   const [coTrainers, setCoTrainers] = useState<Array<{ uid: string; email: string }>>([])
   const [loadingCoTrainers, setLoadingCoTrainers] = useState(false)
+
+  // Dashboard state
+  const [snapshots, setSnapshots] = useState<SquadSnapshot[]>([])
+  const [loadingSnapshots, setLoadingSnapshots] = useState(false)
 
   // Form state
   const [name, setName] = useState('')
@@ -146,6 +152,29 @@ function SquadDetailContent() {
 
     loadCoTrainers()
   }, [squad])
+
+  // Load snapshots and create daily snapshot
+  useEffect(() => {
+    if (!squadId || players.length === 0) return
+
+    const loadDashboardData = async () => {
+      setLoadingSnapshots(true)
+      try {
+        // Create/update today's snapshot
+        await createDailySnapshot(squadId, players)
+
+        // Fetch last 30 days of snapshots
+        const snaps = await fetchSnapshots(squadId, 30)
+        setSnapshots(snaps)
+      } catch (error) {
+        console.error('Error loading dashboard data:', error)
+      } finally {
+        setLoadingSnapshots(false)
+      }
+    }
+
+    loadDashboardData()
+  }, [squadId, players])
 
   const handleAddPlayer = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -376,8 +405,10 @@ function SquadDetailContent() {
           <DashboardStatsCards players={players} />
         </div>
 
-        {/* Trainer Dashboard - TEMPORARILY DISABLED FOR TESTING */}
-        {/* <TrainerDashboard squadId={squadId} players={players} /> */}
+        {/* Squad Development Chart */}
+        <div className="mb-8">
+          <SquadDevelopmentChart snapshots={snapshots} />
+        </div>
 
         {/* Co-Trainer Management - Only visible to Owner */}
         {isOwner && coTrainers.length > 0 && (

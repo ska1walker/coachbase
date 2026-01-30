@@ -8,8 +8,8 @@ import { COLLECTIONS } from '@/lib/collections'
 import { Button } from '@/components/ui/Button'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card'
 import { PlayerSelectionCard } from '@/components/PlayerSelectionCard'
-import { Users, Shuffle, RotateCcw, Shield, ArrowRight, MessageCircle, ChevronDown, ChevronUp, UserPlus, X, Shirt, AlertTriangle, Info, Scale, Sparkles } from 'lucide-react'
-import Link from 'next/link'
+import { Users, Shuffle, RotateCcw, ArrowRight, MessageCircle, ChevronDown, ChevronUp, UserPlus, X, Shirt, AlertTriangle, Info, Scale, Sparkles } from 'lucide-react'
+import { BackButton } from '@/components/ui/BackButton'
 import { useUserStats } from '@/hooks/useUserStats'
 import { showToast } from '@/components/ui/Toast'
 import { generateBalancedTeams, analyzeTeamBalance, type GeneratedTeam } from '@/lib/team-generator'
@@ -382,6 +382,14 @@ function TeamsPageContent() {
   return (
     <div className="min-h-screen p-4 md:p-6 lg:p-8">
       <div className="max-w-7xl mx-auto">
+        {/* Back Button */}
+        <div className="mb-6">
+          <BackButton
+            href={squadId ? `/squads/${squadId}` : '/squads'}
+            label="Zurück zur Verwaltung"
+          />
+        </div>
+
         {/* Header */}
         <Card className="mb-6">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -393,18 +401,6 @@ function TeamsPageContent() {
                 Faire Team-Auswahl
               </p>
             </div>
-            <Link href="/squads">
-              {/* Mobile: Icon only */}
-              <Button variant="secondary" className="md:hidden flex items-center justify-center">
-                <Shield className="w-5 h-5" />
-              </Button>
-
-              {/* Desktop: Icon + Text */}
-              <Button variant="secondary" className="hidden md:flex items-center gap-2">
-                <Shield className="w-5 h-5" />
-                Zur Verwaltung
-              </Button>
-            </Link>
           </div>
         </Card>
 

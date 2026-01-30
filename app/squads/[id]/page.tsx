@@ -26,9 +26,10 @@ import { AuthGuard } from '@/components/AuthGuard'
 import { AppHeader } from '@/components/AppHeader'
 import { PageLayout } from '@/components/PageLayout'
 import { BottomNav } from '@/components/BottomNav'
-import { ArrowLeft, Plus, Edit2, Trash2, Users, Upload, Download, UserPlus, Check, X, Star, BarChart3 } from 'lucide-react'
+import { Plus, Edit2, Trash2, Users, Upload, Download, UserPlus, Check, X, Star, BarChart3 } from 'lucide-react'
 import type { Player, Squad, PlayerPosition } from '@/lib/types'
 import Link from 'next/link'
+import { BackButton } from '@/components/ui/BackButton'
 import { CSVUpload } from '@/components/CSVUpload'
 import { exportPlayersToCSV } from '@/lib/csv-utils'
 import { InviteCoTrainer } from '@/components/InviteCoTrainer'
@@ -278,13 +279,9 @@ function SquadDetailContent() {
       <AppHeader />
       <PageLayout>
         {/* Back Button */}
-        <Link
-          href="/squads"
-          className="inline-flex items-center gap-2 text-sm text-mid-grey hover:text-neon-lime transition-smooth mb-6"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Zurück zu Teams
-        </Link>
+        <div className="mb-6">
+          <BackButton href="/squads" label="Zurück zu Teams" />
+        </div>
 
         {/* Header */}
         <div className="mb-8">

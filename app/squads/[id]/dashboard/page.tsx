@@ -9,9 +9,8 @@ import { AuthGuard } from '@/components/AuthGuard'
 import { AppHeader } from '@/components/AppHeader'
 import { PageLayout } from '@/components/PageLayout'
 import { BottomNav } from '@/components/BottomNav'
-import { Button } from '@/components/ui/Button'
-import { ArrowLeft, BarChart3 } from 'lucide-react'
-import Link from 'next/link'
+import { BarChart3 } from 'lucide-react'
+import { BackButton } from '@/components/ui/BackButton'
 import type { Player, Squad, SquadSnapshot } from '@/lib/types'
 import { DashboardStatsCards } from '@/components/dashboard/DashboardStatsCards'
 import { SquadDevelopmentChart } from '@/components/dashboard/SquadDevelopmentChart'
@@ -114,14 +113,14 @@ function DashboardContent() {
       <AppHeader />
       <PageLayout>
         {/* Header with Back Button */}
-        <div className="mb-8">
-          <Link href={`/squads/${squadId}`}>
-            <Button variant="secondary" size="sm" className="mb-4">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Zurück zu {squad?.name}
-            </Button>
-          </Link>
+        <div className="mb-6">
+          <BackButton
+            href={`/squads/${squadId}`}
+            label={`Zurück zu ${squad?.name || 'Team'}`}
+          />
+        </div>
 
+        <div className="mb-8">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-lg bg-digital-orange/20 flex items-center justify-center">
               <BarChart3 className="w-6 h-6 text-digital-orange" />

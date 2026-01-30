@@ -298,7 +298,7 @@ function SquadDetailContent() {
               </p>
             </div>
 
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-wrap gap-3 justify-end">
               {/* Dashboard Button */}
               <Link href={`/squads/${squadId}/dashboard`}>
                 <Button

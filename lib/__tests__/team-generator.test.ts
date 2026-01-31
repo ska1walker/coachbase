@@ -3,6 +3,7 @@
  * Tests the fix for duplicate player assignment bug in 3+ teams
  */
 
+import { describe, test, expect } from '@jest/globals'
 import { generateBalancedTeams, analyzeTeamBalance } from '@/lib/team-generator'
 import type { Player } from '@/lib/types'
 
@@ -16,7 +17,7 @@ const createPlayer = (id: string, total: number): Player => ({
   spielverstaendnis: Math.floor(total / 3),
   positions: ['Mittelfeld'],
   squadId: 'test-squad',
-  createdAt: new Date(),
+  createdAt: new Date().toISOString(),
 })
 
 describe('Team Generator - Bug Fix: Duplicate Players', () => {

@@ -6,20 +6,20 @@
 import { generateBalancedTeams, analyzeTeamBalance } from '@/lib/team-generator'
 import type { Player } from '@/lib/types'
 
-describe('Team Generator - Bug Fix: Duplicate Players', () => {
-  // Helper to create test players
-  const createPlayer = (id: string, total: number): Player => ({
-    id,
-    name: `Player ${id}`,
-    total,
-    technik: Math.floor(total / 3),
-    fitness: Math.floor(total / 3),
-    spielverstaendnis: Math.floor(total / 3),
-    positions: ['Mittelfeld'],
-    squadId: 'test-squad',
-    createdAt: new Date(),
-  })
+// Helper to create test players (moved to module scope)
+const createPlayer = (id: string, total: number): Player => ({
+  id,
+  name: `Player ${id}`,
+  total,
+  technik: Math.floor(total / 3),
+  fitness: Math.floor(total / 3),
+  spielverstaendnis: Math.floor(total / 3),
+  positions: ['Mittelfeld'],
+  squadId: 'test-squad',
+  createdAt: new Date(),
+})
 
+describe('Team Generator - Bug Fix: Duplicate Players', () => {
   describe('3 Teams - Even Number of Players', () => {
     test('should not create duplicate players with 12 players', () => {
       // Arrange

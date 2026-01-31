@@ -14,7 +14,14 @@ import { User } from 'lucide-react'
 import type { Player, Squad, PlayerSnapshot } from '@/lib/types'
 import { PlayerStatsCards } from '@/components/player-dashboard/PlayerStatsCards'
 import { PlayerDevelopmentChart } from '@/components/player-dashboard/PlayerDevelopmentChart'
-import { createPlayerDailySnapshot, fetchPlayerSnapshots } from '@/lib/player-dashboard-utils'
+import { PlayerMatchStats } from '@/components/player-dashboard/PlayerMatchStats'
+import { PlayerPositionChart } from '@/components/player-dashboard/PlayerPositionChart'
+import {
+  createPlayerDailySnapshot,
+  fetchPlayerSnapshots,
+  fetchPlayerMatchStats,
+  type PlayerMatchStats as MatchStatsType
+} from '@/lib/player-dashboard-utils'
 
 function PlayerDashboardContent() {
   const router = useRouter()
@@ -25,8 +32,10 @@ function PlayerDashboardContent() {
   const [squad, setSquad] = useState<Squad | null>(null)
   const [player, setPlayer] = useState<Player | null>(null)
   const [snapshots, setSnapshots] = useState<PlayerSnapshot[]>([])
+  const [matchStats, setMatchStats] = useState<MatchStatsType | null>(null)
   const [loading, setLoading] = useState(true)
   const [loadingSnapshots, setLoadingSnapshots] = useState(false)
+  const [loadingMatchStats, setLoadingMatchStats] = useState(false)
 
   // Load squad info
   useEffect(() => {
@@ -101,6 +110,25 @@ function PlayerDashboardContent() {
     loadDashboardData()
   }, [playerId, squadId, player])
 
+  // Load match statistics
+  useEffect(() => {
+    if (!playerId || !squadId) return
+
+    const loadMatchStats = async () => {
+      setLoadingMatchStats(true)
+      try {
+        const stats = await fetchPlayerMatchStats(squadId, playerId)
+        setMatchStats(stats)
+      } catch (error) {
+        console.error('Error loading match stats:', error)
+      } finally {
+        setLoadingMatchStats(false)
+      }
+    }
+
+    loadMatchStats()
+  }, [playerId, squadId])
+
   if (loading) {
     return (
       <div className="min-h-screen bg-soft-mint dark:bg-deep-petrol flex items-center justify-center">
@@ -170,9 +198,45 @@ function PlayerDashboardContent() {
           )}
         </div>
 
-        {/* Placeholder for future features */}
-        <div className="text-center text-mid-grey text-sm">
-          Weitere Statistiken folgen bald...
+        {/* Match Statistics */}
+        <div className="mb-8">
+          <h2 className="text-xl font-bold text-deep-petrol dark:text-soft-mint mb-4">
+            Spiel-Statistiken
+          </h2>
+          {matchStats ? (
+            <PlayerMatchStats stats={matchStats} loading={loadingMatchStats} />
+          ) : (
+            <PlayerMatchStats
+              stats={{
+                totalMatches: 0,
+                attendedMatches: 0,
+                attendanceRate: 0,
+                wins: 0,
+                losses: 0,
+                draws: 0,
+                winRate: 0,
+                matchesWithResults: 0,
+                lastMatchDate: null,
+                positionDistribution: {
+                  'Torhüter': 0,
+                  'Abwehr': 0,
+                  'Mittelfeld': 0,
+                  'Angriff': 0,
+                },
+              }}
+              loading={loadingMatchStats}
+            />
+          )}
+        </div>
+
+        {/* Position Distribution Chart */}
+        <div className="mb-8">
+          {matchStats && (
+            <PlayerPositionChart
+              positionDistribution={matchStats.positionDistribution}
+              totalMatches={matchStats.attendedMatches}
+            />
+          )}
         </div>
       </PageLayout>
 

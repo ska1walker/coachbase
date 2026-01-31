@@ -26,7 +26,7 @@ import { AuthGuard } from '@/components/AuthGuard'
 import { AppHeader } from '@/components/AppHeader'
 import { PageLayout } from '@/components/PageLayout'
 import { BottomNav } from '@/components/BottomNav'
-import { Plus, Edit2, Trash2, Users, Upload, Download, UserPlus, Check, X, Star, BarChart3 } from 'lucide-react'
+import { Plus, Edit2, Trash2, Users, Upload, Download, UserPlus, Check, X, Star, BarChart3, Share2 } from 'lucide-react'
 import type { Player, Squad, PlayerPosition } from '@/lib/types'
 import Link from 'next/link'
 import { BackButton } from '@/components/ui/BackButton'
@@ -675,6 +675,16 @@ function SquadDetailContent() {
                               title="Player Dashboard"
                             >
                               <BarChart3 className="w-4 h-4 text-digital-orange" />
+                            </button>
+                          </Link>
+
+                          {/* Share Card Button - Always visible */}
+                          <Link href={`/squads/${squadId}/players/${player.id}/share`}>
+                            <button
+                              className="p-2 rounded-lg hover:bg-soft-mint/50 dark:hover:bg-card-dark transition-smooth"
+                              title="Spielerkarte teilen"
+                            >
+                              <Share2 className="w-4 h-4 text-neon-lime" />
                             </button>
                           </Link>
 

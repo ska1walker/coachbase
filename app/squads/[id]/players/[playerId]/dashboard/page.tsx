@@ -10,7 +10,8 @@ import { AppHeader } from '@/components/AppHeader'
 import { PageLayout } from '@/components/PageLayout'
 import { BottomNav } from '@/components/BottomNav'
 import { BackButton } from '@/components/ui/BackButton'
-import { User } from 'lucide-react'
+import { User, Share2 } from 'lucide-react'
+import Link from 'next/link'
 import type { Player, Squad, PlayerSnapshot } from '@/lib/types'
 import { PlayerStatsCards } from '@/components/player-dashboard/PlayerStatsCards'
 import { PlayerDevelopmentChart } from '@/components/player-dashboard/PlayerDevelopmentChart'
@@ -155,16 +156,29 @@ function PlayerDashboardContent() {
 
         {/* Header */}
         <div className="mb-8">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-lg bg-neon-lime/20 flex items-center justify-center">
-              <User className="w-6 h-6 text-neon-lime" />
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-lg bg-neon-lime/20 flex items-center justify-center">
+                <User className="w-6 h-6 text-neon-lime" />
+              </div>
+              <div>
+                <h1 className="text-4xl font-headline font-bold text-deep-petrol dark:text-soft-mint">
+                  {player.name}
+                </h1>
+                <p className="text-mid-grey">Spieler-Dashboard</p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-4xl font-headline font-bold text-deep-petrol dark:text-soft-mint">
-                {player.name}
-              </h1>
-              <p className="text-mid-grey">Spieler-Dashboard</p>
-            </div>
+
+            {/* Share Button */}
+            <Link href={`/squads/${squadId}/players/${playerId}/share`}>
+              <button
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-neon-lime/10 hover:bg-neon-lime/20 border border-neon-lime/30 text-neon-lime font-medium text-sm transition-all"
+                title="Spielerkarte teilen"
+              >
+                <Share2 className="w-4 h-4" strokeWidth={2} />
+                <span className="hidden sm:inline">Teilen</span>
+              </button>
+            </Link>
           </div>
 
           {/* Positions */}

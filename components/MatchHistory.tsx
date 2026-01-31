@@ -341,7 +341,7 @@ export function MatchHistoryList({ squadId }: MatchHistoryListProps) {
                                   newScores[idx] = parseInt(e.target.value) || 0
                                   setEditScores(newScores)
                                 }}
-                                className="w-16 px-2 py-1 text-sm rounded border border-mid-grey/30 bg-white dark:bg-card-dark"
+                                className="w-16 px-2 py-1 text-sm rounded border border-mid-grey/30 bg-white dark:bg-card-dark number-input-neon"
                               />
                             </div>
                           ))}

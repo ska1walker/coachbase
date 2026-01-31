@@ -44,6 +44,30 @@
 }
 
 @layer utilities {
+  /* Number input spinner styling */
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    opacity: 1;
+    cursor: pointer;
+  }
+
+  /* Custom number input with neon-lime arrows */
+  .number-input-neon::-webkit-inner-spin-button,
+  .number-input-neon::-webkit-outer-spin-button {
+    opacity: 1;
+    cursor: pointer;
+    filter: invert(85%) sepia(65%) saturate(500%) hue-rotate(25deg) brightness(110%);
+  }
+
+  /* Firefox number input */
+  input[type="number"] {
+    -moz-appearance: textfield;
+  }
+
+  .number-input-neon {
+    -moz-appearance: spinner-updown;
+  }
+
   /* Text gradient utility */
   .text-gradient {
     @apply bg-clip-text text-transparent;

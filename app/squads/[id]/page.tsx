@@ -295,7 +295,7 @@ function SquadDetailContent() {
               </p>
             </div>
 
-            <div className="flex flex-wrap gap-3 items-center md:ml-auto">
+            <div className="flex flex-wrap gap-2 items-center md:ml-auto">
               {/* Dashboard Button - Icon only */}
               <Link href={`/squads/${squadId}/dashboard`}>
                 <Button
@@ -355,7 +355,7 @@ function SquadDetailContent() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {coTrainers.map((coTrainer) => (
                   <div
                     key={coTrainer.uid}
@@ -397,19 +397,19 @@ function SquadDetailContent() {
                 <Button
                   variant="secondary"
                   onClick={() => setShowCSVUpload(true)}
-                  className="flex items-center justify-center"
+                  className="flex items-center justify-center min-w-[44px] h-[44px] p-0"
                   title="CSV Import"
                 >
-                  <Upload className="w-5 h-5" />
+                  <Upload className="w-5 h-5" strokeWidth={2} />
                 </Button>
                 {players.length > 0 && (
                   <Button
                     variant="secondary"
                     onClick={handleExportCSV}
-                    className="flex items-center justify-center"
+                    className="flex items-center justify-center min-w-[44px] h-[44px] p-0"
                     title="CSV Export"
                   >
-                    <Download className="w-5 h-5" />
+                    <Download className="w-5 h-5" strokeWidth={2} />
                   </Button>
                 )}
               </div>
@@ -433,6 +433,7 @@ function SquadDetailContent() {
                   max="10"
                   value={technik}
                   onChange={(e) => setTechnik(Number(e.target.value))}
+                  className="number-input-neon"
                 />
                 <Input
                   label="Fitness (1-10)"
@@ -441,6 +442,7 @@ function SquadDetailContent() {
                   max="10"
                   value={fitness}
                   onChange={(e) => setFitness(Number(e.target.value))}
+                  className="number-input-neon"
                 />
                 <Input
                   label="Spielverständnis (1-10)"
@@ -449,6 +451,7 @@ function SquadDetailContent() {
                   max="10"
                   value={spielverstaendnis}
                   onChange={(e) => setSpielverstaendnis(Number(e.target.value))}
+                  className="number-input-neon"
                 />
               </div>
 
@@ -504,23 +507,13 @@ function SquadDetailContent() {
                 </div>
               </div>
 
-              {/* Mobile: Icon only */}
               <Button
                 type="submit"
-                variant="secondary"
-                className="md:hidden flex items-center justify-center"
+                variant="primary"
+                className="flex items-center justify-center min-w-[44px] h-[44px] p-0"
+                title="Spieler hinzufügen"
               >
-                <Plus className="w-6 h-6" />
-              </Button>
-
-              {/* Desktop: Icon + Text */}
-              <Button
-                type="submit"
-                variant="secondary"
-                className="hidden md:flex items-center gap-2"
-              >
-                <Plus className="w-5 h-5" />
-                Spieler hinzufügen
+                <Plus className="w-5 h-5" strokeWidth={2.5} />
               </Button>
             </form>
           </CardContent>
@@ -567,6 +560,7 @@ function SquadDetailContent() {
                               technik: Number(e.target.value),
                             })
                           }
+                          className="number-input-neon"
                         />
                         <Input
                           type="number"
@@ -579,6 +573,7 @@ function SquadDetailContent() {
                               fitness: Number(e.target.value),
                             })
                           }
+                          className="number-input-neon"
                         />
                         <Input
                           type="number"
@@ -591,6 +586,7 @@ function SquadDetailContent() {
                               spielverstaendnis: Number(e.target.value),
                             })
                           }
+                          className="number-input-neon"
                         />
                       </div>
 

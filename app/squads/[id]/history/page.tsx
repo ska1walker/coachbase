@@ -224,7 +224,7 @@ function HistoryContent() {
                                   newScores[index] = parseInt(e.target.value) || 0
                                   setEditScores(newScores)
                                 }}
-                                className="w-full px-4 py-3 rounded-lg bg-white dark:bg-card-dark border-2 border-mid-grey/30 focus:border-digital-orange focus:outline-none transition-smooth"
+                                className="w-full px-4 py-3 rounded-lg bg-white dark:bg-card-dark border-2 border-mid-grey/30 focus:border-digital-orange focus:outline-none transition-smooth number-input-neon"
                               />
                             </div>
                           ))}

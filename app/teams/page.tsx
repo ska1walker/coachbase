@@ -432,7 +432,7 @@ function TeamsPageContent() {
                   max="10"
                   value={teamCount}
                   onChange={(e) => setTeamCount(Number(e.target.value))}
-                  className="w-20 px-3 py-2 rounded-lg bg-white dark:bg-card-dark border-2 border-mid-grey/30 focus:border-neon-lime focus:outline-none transition-smooth text-center"
+                  className="w-20 px-3 py-2 rounded-lg bg-white dark:bg-card-dark border-2 border-mid-grey/30 focus:border-neon-lime focus:outline-none transition-smooth text-center number-input-neon"
                   aria-label="Anzahl der Teams"
                 />
                 <span className="text-sm text-mid-grey hidden md:inline">Teams</span>
@@ -781,7 +781,7 @@ function TeamsPageContent() {
                               newScores[index] = parseInt(e.target.value) || 0
                               setMatchScores(newScores)
                             }}
-                            className="w-full px-4 py-3 rounded-lg bg-white dark:bg-card-dark border-2 border-mid-grey/30 focus:border-digital-orange focus:outline-none transition-smooth"
+                            className="w-full px-4 py-3 rounded-lg bg-white dark:bg-card-dark border-2 border-mid-grey/30 focus:border-digital-orange focus:outline-none transition-smooth number-input-neon"
                           />
                         </div>
                       ))}
